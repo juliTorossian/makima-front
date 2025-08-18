@@ -1,0 +1,89 @@
+<p-confirmDialog></p-confirmDialog>
+<p-toast></p-toast>
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-12 mt-3">
+            <app-ui-card title="Usuarios">
+                <div card-body>
+                    <p-toolbar styleClass="mb-4 gap-2">
+                        <ng-template pTemplate="left">
+                        </ng-template>
+                        <ng-template pTemplate="right">
+                            @if (can('A')) {
+                                <button class="btn btn-ghost-success btn-lg" (click)="mostrarModalCrud(null, 'A')" [appShortcut]="SHORTCUTS.NUEVO" (appShortcutTrigger)="mostrarModalCrud(null, 'A')"><ng-icon name="lucideCirclePlus"/></button>
+                            }
+                        </ng-template>
+                    </p-toolbar>
+                    <p-table
+                        #dt
+                        [value]="usuarios"
+                        [rows]="10"
+                        [paginator]="true"
+                        [globalFilterFields]="['id', 'nombre', 'apellido', 'email', 'usuario', 'createdAt', 'ultimo_login']"
+                        [tableStyle]="{ 'min-width': '75rem' }"
+                        [rowHover]="true"
+                        dataKey="id"
+                        currentPageReportTemplate="Mostrando desde {first} a {last} de {totalRecords} registros"
+                        [showCurrentPageReport]="true"
+                        size="small"
+                    >
+                        <ng-template pTemplate="caption">
+                            <div class="flex align-items-center justify-content-between" style="display: flex;">
+                                <span class="p-input-icon-left">
+                                    <i class="pi pi-search"></i>
+                                    <input pInputText style="padding-top: 0.4rem !important;padding-bottom: 0.4rem !important;margin-left: 10px;" class="p-component p-element p-inputtext"  type="text" (input)="dt.filterGlobal(getEventValue($event), 'contains')" placeholder="Buscar..." />
+                                </span>
+                                <!-- <div class="flex align-items-center gap-1" style="margin:auto 10px">
+                                    <p-checkbox id="filtroVerCerrados" [(ngModel)]="filtroVerInactivos" (click)="filtraUsuarios()" [binary]="true" inputId="binary"></p-checkbox>
+                                    <label for="filtroVerCerrados" class="mr-2"> Ver inactivos</label>
+                                </div> -->
+                            </div>
+                        </ng-template>
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <!-- <th style="width: 4rem">
+                                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                                </th> -->
+                                <th pSortableColumn="id" hidden>Id <p-sortIcon field="id" ></p-sortIcon></th>
+                                <th pSortableColumn="nombre">Nombre <p-sortIcon field="nombre"></p-sortIcon><p-columnFilter type="text" field="nombre" display="menu" matchMode="contains" style="margin-left: 2px;"></p-columnFilter></th>
+                                <th pSortableColumn="apellido">Apellido <p-sortIcon field="apellido"></p-sortIcon><p-columnFilter type="text" field="apellido" display="menu" matchMode="contains" style="margin-left: 2px;"></p-columnFilter></th>
+                                <th pSortableColumn="mail">Email <p-sortIcon field="mail"></p-sortIcon></th>
+                                <th pSortableColumn="usuario">Usuario <p-sortIcon field="usuario"></p-sortIcon><p-columnFilter type="text" field="usuario" display="menu" matchMode="contains" style="margin-left: 2px;"></p-columnFilter></th>
+                                <th pSortableColumn="fecha_creacion">Fecha Creacion <p-sortIcon field="fecha_creacion"></p-sortIcon></th>
+                                <th pSortableColumn="ultimo_login">Ultimo Login <p-sortIcon field="ultimo_login"></p-sortIcon></th>
+                                <th></th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-usuario>
+                            <tr>
+                                <!-- <td>
+                                    <p-tableCheckbox [value]="usuario"></p-tableCheckbox>
+                                </td> -->
+                                <td hidden>{{ usuario.id }}</td>
+                                <td>{{ usuario.nombre }}</td>
+                                <td>{{ usuario.apellido }}</td>
+                                <td>{{ usuario.email }}</td>
+                                <td>{{ usuario.usuario }}</td>
+                                <td>{{ usuario.createdAt | date:'short' }}</td>
+                                <td>{{ usuario.ultimo_login | date:'short' }}</td>
+                                <td class="d-flex justify-content-end">
+                                    @if (can('M')) {
+                                        <button class="btn btn-ghost-warning" (click)="mostrarModalCrud(usuario, 'M')"><ng-icon name="lucidePencil"/></button>
+                                    }
+                                    @if (can('B')) {
+                                        <button class="btn btn-ghost-danger" (click)="delete(usuario)"><ng-icon name="lucideTrash2"/></button>
+                                    }
+                                </td>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="summary">
+                            <div class="flex align-items-center justify-content-between">En total hay {{ usuarios ? usuarios.length : 0 }} Usuarios.</div>
+                        </ng-template>
+                    </p-table>
+
+                </div>
+            </app-ui-card>
+
+        </div>
+    </div>
+</div>

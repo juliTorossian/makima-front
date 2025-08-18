@@ -1,0 +1,74 @@
+<app-ui-card title=""  [withTitle]="false">
+  <div card-body>
+    @if (evento.etapaActualData) {
+      <div>
+        <h5 class="fw-bold">Etapa</h5>
+        <p class="ms-2">{{ evento.etapaActualData.nombre }}</p>
+      </div>
+    }
+    @if (evento.producto) {
+      <div>
+        <h5 class="fw-bold">Producto</h5>
+        <p class="ms-2">{{ evento.producto.sigla + ' - ' + evento.producto.nombre + ' | ' + evento.producto.entornoCodigo }}</p>
+      </div>
+    }
+    @if (evento.cliente) {
+      <div>
+        <h5 class="fw-bold">Cliente</h5>
+        <p class="ms-2">{{ evento.cliente.sigla + ' - ' + evento.cliente.nombre }}</p>
+      </div>
+    }
+    @if (evento.usuarioActual) {
+      <div>
+        <h5 class="fw-bold">Asignado a</h5>
+        <app-badge-click 
+            [backgroundColor]="evento.usuarioActual.color"
+            (click)="abrirUsuarioDrawer(evento.usuarioActual.id)"
+            style="cursor:pointer"
+        >
+            {{ evento.usuarioActual.usuario }}
+        </app-badge-click>
+      </div>
+    }
+    @if (evento.prioridad) {
+      <div>
+        <h5 class="fw-bold">Prioridad</h5>
+        <p class="ms-2">{{ evento.prioridad }}</p>
+      </div>
+    }
+    <!-- @if (tags?.length) {
+      <h5 class="fw-bold">Tags</span>
+      <span class="ms-2">
+        @for(tag of tags; track tag) {
+          <span class="badge bg-secondary me-1">{{ tag }}</span>
+        }
+      </span>
+    } -->
+    @if (evento.usuarioAlta) {
+      <div>
+        <h5 class="fw-bold">Creado por</h5>
+        <!-- <p class="ms-2">{{ creadoPor }}</p> -->
+        <app-badge-click 
+            [backgroundColor]="evento.usuarioAlta.color"
+            (click)="abrirUsuarioDrawer(evento.usuarioAlta.id)"
+            style="cursor:pointer"
+        >
+            {{ evento.usuarioAlta.usuario }}
+        </app-badge-click>
+      </div>
+    }
+    @if (evento.createdAt) {
+      <div>
+        <h5 class="fw-bold">Creado en</h5>
+        <p class="ms-2">{{ evento.createdAt | date: 'short' }}</p>
+      </div>
+    }
+  </div>
+</app-ui-card>
+
+<!-- Drawer para mostrar el detalle del usuario -->
+<app-usuario-drawer
+    [visible]="showUsuarioDrawer"
+    [usuarioId]="usuarioSeleccionadoId"
+    (closed)="cerrarUsuarioDrawer()"
+></app-usuario-drawer>

@@ -1,0 +1,88 @@
+<p-toast></p-toast>
+<div class="container">
+  <form class="row g-3 needs-validation" [formGroup]="form" (ngSubmit)="accion($event)" novalidate>
+    <!-- Campos de TipoEvento -->
+    <div class="col-md-3" hidden>
+      <label for="id" class="form-label">Id</label>
+      <input id="id" type="text" formControlName="id" class="form-control" placeholder="id"/>
+    </div>
+
+    <div class="col-md-3">
+      <label for="fecha" class="form-label">Fecha</label>
+      <input id="fecha" type="date" formControlName="fecha" class="form-control" placeholder="fecha" required />
+    </div>
+
+    <!-- Sección de horas -->
+    <div class="col-12 border p-2 rounded">
+      <h5>Horas</h5>
+      <div formArrayName="horas">
+        <div class="row">
+          <div class="col-md-4">
+            <label>Evento</label>
+          </div>
+          <div class="col-md-2">
+            <label>Inicio</label>
+          </div>
+          <div class="col-md-2">
+            <label>Final</label>
+          </div>
+          <div class="col-md-3">
+            <label>Detalle</label>
+          </div>
+          <div class="col-md-1">
+          </div>
+        </div>
+        @for (hora of horasFormArray.controls; track $index) {
+          <div [formGroupName]="$index" class="row g-3 mb-2 ">
+
+            <div class="col-md-4">
+              <!-- <label>Evento</label> -->
+              <select class="form-control" formControlName="eventoId">
+                <option [ngValue]="null">-- Seleccionar --</option>
+                @for (e of eventos; track e.id) {
+                  <!-- ngValue preserva el tipo (number si e.id es number) -->
+                  <option [ngValue]="e.id">{{ e.titulo }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="col-md-2">
+              <!-- <label>Secuencia</label> -->
+              <input type="time" class="form-control" formControlName="inicio" />
+            </div>
+
+            <div class="col-md-2">
+              <!-- <label>Secuencia</label> -->
+              <input type="time" class="form-control" formControlName="fin" />
+            </div>
+
+            <div class="col-md-3">
+              <!-- <label>Secuencia</label> -->
+              <input type="text" class="form-control" formControlName="detalle" />
+            </div>
+
+            <div class="col-md-1 d-flex align-items-end">
+              <button type="button" class="btn btn-danger w-100 h-100" (click)="removeHora($index)">
+                <ng-icon name="lucideTrash"/>
+              </button>
+            </div>
+
+          </div>
+        }
+      </div>
+      <button type="button" class="btn btn-success mt-2" (click)="addHora()">Agregar hora</button>
+    </div>
+
+
+
+    <div class="col-12 mb-5">
+      <button class="btn btn-primary" type="submit">
+        @if (modo === 'A') {
+          Crear
+        } @else if (modo === 'M') {
+          Modificar
+        }
+      </button>
+    </div>
+  </form>
+</div>

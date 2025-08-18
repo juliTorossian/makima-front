@@ -1,0 +1,74 @@
+<p-toast></p-toast>
+<div class="container">
+  <form class="row g-3 needs-validation" [formGroup]="form" (ngSubmit)="accion($event)" novalidate>
+
+    <div class="row">
+      <div class="col-md-3">
+        <label for="codigo" class="form-label">Codigo</label>
+        <input id="codigo" type="text" formControlName="codigo" class="form-control" placeholder="codigo" required />
+        @if (get('codigo')?.invalid && get('codigo')?.touched) {
+        <div class="invalid-feedback">Debe ingresar un codigo.</div>
+        }
+      </div>
+
+      <div class="col-md-7">
+        <label for="descripcion" class="form-label">Descripcion</label>
+        <input id="descripcion" type="text" formControlName="descripcion" class="form-control" placeholder="descripcion"
+          required />
+        @if (get('descripcion')?.invalid && get('descripcion')?.touched) {
+        <div class="invalid-feedback">Debe ingresar un descripcion válido.</div>
+        }
+      </div>
+
+      <div class="col-md-2">
+        <label for="esAdim" class="form-label">Administrador</label>
+        <div class="mb-2">
+          <input id="esAdmin" type="checkbox" formControlName="esAdmin" class="btn-check" />
+          <label class="btn btn-outline-primary" for="esAdmin">
+            @if (get('esAdmin')?.value){
+            SI
+            } @else {
+            NO
+            }
+          </label>
+        </div>
+      </div>
+    </div>
+    
+    @if (!get('esAdmin')?.value) {
+      
+      <div class="permisos-container" formArrayName="permisos">
+        @for (permisoCtrl of permisosArray.controls; track permisoCtrl; let i = $index) {
+          <div class="permiso-item" [formGroupName]="i">
+            <div>{{ permisosData[i].descripcion }}</div>
+            <select class="form-select form-select-sm" formControlName="nivel">
+              <option [value]="0">Nada</option>
+              @if (permisosData[i].acciones.Lee.activo) {
+                <option [value]="1">{{permisosData[i].acciones.Lee.label}}</option>
+              }
+              @if (permisosData[i].acciones.Mod.activo) {
+                <option [value]="2">{{permisosData[i].acciones.Mod.label}}</option>
+              }
+              @if (permisosData[i].acciones.Eli.activo) {
+                <option [value]="3">{{permisosData[i].acciones.Eli.label}}</option>
+              }
+            </select>
+          </div>
+        }
+      </div>
+    }
+
+
+    <div class="row mt-3">
+      <div class="col-12 mb-5">
+        <button class="btn btn-primary" type="submit">
+          @if (modo === 'A') {
+          Crear
+          } @else if (modo === 'M') {
+          Modificar
+          }
+        </button>
+      </div>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,174 @@
+<p-toast></p-toast>
+
+<div class="container">
+  <form class="row g-3 needs-validation" [formGroup]="form" (ngSubmit)="accion($event)" novalidate>
+    <div class="col-md-6">
+      <label for="nombre" class="form-label">Nombre</label>
+      <input
+        id="nombre"
+        type="text"
+        formControlName="nombre"
+        class="form-control"
+        placeholder="nombre"
+        required
+      />
+      @if (get('nombre')?.invalid && get('nombre')?.touched) {
+        <div class="invalid-feedback">Debe ingresar un nombre.</div>
+      }
+    </div>
+
+    <div class="col-md-6">
+      <label for="apellido" class="form-label">Apellido</label>
+      <input
+        id="apellido"
+        type="text"
+        formControlName="apellido"
+        class="form-control"
+        placeholder="apellido"
+        required
+      />
+      @if (get('apellido')?.invalid && get('apellido')?.touched) {
+        <div class="invalid-feedback">Debe ingresar un apellido.</div>
+      }
+    </div>
+
+    <div class="col-md-6">
+      <label for="email" class="form-label">Email</label>
+      <input
+        id="email"
+        type="email"
+        formControlName="email"
+        class="form-control"
+        placeholder="email"
+        required
+      />
+      @if (get('email')?.invalid && get('email')?.touched) {
+        <div class="invalid-feedback">Debe ingresar un email válido.</div>
+      }
+    </div>
+    <div class="col-md-6">
+      <label for="email" class="form-label">Usuario</label>
+      <input
+        id="usuario"
+        type="text"
+        formControlName="usuario"
+        class="form-control"
+        placeholder="usuario"
+        required
+      />
+      @if (get('usuario')?.invalid && get('usuario')?.touched) {
+        <div class="invalid-feedback">Debe ingresar un usuario válido.</div>
+      }
+    </div>
+
+    <div class="row">
+      
+      <div class="col-md-6">
+        <div class="row">
+          <div class="col-md-10">
+            <label for="rol" class="form-label">Rol</label>
+            <div class="flex flex-column gap-2">
+              <p-multiSelect
+                id="roles"
+                formControlName="roles"
+                appendTo="body"
+                [options]="listaRoles"
+                defaultLabel="Seleccionar Roles"
+                optionLabel="descripcion"
+                optionValue="codigo"
+                display="chip"
+                [loading]="cargandoRoles"
+              ></p-multiSelect>
+              @if (get('roles')?.invalid && get('roles')?.touched) {
+                <div class="invalid-feedback">Debe seleccionar al menos un rol.</div>
+              }
+            </div>
+            <!-- @if (get('rol')?.invalid && get('rol')?.touched) {
+              <div class="invalid-feedback">Debe ingresar un rol válido.</div>
+            } -->
+          </div>
+          <div class="col-md-2">
+            <label for="color" class="form-label">Color</label>
+            <input
+              id="color"
+              type="color"
+              formControlName="color"
+              class="form-control form-control-color"
+              required
+            >
+            @if (get('color')?.invalid && get('color')?.touched) {
+              <div class="invalid-feedback">Debe ingresar un color válido.</div>
+            }
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-6">
+
+        <div class="row">
+          <div class="col-md">
+            <label for="password" class="form-label">Contraseña</label>
+            <input
+              id="password"
+              [type]="showPassword ? 'text' : 'password'"
+              formControlName="password"
+              class="form-control"
+              placeholder="123"
+              [required]="modo !== 'M'"
+            />
+            @if (get('password')?.invalid && get('password')?.touched) {
+              <div class="invalid-feedback">Debe ingresar una contraseña válida.</div>
+            }
+          </div>
+    
+          <div class="col-md">
+            <label for="confirmPass" class="form-label">Repetir</label>
+            <div class="input-group" data-password>
+              <input
+                id="confirmPass"
+                [type]="showPassword ? 'text' : 'password'"
+                formControlName="confirmPass"
+                class="form-control"
+                placeholder="123"
+                [required]="modo !== 'M'"
+              />
+              <button
+                class="btn btn-light btn-icon"
+                type="button"
+                (click)="togglePassword()"
+              >
+                <ng-icon
+                  name="tablerEye"
+                  [class.d-block]="showPassword"
+                  [class.d-none]="!showPassword"
+                ></ng-icon>
+                <ng-icon
+                  name="tablerEyeClosed"
+                  [class.d-block]="!showPassword"
+                  [class.d-none]="showPassword"
+                ></ng-icon>
+              </button>
+            </div>
+            @if (get('confirmPass')?.invalid && get('confirmPass')?.touched) {
+              <div class="invalid-feedback">Debe ingresar una contraseña válida.</div>
+              }
+              @if (form.errors?.['passwordMismatch'] && form.touched) {
+                <div class="invalid-feedback">Las contraseñas deben ser iguales.</div>
+              }
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="col-12 mb-5">
+      <button class="btn btn-primary" type="submit">
+        @if (modo === 'A') {
+          Crear
+        } @else if (modo === 'M') {
+          Modificar
+        }
+      </button>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,1 @@
+export type PermisoAccion = 'A' | 'M' | 'B' | 'V'; // Alta, Modificar, Borrar, Ver

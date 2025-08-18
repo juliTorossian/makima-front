@@ -1,0 +1,127 @@
+import { Usuario } from "./usuario";
+
+export interface Rol {
+  codigo: string;
+  descripcion: string;
+  activo?: boolean;
+  color?: string;
+  usuarios?: Usuario[];
+  permisos?: Permiso[];
+  // etapas?: Etapa[];
+}
+
+export interface Permiso {
+  rolCodigo: string;
+  clave: string;
+  nivel: number;
+  activo?: boolean;
+}
+
+export interface PermisoConfig {
+  clave: string;
+  descripcion: string;
+  nivel: number;
+  acciones: Niveles;
+}
+
+interface Niveles {
+  Lee: Nivel;
+  Mod: Nivel;
+  Eli: Nivel;
+}
+
+interface Nivel {
+  activo: boolean;
+  label: string;
+}
+
+export enum PermisoClave {
+  ADMIN = 'ADM',
+  EVENTO = 'EVT',
+  CLIENTE = 'CLI',
+  USUARIO = 'USR',
+  MODULO = 'MOD',
+  ENTORNO = 'ENT',
+  PRODUCTO = 'PRD',
+  HORAS_GENERALES = 'HOG',
+  EVENTO_DOCUMENTO = 'EVD',
+  ETAPA = 'ETA',
+  TIPO_EVENTO = 'TEV',
+  ROL = 'ROL'
+}
+
+const LEER = "Leer";
+const ESCRIBIR = "Escribir";
+const ELIMINAR = "Eliminar";
+const LEER_Y_ESCRIBIR = `${LEER} y ${ESCRIBIR}`;
+const TODO = `${LEER}, ${ESCRIBIR} y ${ELIMINAR}`;
+
+
+export const permisosData: PermisoConfig[] = [
+  {
+    clave: PermisoClave.EVENTO,
+    descripcion: 'Eventos',
+    nivel: 0,
+    acciones: { Lee: { activo: true, label: LEER }, Mod: { activo: true, label: LEER_Y_ESCRIBIR }, Eli: { activo: true, label: TODO } }
+  },
+  {
+    clave: PermisoClave.EVENTO_DOCUMENTO,
+    descripcion: 'Documentos de eventos',
+    nivel: 0,
+    acciones: { Lee: { activo: false, label: "" }, Mod: { activo: false, label: "" }, Eli: { activo: true, label: ELIMINAR } }
+  },
+  {
+    clave: PermisoClave.CLIENTE,
+    descripcion: 'Clientes',
+    nivel: 0,
+    acciones: { Lee: { activo: true, label: LEER }, Mod: { activo: true, label: LEER_Y_ESCRIBIR }, Eli: { activo: true, label: TODO } }
+  },
+  {
+    clave: PermisoClave.HORAS_GENERALES,
+    descripcion: 'Horas Generales',
+    nivel: 0,
+    acciones: { Lee: { activo: true, label: LEER }, Mod: { activo: false, label: "" }, Eli: { activo: false, label: "" } }
+  },
+  {
+    clave: PermisoClave.MODULO,
+    descripcion: 'Modulos',
+    nivel: 0,
+    acciones: { Lee: { activo: true, label: LEER }, Mod: { activo: true, label: LEER_Y_ESCRIBIR }, Eli: { activo: true, label: TODO } }
+  },
+  {
+    clave: PermisoClave.ENTORNO,
+    descripcion: 'Entornos',
+    nivel: 0,
+    acciones: { Lee: { activo: true, label: LEER }, Mod: { activo: true, label: LEER_Y_ESCRIBIR }, Eli: { activo: true, label: TODO } }
+  },
+  {
+    clave: PermisoClave.PRODUCTO,
+    descripcion: 'Productos',
+    nivel: 0,
+    acciones: { Lee: { activo: true, label: LEER }, Mod: { activo: true, label: LEER_Y_ESCRIBIR }, Eli: { activo: true, label: TODO } }
+  },
+  {
+    clave: PermisoClave.ETAPA,
+    descripcion: 'Etapa',
+    nivel: 0,
+    acciones: { Lee: { activo: true, label: LEER }, Mod: { activo: true, label: LEER_Y_ESCRIBIR }, Eli: { activo: true, label: TODO } }
+  },
+  {
+    clave: PermisoClave.TIPO_EVENTO,
+    descripcion: 'Tipo de Eventos',
+    nivel: 0,
+    acciones: { Lee: { activo: true, label: LEER }, Mod: { activo: true, label: LEER_Y_ESCRIBIR }, Eli: { activo: true, label: TODO } }
+  },
+  {
+    clave: PermisoClave.ROL,
+    descripcion: 'Roles',
+    nivel: 0,
+    acciones: { Lee: { activo: true, label: LEER }, Mod: { activo: true, label: LEER_Y_ESCRIBIR }, Eli: { activo: true, label: TODO } }
+  },
+  {
+    clave: PermisoClave.USUARIO,
+    descripcion: 'Usuarios',
+    nivel: 0,
+    acciones: { Lee: { activo: true, label: LEER }, Mod: { activo: true, label: LEER_Y_ESCRIBIR }, Eli: { activo: true, label: TODO } }
+  },
+]

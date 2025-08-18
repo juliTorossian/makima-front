@@ -1,0 +1,31 @@
+
+<div class="container container-modal">
+
+    
+    <div class="flex flex-column gap-2">
+        <p [innerHTML]="mensajeHtml"></p>
+    </div>
+
+    <div class="flex flex-column gap-2 input-centrado">
+        <label for="usuario" class="form-label">Usuario</label>
+        <select class="form-control" [(ngModel)]="usuario" id="usuario" >
+            <option [ngValue]="null">-- Seleccionar --</option>
+            @for (u of usuarios; track u.id) {
+            <option [ngValue]="u.id">{{ u.usuario }}</option>
+            }
+        </select>
+    </div>
+    <div class="flex flex-column gap-2 input-centrado mt-2">
+        <label for="comentario" class="form-label">Comentario</label>
+        <textarea
+            [(ngModel)]="comentario"
+            class="form-control"
+            id="comentario"
+            rows="5"
+        ></textarea>
+    </div>
+
+    <button class="btn btn-primary mt-3" (click)="seleccionar($event)">
+        Seleccionar
+    </button>
+</div>

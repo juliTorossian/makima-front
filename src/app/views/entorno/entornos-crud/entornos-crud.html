@@ -1,0 +1,58 @@
+<p-toast></p-toast>
+<div class="container">
+  <form class="row g-3 needs-validation" [formGroup]="form" (ngSubmit)="accion($event)" novalidate>
+    <div class="col-md-4">
+      <label for="codigo" class="form-label">Codigo</label>
+      <input
+        id="codigo"
+        type="text"
+        formControlName="codigo"
+        class="form-control"
+        placeholder="codigo"
+        required
+        (input)="onUppercaseInput($event, 'codigo')"
+      />
+      @if (get('codigo')?.invalid && get('codigo')?.touched) {
+        <div class="invalid-feedback">Debe ingresar un codigo.</div>
+      }
+    </div>
+
+    <div class="col-md-4">
+      <label for="nombre" class="form-label">Nombre</label>
+      <input
+        id="nombre"
+        type="text"
+        formControlName="nombre"
+        class="form-control"
+        placeholder="nombre"
+        required
+      />
+      @if (get('nombre')?.invalid && get('nombre')?.touched) {
+        <div class="invalid-feedback">Debe ingresar un nombre.</div>
+      }
+    </div>
+
+    <div class="col-md-4">
+        <div class="form-check form-switch">
+            <input
+                id="activo"
+                type="checkbox"
+                formControlName="activo"
+                class="form-check-input"
+                role="switch"
+            >
+            <label class="form-check-label" for="activo">Activo</label>
+        </div>
+    </div>
+
+    <div class="col-12 mb-5">
+      <button class="btn btn-primary" type="submit">
+        @if (modo === 'A') {
+          Crear
+        } @else if (modo === 'M') {
+          Modificar
+        }
+      </button>
+    </div>
+  </form>
+</div>

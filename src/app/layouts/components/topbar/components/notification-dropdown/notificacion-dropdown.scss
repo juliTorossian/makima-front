@@ -1,0 +1,54 @@
+
+$prefix: 'ins-';
+
+.btn-refresh {
+    font-size: 14px;
+    height: 20px;
+    width: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border-radius: 50%;
+    background-color: rgba(var(--#{$prefix}black-rgb), 0.05);
+    color: inherit;
+    transition: all 0.3s ease-out;
+
+    i {
+        vertical-align: middle;
+    }
+
+    &:hover {
+        background-color: rgba(var(--#{$prefix}primary-rgb), 0.2);
+        color: var(--#{$prefix}primary);
+    }
+}
+
+.btn-mark-read {
+    font-size: 14px;
+    height: 30px;
+    width: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border-radius: 50%;
+    background-color: rgba(var(--#{$prefix}black-rgb), 0.05);
+    color: inherit;
+    transition: all 0.3s ease-out;
+
+    i {
+        vertical-align: middle;
+    }
+
+    &:hover {
+        background-color: rgba(var(--#{$prefix}primary-rgb), 0.2);
+        color: var(--#{$prefix}primary);
+    }
+}
+
+// .btn-mark-read:hover {
+//     background-color: rgba(var(--#{$prefix}primary-rgb), 0.2);
+//     border-radius: 50%;
+//     transition: background-color 0.2s, color 0.2s;
+// }

@@ -1,0 +1,34 @@
+
+<div class="timeline-item d-flex align-items-stretch">
+    <!-- <div class="timeline-time pe-3 text-muted">{{ getTimeAgo() }}</div> -->
+    <div class="timeline-dot">
+        <ng-icon [name]="getIconNameAccion()" class="fs-xl text-muted" />
+    </div>
+
+    <div class="timeline-content ps-3 {{ !last ? 'pb-4' : '' }}">
+        <span class="d-flex align-items-center">
+            <h5 class="mb-1">{{ getTitleAccion() }} </h5>
+            <p class="mb-1 text-muted" style="margin-left: 8px; font-size: 10px;">{{ getTimeAgo() }}</p>
+        </span>
+        @if (actividad.accion === "COMENTARIO") {
+            <textarea rows=2 [value]="actividad.adicion?.comentario" disabled (resize)="false" class="form-control w-100"></textarea>
+        } @else {
+            @if (getDescripcionAccion()) {
+                <p class="mb-1 text-muted">{{ getDescripcionAccion() }}</p>
+            }
+        }
+        <!-- <span class="text-primary fw-medium">By {{ item.name }}</span> -->
+    </div>
+</div>
+
+
+<!-- <div class="timeline-item d-flex align-items-stretch">
+    <div class="timeline-dot">
+    <ng-icon [name]="item.icon" class="fs-xl text-muted" />
+    </div>
+    <div class="timeline-content ps-3 {{ !last ? 'pb-4' : '' }}">
+        
+    <span class="d-flex align-items-center"><h5 class="mb-1">{{ item.title }}. </h5><p class="mb-1 text-muted" style="margin-left: 8px; font-size: 10px;">{{ item.time }}</p></span>
+    <p class="mb-1 text-muted">{{ item.description }}</p>
+    </div>
+</div> -->

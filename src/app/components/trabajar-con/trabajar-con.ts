@@ -1,0 +1,84 @@
+import { SHORTCUTS } from '@/app/constants/shortcut';
+import { PermisoAccion } from '@/app/types/permisos';
+import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef } from '@angular/core';
+import { PermisoClave } from '@core/interfaces/rol';
+import { LoadingService } from '@core/services/loading.service';
+import { PermisosService } from '@core/services/permisos';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { Subscription } from 'rxjs';
+
+@Component({
+  selector: 'app-trabajar-con',
+  imports: [],
+  templateUrl: './trabajar-con.html',
+  styleUrl: './trabajar-con.scss'
+})
+export abstract class TrabajarCon<T> {
+  protected permisosService = inject(PermisosService);
+  protected permisoClave!: PermisoClave;
+  protected loadingService = inject(LoadingService);
+  protected permisos: PermisoAccion[] = [];
+  readonly SHORTCUTS = SHORTCUTS;
+
+  constructor(
+    protected cdr: ChangeDetectorRef,
+    protected messageService: MessageService,
+    protected confirmationService: ConfirmationService
+  ) {}
+
+  ngOnInit(): void {
+    this.loadItems();
+  }
+
+  protected abstract loadItems(): void;
+  abstract alta(item: T): void;
+  abstract editar(item: T): void;
+  abstract eliminarDirecto(item: T): void;
+
+  delete(item: T, label: string = 'el registro'): void {
+    this.confirmationService.confirm({
+      message: `¿Seguro que querés eliminar ${label}?`,
+      header: 'Confirmar eliminación',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.eliminarDirecto(item);
+      }
+    });
+  }
+
+  protected afterChange(mensaje: string = 'Cambios guardados correctamente.'): void {
+    this.loadItems();
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Éxito',
+      detail: mensaje
+    });
+  }
+
+  protected showError(mensaje: string = 'Ocurrió un error inesperado.'): void {
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: mensaje
+    });
+  }
+
+  protected showSuccess(mensaje: string = 'Ocurrió un error inesperado.'): void {
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Éxito',
+      detail: mensaje
+    });
+  }
+
+  can(accion: PermisoAccion): boolean {
+    return this.permisosService.can(this.permisoClave, accion);
+  }
+
+  getEventValue($event:any) :string {
+    return $event.target.value;
+  } 
+}
+
+

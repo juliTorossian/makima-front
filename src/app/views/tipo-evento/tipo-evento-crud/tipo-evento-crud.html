@@ -1,0 +1,146 @@
+<p-toast></p-toast>
+<div class="container">
+  <form class="row g-3 needs-validation" [formGroup]="form" (ngSubmit)="accion($event)" novalidate>
+    <!-- Campos de TipoEvento -->
+    <div class="col-md-1">
+      <label for="codigo" class="form-label">Codigo</label>
+      <input id="codigo" type="text" formControlName="codigo" class="form-control" placeholder="codigo" />
+    </div>
+
+    <div class="col-md-4">
+      <label for="descripcion" class="form-label">Descripcion</label>
+      <input id="descripcion" type="text" formControlName="descripcion" class="form-control" placeholder="descripcion" required />
+    </div>
+
+    <div class="col-md-1">
+      <label for="color" class="form-label">Color</label>
+      <input id="color" type="color" formControlName="color" class="form-control form-control-color" required />
+    </div>
+    <div class="col-md-6">
+
+      <div class="row">
+
+        <div class="col-md-4 p-0">
+          <label for="activo" class="form-label">Activo</label>
+          <div class="mb-2">
+            <input id="activo" type="checkbox" formControlName="activo" class="btn-check" />
+            <label class="btn btn-outline-primary" for="activo">
+              @if (get('activo')?.value){
+              ACTIVO
+              } @else {
+              DESACTIVO
+              }
+            </label>
+          </div>
+        </div>
+
+        <div class="col-md-4 p-0">
+          <label for="propio" class="form-label">Propio</label>
+          <div class="mb-2">
+            <input id="propio" type="checkbox" formControlName="propio" class="btn-check" />
+            <label class="btn btn-outline-primary" for="propio">
+              PROPIO
+            </label>
+          </div>
+        </div>
+
+        <div class="col-md-4 p-0">
+          <label for="facturable" class="form-label">Facturable</label>
+          <div class="mb-2">
+            <input id="facturable" type="checkbox" formControlName="facturable" class="btn-check" />
+            <label class="btn btn-outline-primary" for="facturable">
+              @if (get('facturable')?.value){
+              ACTIVO
+              } @else {
+              DESACTIVO
+              }
+            </label>
+          </div>
+        </div>
+
+        <div class="col-md-4 p-0">
+          <label for="facturableAuto" class="form-label">Horas Facturables Automaticas</label>
+          <div class="mb-2">
+            <input id="facturableAuto" type="checkbox" formControlName="facturableAuto" class="btn-check" />
+            <label class="btn btn-outline-primary" for="facturableAuto">
+              @if (get('facturableAuto')?.value){
+              ACTIVO
+              } @else {
+              DESACTIVO
+              }
+            </label>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    @if (!(get('propio')?.value)) {
+      <!-- Sección de etapas -->
+      <div class="col-12 border p-2 rounded">
+        <h5>Etapas</h5>
+        <div formArrayName="etapas">
+          <div class="row">
+            <div class="col-md-4">
+              <label>Etapa</label>
+            </div>
+            <div class="col-md-3">
+              <label>Secuencia</label>
+            </div>
+            <div class="col-md-3">
+              <label>Rollback (opcional)</label>
+            </div>
+          </div>
+          @for (etapa of etapasFormArray.controls; track $index) {
+            <div [formGroupName]="$index" class="row g-3 mb-2 ">
+
+              <div class="col-md-4">
+                <!-- <label>Etapa</label> -->
+                <select class="form-control" formControlName="etapaId">
+                  <option [ngValue]="null">-- Seleccionar --</option>
+                  @for (e of etapasCatalogo; track e.id) {
+                    <!-- ngValue preserva el tipo (number si e.id es number) -->
+                    <option [ngValue]="e.id">{{ e.nombre }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="col-md-3">
+                <!-- <label>Secuencia</label> -->
+                <input type="number" class="form-control" formControlName="etapaSecuencia" readonly />
+              </div>
+
+              <div class="col-md-3">
+                <!-- <label>Rollback (opcional)</label> -->
+                <select class="form-control" formControlName="rollbackSec">
+                  <option [ngValue]="null">-- Ninguno --</option>
+                  @for (seq of getRollbackOptions(etapa.get('etapaSecuencia')?.value); track seq) {
+                    <option [ngValue]="seq">Secuencia {{ seq }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="col-md-2 d-flex align-items-end">
+                <button type="button" class="btn btn-danger w-100" (click)="removeEtapa($index)">Eliminar</button>
+              </div>
+
+            </div>
+          }
+        </div>
+        <button type="button" class="btn btn-success mt-2" (click)="addEtapa()">Agregar etapa</button>
+      </div>
+    }
+
+
+
+    <div class="col-12 mb-5">
+      <button class="btn btn-primary" type="submit">
+        @if (modo === 'A') {
+          Crear
+        } @else if (modo === 'M') {
+          Modificar
+        }
+      </button>
+    </div>
+  </form>
+</div>

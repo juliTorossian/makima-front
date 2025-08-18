@@ -1,0 +1,81 @@
+import { environment } from '@/environments/environment';
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Usuario } from '@core/interfaces/usuario';
+import { catchError, map, Observable, of, tap } from 'rxjs';
+import { UserStorageService } from './user-storage';
+import { PermisosService } from './permisos';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthService {
+  constructor(
+    private http: HttpClient,
+    private userStorage: UserStorageService,
+    private permisosService: PermisosService,
+  ) { }
+  URL_COMPLETA = environment.BASE_URL;
+
+  private readonly accessTokenKey = 'access_token'
+  private readonly refreshTokenKey = 'refresh_token'
+
+
+  getAccessToken(): string | null {
+    return localStorage.getItem(this.accessTokenKey)
+  }
+  setAccessToken(accessToken:string): void {
+    return localStorage.setItem(this.accessTokenKey, accessToken)
+  }
+
+  getRefreshToken(): string | null {
+    return localStorage.getItem(this.refreshTokenKey) ?? sessionStorage.getItem(this.refreshTokenKey)
+  }
+
+  setTokens(accessToken: string, refreshToken: string, rememberMe: boolean) {
+    localStorage.setItem(this.accessTokenKey, accessToken)
+    if (rememberMe) {
+      localStorage.setItem(this.refreshTokenKey, refreshToken)
+    } else {
+      sessionStorage.setItem(this.refreshTokenKey, refreshToken)
+    }
+  }
+
+  clearTokens() {
+    localStorage.removeItem(this.accessTokenKey)
+    localStorage.removeItem(this.refreshTokenKey)
+    sessionStorage.removeItem(this.refreshTokenKey)
+  }
+
+  refreshToken(): Observable<string> {
+    const refresh = this.getRefreshToken()
+    return this.http.post<any>(`${this.URL_COMPLETA}/auth/refresh`, { refreshToken: refresh })
+  }
+
+  verifyToken(): Observable<boolean> {
+    const token = this.getAccessToken();
+    if (!token) return of(false);
+    return this.http.get(`${this.URL_COMPLETA}/auth/profile`).pipe(
+      map(() => true), // si responde 200
+      catchError(() => of(false)) // si responde 401 o error
+    );
+  }
+
+  login(credentials: any): Observable<any> {
+    return this.http.post(`${this.URL_COMPLETA}/auth/login`, credentials).pipe(
+      tap((res: any) => {
+        this.setTokens(res.accessToken, res.refreshToken, false);
+        this.userStorage.setUsuario(res.usuario);
+        if (res.permisos) {
+          this.permisosService.setPermisos(res.permisos);
+        }
+      })
+    )
+  }
+  logout(): void {
+    console.log('logout')
+    this.clearTokens();
+    this.userStorage.clearUsuario()
+  }
+
+}

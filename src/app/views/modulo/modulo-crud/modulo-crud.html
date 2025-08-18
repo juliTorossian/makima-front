@@ -1,0 +1,79 @@
+<p-toast></p-toast>
+<div class="container">
+  <form class="row g-3 needs-validation" [formGroup]="form" (ngSubmit)="accion($event)" novalidate>
+    
+    <div class="col-md-3">
+      <label for="codigo" class="form-label">Codigo</label>
+      <input
+        id="codigo"
+        type="text"
+        formControlName="codigo"
+        class="form-control text-uppercase"
+        placeholder="codigo"
+        required
+        (input)="onUppercaseInput($event, 'codigo')"
+      />
+      @if (get('codigo')?.invalid && get('codigo')?.touched) {
+        <div class="invalid-feedback">Debe ingresar un codigo.</div>
+      }
+    </div>
+
+    <div class="col-md-3">
+      <label for="nombre" class="form-label">Nombre</label>
+      <input
+        id="nombre"
+        type="text"
+        formControlName="nombre"
+        class="form-control"
+        placeholder="nombre"
+        required
+      />
+      @if (get('nombre')?.invalid && get('nombre')?.touched) {
+        <div class="invalid-feedback">Debe ingresar un nombre.</div>
+      }
+    </div>
+
+    <div class="col-md-3">
+      <label for="padreCodigo" class="form-label">Padre</label>
+      <!-- <input
+        id="padreCodigo"
+        type="text"
+        formControlName="padreCodigo"
+        class="form-control"
+        placeholder="Padre Codigo"
+      /> -->
+      <select class="form-control" formControlName="padreCodigo" id="padreCodigo" >
+        <option [ngValue]="null">-- Seleccionar --</option>
+        @for (m of modulos; track m.codigo) {
+          <option [ngValue]="m.codigo">{{ m.codigo }}</option>
+        }
+      </select>
+      @if (get('padreCodigo')?.invalid && get('padreCodigo')?.touched) {
+        <div class="invalid-feedback">Debe ingresar un Padre Codigo.</div>
+      }
+    </div>
+
+    <div class="col-md-3">
+        <div class="form-check form-switch">
+            <input
+                id="activo"
+                type="checkbox"
+                formControlName="activo"
+                class="form-check-input"
+                role="switch"
+            >
+            <label class="form-check-label" for="activo">Activo</label>
+        </div>
+    </div>
+
+    <div class="col-12 mb-5">
+      <button class="btn btn-primary" type="submit">
+        @if (modo === 'A') {
+          Crear
+        } @else if (modo === 'M') {
+          Modificar
+        }
+      </button>
+    </div>
+  </form>
+</div>

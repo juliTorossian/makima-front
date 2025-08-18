@@ -1,0 +1,14 @@
+select {
+    width: 100%;
+}
+
+.permisos-container {
+  display: flex;
+  flex-wrap: wrap; /* Hace que los elementos pasen a la siguiente línea si no caben */
+  gap: 1rem; /* Espacio entre elementos */
+}
+
+.permiso-item {
+  flex: 0 0 auto; /* Evita que los elementos se estiren */
+  min-width: 150px; /* Ancho mínimo de cada elemento (ajústalo según necesidad) */
+}
