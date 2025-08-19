@@ -145,8 +145,8 @@ export class Usuario implements OnInit {
     }
 
     private onUsuarioCargado(usuario: any): void {
-        console.log(usuario);
-        console.log(usuario.eventosActuales);
+        // console.log(usuario);
+        // console.log(usuario.eventosActuales);
         this.usuario = usuario;
         this.eventosActuales = usuario.eventosActuales || [];
         this.esPropioPerfil = this.userStorageService.getUsuario()?.id === usuario.id;

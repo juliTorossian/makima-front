@@ -83,6 +83,10 @@ export class Evento implements OnInit {
   evento!: EventoCompleto;
   cargandoEvento: boolean = false;
 
+  // estado para observar/seguir el evento
+  esObservador: boolean = false;
+  togglingObservador: boolean = false;
+
   eventoId!:string;
 
   adjuntosReloading = false;
@@ -173,7 +177,7 @@ export class Evento implements OnInit {
     } else {
       this.eventoId = this.rutActiva.snapshot.params['id'];
     }
-    console.log(this.eventoId)
+    // console.log(this.eventoId)
 
     this.getEvento();
     this.onReloadAdjuntos();
@@ -190,6 +194,13 @@ export class Evento implements OnInit {
       {
         next: (res:any) => {
           this.evento = res;
+          const usuarioId = this.usuarioActivo?.id;
+          const observadores = this.evento.observadores;
+          if (usuarioId && Array.isArray(observadores)) {
+            this.esObservador = observadores.some((o: any) => o.usuarioId === usuarioId);
+          } else {
+            this.esObservador = false;
+          }
           this.cdr.detectChanges();
         },
         error: (err:any) => {
@@ -197,6 +208,24 @@ export class Evento implements OnInit {
         }
       }
     );
+  }
+
+  onToggleObservador() {
+    if (!this.usuarioActivo) return;
+    this.togglingObservador = true;
+    this.eventoService.toggleObservador(this.eventoId, this.usuarioActivo.id).pipe(finalize(()=> this.togglingObservador = false)).subscribe({
+      next: (res:any) => {
+        // alternar estado local
+        this.esObservador = !this.esObservador;
+        // recargar actividad/opciones si es necesario
+        this.getActividadEvento();
+        this.messageService.add({severity: 'success', summary: 'Éxito', detail: this.esObservador ? 'Ahora eres observador del evento' : 'Ya no eres observador del evento'});
+      },
+      error: (err:any) => {
+        console.error('Error toggle observador:', err);
+        this.messageService.add({severity: 'error', summary: 'Error', detail: err?.error?.message || 'No se pudo alternar observador'});
+      }
+    });
   }
 
   onReloadAdjuntos() {
@@ -223,7 +252,7 @@ export class Evento implements OnInit {
     this.eventoService.getRequisitos(this.eventoId).subscribe(
       {
         next: (res:any) => {
-          console.log(res)
+          // console.log(res)
           // Inicializar cumplimiento si es null
           this.requisitos = res.map((req:any) => {
             if (!req.cumplimiento) {

@@ -71,7 +71,6 @@ export class Eventos extends TrabajarCon<Evento> {
 
   override ngOnInit(): void {
     this.loadItems();
-    console.log(this.eventos)
   }
 
   constructor() {
@@ -89,7 +88,7 @@ export class Eventos extends TrabajarCon<Evento> {
       finalize(() => this.loadingService.hide())
     ).subscribe({
       next: (res) => {
-        console.log(res)
+        // console.log(res)
         this.eventos = res;
         this.cdr.detectChanges();
       },

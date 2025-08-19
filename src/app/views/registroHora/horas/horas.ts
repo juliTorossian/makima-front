@@ -112,7 +112,7 @@ export class Horas extends TrabajarCon<RegistroHora> {
       finalize(() => this.loadingService.hide())
     ).subscribe({
       next: (res) => {
-        console.log(res)
+        // console.log(res)
         const filtrados = res.filter((usuario: any) => Array.isArray(usuario.registrosHora) && usuario.registrosHora.length > 0);
         this.registrosHorasGenerales = filtrados;
         this.registrosHorasGeneralesFiltradas = filtrados;
