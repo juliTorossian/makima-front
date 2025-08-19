@@ -71,6 +71,13 @@ export class EventoService {
     return this.http.post<Evento>(`${this.URL_COMPLETA}/evento/adicion`, formData);
   }
 
+  toggleObservador(eventoId: string, usuarioId: string): Observable<any> {
+    return this.http.post<any>(
+      `${this.URL_COMPLETA}/evento/toggle-observador/${eventoId}/${usuarioId}`,
+      {}
+    );
+  }
+
   // requisitos
   registrarEventoRequisito(eventoId: string, dto: any): Observable<any> {
     return this.http.post<any>(`${this.URL_COMPLETA}/evento/requisito/${eventoId}`, dto);

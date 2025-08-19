@@ -72,7 +72,6 @@ export class EventosUsuario extends TrabajarCon<Evento> {
   override ngOnInit(): void {
     setTimeout(() => {
       this.loadItems();
-      console.log(this.eventos);
     });
   }
 

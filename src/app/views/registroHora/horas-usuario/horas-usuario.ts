@@ -116,7 +116,7 @@ export class HorasUsuario extends TrabajarCon<RegistroHora> {
       finalize(() => this.loadingService.hide())
     ).subscribe({
       next: (res) => {
-        console.log(res);
+        // console.log(res);
         this.registrosHoras = res;
         this.registrosHorasFiltradas = this.registrosHoras;
         this.cdr.detectChanges();

@@ -28,6 +28,7 @@ export interface EventoCompleto {
   etapaActualData: EventoEtapa;
   etapaSiguiente: EventoEtapa | null;
   etapaAnterior: EventoEtapa | null;
+  observadores?: UsuarioEvento[];
 }
 
 export interface ClienteEvento {
