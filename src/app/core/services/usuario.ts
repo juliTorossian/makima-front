@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { UsuarioCompleto, Usuario as UsuarioInterface } from '@core/interfaces/usuario';
+import { Preferencia, UsuarioCompleto, Usuario as UsuarioInterface } from '@core/interfaces/usuario';
 
 @Injectable({
   providedIn: 'root'
@@ -47,4 +47,17 @@ export class UsuarioService {
     });
   }
   
+  // PREFERENCIAS
+
+  setPreferencias(usuarioId:string, preferencias: Preferencia[]) : Observable<Preferencia[]>{
+    return this.http.post<Preferencia[]>(`${this.URL_COMPLETA}/usuario/${usuarioId}/preferencias`, preferencias);
+  }
+
+  getPreferencias(usuarioId:string) : Observable<Preferencia[]>{
+    return this.http.get<Preferencia[]>(`${this.URL_COMPLETA}/usuario/${usuarioId}/preferencias`);
+  }
+
+
+
+
 }

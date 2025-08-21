@@ -1,3 +1,4 @@
+import { modalConfig } from '@/app/types/modals';
 import { formatTime } from '@/app/utils/datetime-utils';
 import { Component, inject } from '@angular/core';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -10,6 +11,8 @@ import { UserStorageService, UsuarioLogeado } from '@core/services/user-storage'
 import { NgIcon } from '@ng-icons/core';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import { EventoSelect } from '../../evento/evento-select/evento-select';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 
 @Component({
   selector: 'app-hora-crud',
@@ -25,10 +28,12 @@ import { ToastModule } from 'primeng/toast';
   styleUrl: './hora-crud.scss'
 })
 export class HoraCrud extends CrudFormModal<RegistroHora> {
+  protected modalSel = inject(DynamicDialogRef);
   private eventoService = inject(EventoService)
   private userStorageService = inject(UserStorageService);
+  private dialogService = inject(DialogService);
 
-  usuarioActivo:UsuarioLogeado | null = this.userStorageService.getUsuario();
+  usuarioActivo: UsuarioLogeado | null = this.userStorageService.getUsuario();
 
   eventos!: Evento[];
   eventosFiltrados!: Evento[];
@@ -86,6 +91,7 @@ export class HoraCrud extends CrudFormModal<RegistroHora> {
   }
 
   protected toModel(): RegistroHora {
+    console.log('hola')
     return {
       id: this.get('id')?.value,
       fecha: this.get('fecha')?.value,
@@ -103,6 +109,7 @@ export class HoraCrud extends CrudFormModal<RegistroHora> {
 
   accion(event: Event) {
     event.preventDefault();
+    console.log(event)
     this.submit();
   }
 
@@ -139,6 +146,21 @@ export class HoraCrud extends CrudFormModal<RegistroHora> {
 
   removeHora(index: number) {
     this.horasFormArray.removeAt(index);
+  }
+
+  modalSelEvento(hora:any, event: Event) {
+    event.preventDefault();
+    this.modalSel = this.dialogService.open(EventoSelect, {
+      ...modalConfig,
+      header: "Seleccionar Evento"
+    });
+
+    this.modalSel.onClose.subscribe((result: any) => {
+      if (!result) return;
+      hora.patchValue({
+        eventoId: result.id
+      })
+    });
   }
 
 }

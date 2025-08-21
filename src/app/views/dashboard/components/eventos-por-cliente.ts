@@ -1,27 +1,24 @@
 import { ChangeDetectorRef, Component, inject, OnInit, ViewChild } from '@angular/core'
-import { BaseChartDirective } from 'ng2-charts'
 import { NgIcon } from '@ng-icons/core'
 import { Chartjs } from '@app/components/chartjs'
 import { ChartConfiguration } from 'chart.js'
 import { getColor } from '@/app/utils/color-utils'
-import { EtapaService } from '@core/services/etapa'
-import { Etapa } from '@core/interfaces/etapa'
 import { CountUpModule } from 'ngx-countup'
 import { DashboardService } from '@core/services/dashboard'
 
 @Component({
-    selector: 'app-tickets-by-stage',
+    selector: 'app-eventos-por-cliente',
     imports: [NgIcon, Chartjs, CountUpModule],
     template: `
     <div class="card card-h-100">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-start mb-3">
           <div>
-            <h5 class="text-uppercase">Eventos por etapa</h5>
+            <h5 class="text-uppercase">Eventos por tipo</h5>
           </div>
           <div>
             <ng-icon
-              name="lucideLayers"
+              name="lucideIdCard"
               class="text-muted fs-24 svg-sw-10"
             ></ng-icon>
           </div>
@@ -33,13 +30,13 @@ import { DashboardService } from '@core/services/dashboard'
 
         <div class="d-flex justify-content-between">
           <div>
-            <span class="text-muted">Etapa con más eventos</span>
+            <span class="text-muted">Tipo con más eventos</span>
             <div class="fw-semibold">
               <span [countUp]="maxTickets">{{ maxTickets }}</span> eventos
             </div>
           </div>
           <div class="text-end">
-            <span class="text-muted">Etapa con menos eventos</span>
+            <span class="text-muted">Tipo con menos eventos</span>
             <div class="fw-semibold">
               <span [countUp]="minTickets">{{ minTickets }}</span>
             </div>
@@ -53,20 +50,20 @@ import { DashboardService } from '@core/services/dashboard'
   `,
     styles: ``,
 })
-export class TicketsByStage implements OnInit {
+export class EventosPorCliente implements OnInit {
     private cdr = inject(ChangeDetectorRef);
-    etapas: string[] = []
-    ticketsPorEtapa: number[] = []
+    clientes: string[] = []
+    ticketsPorCliente: number[] = []
   @ViewChild('chartComp') chartComp?: Chartjs
 
     constructor(private dashboardService: DashboardService) { }
 
     ngOnInit(): void {
-        this.dashboardService.getEventosPorEtapa().subscribe({
+        this.dashboardService.getEventosPorCliente().subscribe({
             next: (res) => {
                 console.log(res)
-                this.etapas = res.etapas.map((e) => e.etapaNombre)
-                this.ticketsPorEtapa = res.etapas.map((e) => e.cantidad)
+                this.clientes = res.clientes.map((c) => c.clienteNombre)
+                this.ticketsPorCliente = res.clientes.map((c) => c.cantidad)
                 this.cdr.markForCheck();
                 this.cdr.detectChanges();
                 // give time for child to initialize then refresh chart to trigger animation
@@ -81,10 +78,10 @@ export class TicketsByStage implements OnInit {
     public etapaChart = (): ChartConfiguration => ({
         type: 'bar',
         data: {
-            labels: this.etapas,
+            labels: this.clientes,
             datasets: [
                 {
-                    data: this.ticketsPorEtapa,
+                    data: this.ticketsPorCliente,
                     backgroundColor: getColor('chart-primary'),
                     borderRadius: 4,
                     borderSkipped: false,
@@ -110,12 +107,12 @@ export class TicketsByStage implements OnInit {
     })
 
     get maxTickets() {
-        return this.ticketsPorEtapa.length ? Math.max(...this.ticketsPorEtapa) : 0
+        return this.ticketsPorCliente.length ? Math.max(...this.ticketsPorCliente) : 0
     }
     get minTickets() {
-        return this.ticketsPorEtapa.length ? Math.min(...this.ticketsPorEtapa) : 0
+        return this.ticketsPorCliente.length ? Math.min(...this.ticketsPorCliente) : 0
     }
     get totalTickets() {
-        return this.ticketsPorEtapa.reduce((a, b) => a + b, 0)
+        return this.ticketsPorCliente.reduce((a, b) => a + b, 0)
     }
 }

@@ -38,45 +38,9 @@
                             <span class="d-none d-md-inline-block align-middle">Perfil</span>
                         </a>
                         <ng-template ngbNavContent>
-                            @if (eventosActuales) {
-                                <app-ui-card title="Eventos" [isTogglable]="true" [initialCollapsed]="false">
-                                    <div card-body>
-                                        <p-table [value]="eventosActuales" size="small">
-                                            <ng-template pTemplate="header">
-                                                <tr>
-                                                    <th hidden>Id</th>
-                                                    <th hidden>Tipo</th>
-                                                    <th hidden>Numero</th>
-                                                    <th>Evento</th>
-                                                    <th>Titulo</th>
-                                                    <th>Producto</th>
-                                                    <th>Cliente</th>
-                                                </tr>
-                                            </ng-template>
-                                            <ng-template pTemplate="body" let-evento>
-                                                <tr>
-                                                    <td hidden>{{ evento.id }}</td>
-                                                    <td hidden>{{ evento.tipo.id }}</td>
-                                                    <td hidden>{{ evento.numero }}</td>
-                                                    <td>
-                                                        <app-badge-click 
-                                                            [backgroundColor]="evento.tipo.color"
-                                                            (click)="abrirEventoDrawer(evento)"
-                                                            style="cursor:pointer"
-                                                        >
-                                                            {{ evento.tipo.codigo }}-{{evento.numero | padZero:3}}
-                                                        </app-badge-click>
-                                                    </td>
-                                                    <td>{{ evento.titulo }}</td>
-                                                    <td>{{ evento.cliente.sigla }} - {{ evento.cliente.nombre }}</td>
-                                                    <td>{{ evento.producto.sigla }} - {{ evento.producto.nombre }} | {{ evento.producto.entornoCodigo }}</td>
-                                                </tr>
-                                            </ng-template>
-                                        </p-table>
-                                    </div>
-                                </app-ui-card>
+                            @if (usuario) {
+                                <app-tab-perfil [usuarioId]="usuario.id!" [eventosActuales]="eventosActuales" />
                             }
-                            
                         </ng-template>
                     </li>
                     
@@ -87,74 +51,9 @@
                                 <span class="d-none d-md-inline-block align-middle">Modificar</span>
                             </a>
                             <ng-template ngbNavContent>
-                                <h5>Modificar perfil</h5>
-                                
-                                <form [formGroup]="formUsuario" (ngSubmit)="modificarUsuario($event)" id="formUsuario">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <label for="nombre" class="form-label">Nombre</label>
-                                            <input
-                                                id="nombre"
-                                                type="text"
-                                                formControlName="nombre"
-                                                class="form-control"
-                                                placeholder="nombre"
-                                                required
-                                            />
-                                            @if (get('nombre')?.invalid && get('nombre')?.touched) {
-                                                <div class="invalid-feedback">Debe ingresar un nombre.</div>
-                                            }
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label for="apellido" class="form-label">Apellido</label>
-                                            <input
-                                                id="apellido"
-                                                type="text"
-                                                formControlName="apellido"
-                                                class="form-control"
-                                                placeholder="apellido"
-                                                required
-                                            />
-                                            @if (get('apellido')?.invalid && get('apellido')?.touched) {
-                                                <div class="invalid-feedback">Debe ingresar un apellido.</div>
-                                            }
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label for="email" class="form-label">Email</label>
-                                            <input
-                                                id="email"
-                                                type="email"
-                                                formControlName="email"
-                                                class="form-control"
-                                                placeholder="email"
-                                                required
-                                            />
-                                            @if (get('email')?.invalid && get('email')?.touched) {
-                                                <div class="invalid-feedback">Debe ingresar un email válido.</div>
-                                            }
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label for="color" class="form-label">Color</label>
-                                            <input
-                                            id="color"
-                                            type="color"
-                                            formControlName="color"
-                                            class="form-control form-control-color"
-                                            required
-                                            >
-                                            @if (get('color')?.invalid && get('color')?.touched) {
-                                            <div class="invalid-feedback">Debe ingresar un color válido.</div>
-                                            }
-                                        </div>
-                                    </div>
-                                    <button class="btn btn-primary mt-3" type="submit" form="formUsuario">
-                                        Modificar
-                                    </button>
-                                </form>
-
+                                @if (usuario) {
+                                    <app-tab-modificar [usuario]="usuario" (usuarioModificado)="cargarUsuario(usuario.id!)" />
+                                }
                             </ng-template>
                         </li>
                         <li [ngbNavItem]="3">
@@ -163,9 +62,9 @@
                                 <span class="d-none d-md-inline-block align-middle">Preferencias</span>
                             </a>
                             <ng-template ngbNavContent>
-                                <h5>Preferencias</h5>
-                                <!-- Preferencias de usuario aquí -->
-                                <div class="alert alert-info">Funcionalidad de preferencias pendiente.</div>
+                                @if (usuario) {
+                                    <app-tab-preferencias [usuario]="usuario" />
+                                }
                             </ng-template>
                         </li>
                         <li [ngbNavItem]="4">
@@ -176,113 +75,10 @@
                                 />
                                 <span class="d-none d-md-inline-block align-middle">Seguridad</span>
                             </a>
-                            <ng-template ngbNavContent>
-                                <h5>Cambiar contraseña</h5>
-                                
-                                <form [formGroup]="formPassword" (ngSubmit)="cambiarPassword()" id="formPassword">
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <label for="contrasenaActual" class="form-label">Contraseña actual</label>
-                                            <div class="input-group">
-                                                <input
-                                                    [type]="showPasswordActual ? 'text' : 'password'"
-                                                    id="contrasenaActual"
-                                                    formControlName="contrasenaActual"
-                                                    class="form-control"
-                                                    placeholder="Contraseña actual"
-                                                    required
-                                                />
-                                                <button
-                                                    class="btn btn-light btn-icon"
-                                                    type="button"
-                                                    (click)="togglePassword('actual')"
-                                                >
-                                                    <ng-icon
-                                                        name="tablerEye"
-                                                        [class.d-block]="showPasswordActual"
-                                                        [class.d-none]="!showPasswordActual"
-                                                    ></ng-icon>
-                                                    <ng-icon
-                                                        name="tablerEyeClosed"
-                                                        [class.d-block]="!showPasswordActual"
-                                                        [class.d-none]="showPasswordActual"
-                                                    ></ng-icon>
-                                                </button>
-                                            </div>
-                                            @if (formPassword.get('contrasenaActual')?.invalid && formPassword.get('contrasenaActual')?.touched) {
-                                                <div class="invalid-feedback">Ingrese su contraseña actual.</div>
-                                            }
-                                        </div>
-                                        <div class="col-md-12">
-                                            <label for="nuevaContrasena" class="form-label">Nueva contraseña</label>
-                                            <div class="input-group">
-                                                <input
-                                                    [type]="showPasswordNueva ? 'text' : 'password'"
-                                                    id="nuevaContrasena"
-                                                    formControlName="nuevaContrasena"
-                                                    class="form-control"
-                                                    placeholder="Nueva contraseña"
-                                                    required
-                                                />
-                                                <button
-                                                    class="btn btn-light btn-icon"
-                                                    type="button"
-                                                    (click)="togglePassword('nueva')"
-                                                >
-                                                    <ng-icon
-                                                        name="tablerEye"
-                                                        [class.d-block]="showPasswordNueva"
-                                                        [class.d-none]="!showPasswordNueva"
-                                                    ></ng-icon>
-                                                    <ng-icon
-                                                        name="tablerEyeClosed"
-                                                        [class.d-block]="!showPasswordNueva"
-                                                        [class.d-none]="showPasswordNueva"
-                                                    ></ng-icon>
-                                                </button>
-                                            </div>
-                                            @if (formPassword.get('nuevaContrasena')?.invalid && formPassword.get('nuevaContrasena')?.touched) {
-                                                <div class="invalid-feedback">Ingrese la nueva contraseña.</div>
-                                            }
-                                        </div>
-                                        <div class="col-md-12">
-                                            <label for="passwordConfirm" class="form-label">Confirmar nueva contraseña</label>
-                                            <div class="input-group">
-                                                <input
-                                                    [type]="showPasswordConfirm ? 'text' : 'password'"
-                                                    id="passwordConfirm"
-                                                    formControlName="passwordConfirm"
-                                                    class="form-control"
-                                                    placeholder="Confirmar nueva contraseña"
-                                                    required
-                                                />
-                                                <button
-                                                    class="btn btn-light btn-icon"
-                                                    type="button"
-                                                    (click)="togglePassword('confirm')"
-                                                >
-                                                    <ng-icon
-                                                        name="tablerEye"
-                                                        [class.d-block]="showPasswordConfirm"
-                                                        [class.d-none]="!showPasswordConfirm"
-                                                    ></ng-icon>
-                                                    <ng-icon
-                                                        name="tablerEyeClosed"
-                                                        [class.d-block]="!showPasswordConfirm"
-                                                        [class.d-none]="showPasswordConfirm"
-                                                    ></ng-icon>
-                                                </button>
-                                            </div>
-                                            @if (formPassword.get('passwordConfirm')?.invalid && formPassword.get('passwordConfirm')?.touched) {
-                                                <div class="invalid-feedback">Confirme la nueva contraseña.</div>
-                                            }
-                                        </div>
-                                    </div>
-                                    <button class="btn btn-primary mt-3" type="submit" form="formPassword">
-                                        Cambiar contraseña
-                                    </button>
-                                </form>
-
+                            <ng-template ngbNavContent>   
+                                @if (usuario) {
+                                    <app-tab-seguridad [usuario]="usuario" />
+                                }
                             </ng-template>
                         </li>
                     }
@@ -294,10 +90,3 @@
         </app-ui-card>
     </div>
 </div>
-
-<!-- Drawer para mostrar el detalle del evento -->
-<app-evento-drawer
-    [visible]="showEventoDrawer"
-    [eventoId]="eventoSeleccionadoId"
-    (closed)="cerrarEventoDrawer()"
-></app-evento-drawer>

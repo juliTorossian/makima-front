@@ -39,7 +39,7 @@ export class EventoCrud extends CrudFormModal<Evento> {
   private clienteService = inject(ClienteService);
   private productoService = inject(ProductoService);
   private userStorageService = inject(UserStorageService);
-    private cdr = inject(ChangeDetectorRef);
+  private cdr = inject(ChangeDetectorRef);
 
   usuarioActivo:UsuarioLogeado | null = this.userStorageService.getUsuario();
 

@@ -56,7 +56,7 @@ export class EventoService {
   }
 
   updateAdicional(eventoId:string, formData:FormData): Observable<Evento> {
-    return this.http.patch<Evento>(`${this.URL_COMPLETA}/evento/${eventoId}`, formData);
+    return this.http.patch<Evento>(`${this.URL_COMPLETA}/evento/${eventoId}/adicional`, formData);
   }
 
   delete(eventoId:string): Observable<Evento> {

@@ -147,11 +147,20 @@ export interface EventoCount {
 }
 
 /** Etapa enriquecida para EventoCompleto */
+export interface RequisitoFaltante {
+  id: number;
+  tipo: string;
+  codigo: string;
+  descripcion: string;
+}
+
 export interface EventoEtapa {
   id: number;
   nombre: string;
   rolPreferido: string;
   activo: boolean;
+  puedeContinuar?: boolean;
+  requisitosFaltantes?: RequisitoFaltante[];
 }
 
 // Evento base

@@ -122,7 +122,11 @@ export class HorasUsuario extends TrabajarCon<RegistroHora> {
         this.cdr.detectChanges();
         this.aplicarFiltroFecha(fechaFiltro);
       },
-      error: () => this.showError('Error al cargar los registros de Hora.')
+      error: (err) => {
+        if (err?.status !== 404) {
+          this.showError('Error al cargar los registros de Hora.');
+        }
+      }
     });
   }
 

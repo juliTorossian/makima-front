@@ -23,6 +23,8 @@ import { EventoDrawerComponent } from '../evento-drawer/evento-drawer';
 import { CommonModule } from '@angular/common';
 import { UsuarioDrawerComponent } from '../../usuario/usuario-drawer/usuario-drawer';
 import { PadZeroPipe } from '@core/pipes/pad-zero.pipe';
+import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-eventos-usuario',
@@ -40,6 +42,8 @@ import { PadZeroPipe } from '@core/pipes/pad-zero.pipe';
     EventoDrawerComponent,
     UsuarioDrawerComponent,
     PadZeroPipe,
+    NgbPopoverModule,
+    TooltipModule 
 ],
   providers: [
     DialogService,
@@ -88,6 +92,7 @@ export class EventosUsuario extends TrabajarCon<Evento> {
     this.loadingService.show();
     this.eventoService.getAllCompleteByUsuario(this.usuarioActivo?.id ?? '').subscribe({
       next: (res) => {
+        console.log(res)
         setTimeout(() => {
           this.eventos = [...res];
           if (this.table) {
@@ -191,6 +196,7 @@ export class EventosUsuario extends TrabajarCon<Evento> {
   cerrarEventoDrawer() {
     this.showEventoDrawer = false;
     this.eventoSeleccionadoId = null;
+    this.loadItems();
     this.cdr.detectChanges();
   }
 
@@ -204,6 +210,17 @@ export class EventosUsuario extends TrabajarCon<Evento> {
     this.showUsuarioDrawer = false;
     this.usuarioSeleccionadoId = null;
     this.cdr.detectChanges();
+  }
+
+  getRequisitosFaltantes(evento: EventoCompleto): string {
+    console.log(evento.etapaActualData?.requisitosFaltantes);
+    if (evento.etapaActualData?.requisitosFaltantes?.length === 0) return '';
+    let req = '';
+    evento.etapaActualData?.requisitosFaltantes?.forEach((r) => {
+      req += `- ${r.descripcion}\n`;
+    });
+    console.log(req);
+    return req;
   }
 
 }

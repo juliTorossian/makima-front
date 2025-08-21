@@ -1,0 +1,101 @@
+@if (loadingSelect) {
+    <app-loading-spinner></app-loading-spinner>
+}
+<div>
+    <p-table
+        #dt
+        [value]="eventos"
+        [rows]="10"
+        [paginator]="true"
+        [globalFilterFields]="['id', 'tipo.codigo', 'numero', 'titulo', 'etapaActualData.nombre', 'cliente.sigla', 'cliente.nombre', 'producto.sigla', 'producto.nombre', 'producto.entornoCodigo', 'modulo.codigo', 'modulo.nombre', 'usuarioActual.usuario']"
+        [tableStyle]="{ 'min-width': '75rem' }"
+        [rowHover]="true"
+        dataKey="id"
+        currentPageReportTemplate="Mostrando desde {first} a {last} de {totalRecords} registros"
+        [showCurrentPageReport]="true"
+        size="small"
+    >
+        <ng-template pTemplate="caption">
+            <div class="flex align-items-center justify-content-between" style="display: flex;">
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText style="padding-top: 0.4rem !important;padding-bottom: 0.4rem !important;margin-left: 10px;" class="p-component p-element p-inputtext"  type="text" (input)="dt.filterGlobal(getEventValue($event), 'contains')" placeholder="Buscar..." />
+                </span>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="id" hidden>Id</th>
+                <th pSortableColumn="tipo.codigo" hidden>Tipo</th>
+                <th pSortableColumn="numero" hidden>Numero</th>
+                <th pSortableColumn="tipo.codigo" style="min-width: 110px;">
+                    <div class="flex align-items-center" style="justify-content: space-around;">
+                        Evento
+                        <p-columnFilter type="text" field="tipo.codigo" display="menu" matchMode="contains" style="margin-left: 2px;"></p-columnFilter>
+                    </div>
+                </th>
+                <th pSortableColumn="titulo">
+                    <div class="flex align-items-center" style="justify-content: space-around;">
+                        Titulo
+                        <p-columnFilter type="text" field="titulo" display="menu" matchMode="contains" style="margin-left: 2px;"></p-columnFilter>  
+                    </div>
+                </th>
+                <th pSortableColumn="cliente.nombre" filterField="cliente.nombre">
+                    <div class="flex align-items-center" style="justify-content: space-around;">
+                        Cliente
+                        <p-columnFilter type="text" field="cliente.nombre" display="menu" matchMode="contains" style="margin-left: 2px;"></p-columnFilter>
+                    </div>
+                </th>
+                <th pSortableColumn="producto.nombre" filterField="producto.nombre">
+                    <div class="flex align-items-center" style="justify-content: space-around;">
+                        Producto
+                        <p-columnFilter type="text" field="producto.nombre" display="menu" matchMode="contains" style="margin-left: 2px;"></p-columnFilter>
+                    </div>
+                </th>
+                <th pSortableColumn="modulo.nombre" filterField="modulo.nombre">
+                    <div class="flex align-items-center" style="justify-content: space-around;">
+                        Modulo
+                        <p-columnFilter type="text" field="modulo.nombre" display="menu" matchMode="contains" style="margin-left: 2px;"></p-columnFilter>
+                    </div>
+                </th>
+                <th></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-evento>
+            <tr style="min-height: 55px;">
+                <!-- <td>
+                    <p-tableCheckbox [value]="evento"></p-tableCheckbox>
+                </td> -->
+                <td hidden>{{ evento.id }}</td>
+                <td hidden>{{ evento.tipo.id }}</td>
+                <td hidden>{{ evento.numero }}</td>
+                <td>
+                    <app-badge-click 
+                        [backgroundColor]="evento.tipo.color"
+                        (click)="abrirEventoDrawer(evento)"
+                        style="cursor:pointer;"
+                    >
+                        {{ evento.tipo.codigo }}-{{evento.numero | padZero:3}}
+                    </app-badge-click>
+                </td>
+                <td>{{ evento.titulo }}</td>
+                <td>{{ evento.cliente.sigla }} - {{ evento.cliente.nombre }}</td>
+                <td>{{ evento.producto.sigla }} - {{ evento.producto.nombre }} | {{ evento.producto.entornoCodigo }}</td>
+                <td>{{ evento.modulo.codigo }} - {{ evento.modulo.nombre }}</td>
+                <td class="d-flex justify-content-end" style="min-height: 55px;">
+                    <button class="btn btn-ghost-warning" (click)="select(evento)"><ng-icon name="lucideSearchCheck"/></button>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="summary">
+            <div class="flex align-items-center justify-content-between">En total hay {{ eventos ? eventos.length : 0 }} Eventos.</div>
+        </ng-template>
+    </p-table>
+</div>
+<!-- Drawer para mostrar el detalle del evento -->
+<app-evento-drawer
+    [visible]="showEventoDrawer"
+    [eventoId]="eventoSeleccionadoId"
+    (closed)="cerrarEventoDrawer()"
+>
+</app-evento-drawer>

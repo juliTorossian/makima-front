@@ -14,7 +14,7 @@ export interface Usuario {
   createdAt?: Date;
   updatedAt?: Date;
   deletedAt?: Date;
-  // preferencias?: Preferencia[];
+  preferencias?: Preferencia[];
   roles?: UsuarioRol[];
   // notificaciones?: Notificacion[];
   // eventosCreados?: Evento[];
@@ -26,6 +26,12 @@ export interface Usuario {
 interface UsuarioRol {
   usuarioId: string;
   rolCodigo: string;
+}
+
+export interface Preferencia {
+  usuarioId: string
+  clave: string;
+  descripcion: string;
 }
 
 export interface UsuarioCompleto extends Usuario {
