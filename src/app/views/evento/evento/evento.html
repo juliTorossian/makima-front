@@ -11,7 +11,10 @@
 					<div style="flex:2;min-width:0;">
                         <app-ui-card title=""  [withTitle]="false">
                             <div card-body>
-                                <p class="m-0">{{evento.tipoCodigo}}-{{evento.numero}}</p>
+                                <div class="d-flex justify-content-between">
+                                    <p class="m-0">{{evento.tipoCodigo}}-{{evento.numero | padZero:4 }}</p>
+                                    <p class="m-0">{{getEstadoDescCorto(evento.estado)}}</p>
+                                </div>
                                 <h1>{{evento.titulo}}</h1>
 
                                     <!-- Aside para pantallas pequeñas: entre el título y la card de adjuntos -->
@@ -62,25 +65,37 @@
                                                         <td>{{ req.requisito.descripcion }}</td>
                                                         <td>{{ req.etapa.nombre }}</td>
                                                         <td style="padding-right: 10px;" [pEditableColumn]="req.cumplimiento?.valor" pEditableColumnField="code">
-                                                            <p-cellEditor>
-                                                                <ng-template #input>
-                                                                    <!-- <input
-                                                                        pInputText
-                                                                        type="text"
-                                                                        [(ngModel)]="req.cumplimiento" 
-                                                                        fluid /> -->
-                                                                    <input
-                                                                        [type]="getType(req)"
-                                                                        [(ngModel)]="req.cumplimiento.valor"
-                                                                        [disabled]="getRequerimientoDisabled(req)"
-                                                                        class="form-control"
-                                                                        (change)="onActualizarRequisito(req, $event)"
-                                                                    />
-                                                                </ng-template>
-                                                                <ng-template #output>
-                                                                        {{ req.cumplimiento?.valor }}
-                                                                </ng-template>
-                                                            </p-cellEditor>
+                                                            @if (evento.cerrado) {
+                                                                @if (req.cumplimiento?.valor) {
+                                                                    {{ req.cumplimiento?.valor }}
+                                                                } @else {
+                                                                    -
+                                                                }
+                                                            } @else {
+                                                                <p-cellEditor>
+                                                                    <ng-template #input>
+                                                                        <!-- <input
+                                                                            pInputText
+                                                                            type="text"
+                                                                            [(ngModel)]="req.cumplimiento" 
+                                                                            fluid /> -->
+                                                                        <input
+                                                                            [type]="getType(req)"
+                                                                            [(ngModel)]="req.cumplimiento.valor"
+                                                                            [disabled]="getRequerimientoDisabled(req)"
+                                                                            class="form-control"
+                                                                            (change)="onActualizarRequisito(req, $event)"
+                                                                        />
+                                                                    </ng-template>
+                                                                    <ng-template #output>
+                                                                            @if (req.cumplimiento?.valor) {
+                                                                                {{ req.cumplimiento?.valor }}
+                                                                            } @else {
+                                                                                -
+                                                                            }
+                                                                    </ng-template>
+                                                                </p-cellEditor>
+                                                            }
                                                         </td>
                                                     </tr>
                                                 </ng-template>
@@ -136,7 +151,6 @@
                     </div>
 
 					<div style="flex:1;min-width:0;">
-                        <!-- Aside para pantallas grandes: a la derecha -->
                         <div class="d-none d-lg-block">
                             <app-evento-info-card
                                 [evento]="evento"

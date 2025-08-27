@@ -18,9 +18,50 @@
         <p class="ms-2">{{ evento.cliente.sigla + ' - ' + evento.cliente.nombre }}</p>
       </div>
     }
+    @if (evento.prioridadFin) {
+      <div>
+        <h5 class="fw-bold">Prioridad</h5>
+        <p class="ms-2">{{ evento.prioridadFin }}</p>
+      </div>
+    }
+
+    <div>
+      <h5 class="fw-bold mt-2">Fecha Inicio:</h5>
+      @if (evento.cerrado) {
+        <p class="ms-2">{{ evento.fechaInicio | date: 'short' }}</p>
+      } @else {
+        <input type="date" [ngModel]="formatDateForInput(evento.fechaInicio)" name="fechaInicio" id="fechaInicio" class="form-control ms-2" (ngModelChange)="onFechaChange($event, 'fechaInicio')">
+      }
+    </div>
+    <div>
+      <h5 class="fw-bold mt-2">Fecha Estimada:</h5>
+      @if (evento.cerrado) {
+        <p class="ms-2">{{ evento.fechaFinEst | date: 'short' }}</p>
+      } @else {
+        <input type="date" [ngModel]="formatDateForInput(evento.fechaFinEst)" name="fechaFinEst" id="fechaFinEst" class="form-control ms-2" (ngModelChange)="onFechaChange($event, 'fechaFinEst')">
+      }
+    </div>
+    <div>
+      <h5 class="fw-bold mt-2">Fecha Fin:</h5>
+      @if (evento.cerrado) {
+        <p class="ms-2">{{ evento.fechaFinReal | date: 'short' }}</p>
+      } @else {
+        <input type="date" [ngModel]="formatDateForInput(evento.fechaFinReal)" name="fechaFinReal" id="fechaFinReal" class="form-control ms-2" (ngModelChange)="onFechaChange($event, 'fechaFinReal')" disabled>
+      }
+    </div>
+    <div>
+      <h5 class="fw-bold mt-2">Fecha Entrega:</h5>
+      @if (evento.cerrado) {
+        <p class="ms-2">{{ evento.fechaEntrega | date: 'short' }}</p>
+      } @else {
+        <input type="date" [ngModel]="formatDateForInput(evento.fechaEntrega)" name="fechaEntrega" id="fechaEntrega" class="form-control ms-2" (ngModelChange)="onFechaChange($event, 'fechaEntrega')">
+      }
+    </div>
+
+
     @if (evento.usuarioActual) {
       <div>
-        <h5 class="fw-bold">Asignado a</h5>
+        <h5 class="fw-bold mt-2">Asignado a</h5>
         <app-badge-click 
             [backgroundColor]="evento.usuarioActual.color"
             (click)="abrirUsuarioDrawer(evento.usuarioActual.id)"
@@ -28,12 +69,6 @@
         >
             {{ evento.usuarioActual.usuario }}
         </app-badge-click>
-      </div>
-    }
-    @if (evento.prioridad) {
-      <div>
-        <h5 class="fw-bold">Prioridad</h5>
-        <p class="ms-2">{{ evento.prioridad }}</p>
       </div>
     }
     <!-- @if (tags?.length) {
@@ -44,6 +79,9 @@
         }
       </span>
     } -->
+
+    <p-divider type="solid" />
+
     @if (evento.usuarioAlta) {
       <div>
         <h5 class="fw-bold">Creado por</h5>
@@ -59,8 +97,14 @@
     }
     @if (evento.createdAt) {
       <div>
-        <h5 class="fw-bold">Creado en</h5>
+        <h5 class="fw-bold">Creado en:</h5>
         <p class="ms-2">{{ evento.createdAt | date: 'short' }}</p>
+      </div>
+    }
+    @if (evento.deletedAt) {
+      <div>
+        <h5 class="fw-bold">Eliminado en:</h5>
+        <p class="ms-2">{{ evento.deletedAt | date: 'short' }}</p>
       </div>
     }
   </div>

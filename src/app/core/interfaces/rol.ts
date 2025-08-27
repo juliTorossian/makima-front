@@ -39,6 +39,7 @@ export enum PermisoClave {
   ADMIN = 'ADM',
   EVENTO = 'EVT',
   CLIENTE = 'CLI',
+  PROYECTO = 'PRO',
   USUARIO = 'USR',
   MODULO = 'MOD',
   ENTORNO = 'ENT',
@@ -49,6 +50,22 @@ export enum PermisoClave {
   TIPO_EVENTO = 'TEV',
   ROL = 'ROL'
 }
+
+export const permisosVacios = {
+  [PermisoClave.ADMIN]: 0,
+  [PermisoClave.EVENTO]: 0,
+  [PermisoClave.CLIENTE]: 0,
+  [PermisoClave.PROYECTO]: 0,
+  [PermisoClave.USUARIO]: 0,
+  [PermisoClave.MODULO]: 0,
+  [PermisoClave.ENTORNO]: 0,
+  [PermisoClave.PRODUCTO]: 0,
+  [PermisoClave.HORAS_GENERALES]: 0,
+  [PermisoClave.EVENTO_DOCUMENTO]: 0,
+  [PermisoClave.ETAPA]: 0,
+  [PermisoClave.TIPO_EVENTO]: 0,
+  [PermisoClave.ROL]: 0
+};
 
 const LEER = "Leer";
 const ESCRIBIR = "Escribir";
@@ -73,6 +90,12 @@ export const permisosData: PermisoConfig[] = [
   {
     clave: PermisoClave.CLIENTE,
     descripcion: 'Clientes',
+    nivel: 0,
+    acciones: { Lee: { activo: true, label: LEER }, Mod: { activo: true, label: LEER_Y_ESCRIBIR }, Eli: { activo: true, label: TODO } }
+  },
+  {
+    clave: PermisoClave.PROYECTO,
+    descripcion: 'Proyectos',
     nivel: 0,
     acciones: { Lee: { activo: true, label: LEER }, Mod: { activo: true, label: LEER_Y_ESCRIBIR }, Eli: { activo: true, label: TODO } }
   },

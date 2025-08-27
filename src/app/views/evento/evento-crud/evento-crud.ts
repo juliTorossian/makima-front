@@ -17,11 +17,21 @@ import { Producto } from '@core/interfaces/producto';
 import { FileUploader } from '@app/components/file-uploader';
 import { AuthService } from '@core/services/auth';
 import { UserStorageService, UsuarioLogeado } from '@core/services/user-storage';
+import { Proyecto } from '@core/interfaces/proyecto';
+import { ProyectoService } from '@core/services/proyecto';
+import { NgIcon } from '@ng-icons/core';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { ClienteSelect } from '../../cliente/cliente-select/cliente-select';
+import { modalConfig } from '@/app/types/modals';
+import { ProyectoSelect } from '../../proyecto/proyecto-select/proyecto-select';
+import { ModuloSelect } from '../../modulo/modulo-select/modulo-select';
+import { ProductoSelect } from '../../producto/producto-select/producto-select';
 
 
 @Component({
   selector: 'app-evento-crud',
   imports: [
+    NgIcon,
     ReactiveFormsModule,
     ToastModule,
     NgbTypeaheadModule,
@@ -38,7 +48,13 @@ export class EventoCrud extends CrudFormModal<Evento> {
   private moduloService = inject(ModuloService);
   private clienteService = inject(ClienteService);
   private productoService = inject(ProductoService);
+  private proyectoService = inject(ProyectoService);
   private userStorageService = inject(UserStorageService);
+  private dialogService = inject(DialogService);
+  private selCliente = inject(DynamicDialogRef);
+  private selProyecto = inject(DynamicDialogRef);
+  private selProducto = inject(DynamicDialogRef);
+  private selModulo = inject(DynamicDialogRef);
   private cdr = inject(ChangeDetectorRef);
 
   usuarioActivo:UsuarioLogeado | null = this.userStorageService.getUsuario();
@@ -49,15 +65,17 @@ export class EventoCrud extends CrudFormModal<Evento> {
   modulos!:Modulo[];
   clientes!:Cliente[];
   productos!:Producto[];
+  proyectos!:Proyecto[];
 
   // Vars para typeahead
   selectedTipoEvento?: TipoEvento;
   selectedModulo?: Modulo;
   selectedCliente?: Cliente;
   selectedProducto?: Producto;
+  selectedProyecto?: Proyecto;
 
   private dataLoadedCount = 0;
-  private totalDataToLoad = 4;
+  private totalDataToLoad = 5;
 
   searchTipoEvento = createTypeaheadSearch<TipoEvento>(
     this.tiposEvento,
@@ -74,6 +92,20 @@ export class EventoCrud extends CrudFormModal<Evento> {
   formatterModulo = createTypeaheadFormatter<Modulo>(
     item => `${item.codigo} - ${item.nombre}`
   );
+  modalSelModulo(event: Event) {
+    event.preventDefault();
+    this.selModulo = this.dialogService.open(ModuloSelect, {
+      ...modalConfig,
+      header: "Seleccionar Modulo"
+    });
+
+    this.selModulo.onClose.subscribe((result: any) => {
+      if (!result) return;
+      this.form.patchValue({
+        modulo: result
+      });
+    });
+  }
 
   searchCliente = createTypeaheadSearch<Cliente>(
     this.clientes,
@@ -82,6 +114,42 @@ export class EventoCrud extends CrudFormModal<Evento> {
   formatterCliente = createTypeaheadFormatter<Cliente>(
     item => `${item.sigla} - ${item.nombre}`
   );
+  modalSelCliente(event: Event) {
+    event.preventDefault();
+    this.selCliente = this.dialogService.open(ClienteSelect, {
+      ...modalConfig,
+      header: "Seleccionar Cliente"
+    });
+
+    this.selCliente.onClose.subscribe((result: any) => {
+      if (!result) return;
+      this.form.patchValue({
+        cliente: result
+      });
+    });
+  }
+
+  searchProyecto = createTypeaheadSearch<Proyecto>(
+    this.proyectos,
+    item => `${item.sigla} - ${item.nombre}`
+  );
+  formatterProyecto = createTypeaheadFormatter<Proyecto>(
+    item => `${item.sigla} - ${item.nombre}`
+  );
+  modalSelProyecto(event: Event) {
+    event.preventDefault();
+    this.selProyecto = this.dialogService.open(ProyectoSelect, {
+      ...modalConfig,
+      header: "Seleccionar Proyecto"
+    });
+
+    this.selProyecto.onClose.subscribe((result: any) => {
+      if (!result) return;
+      this.form.patchValue({
+        proyecto: result
+      });
+    });
+  }
 
   searchProducto = createTypeaheadSearch<Producto>(
     this.productos,
@@ -90,6 +158,20 @@ export class EventoCrud extends CrudFormModal<Evento> {
   formatterProducto = createTypeaheadFormatter<Producto>(
     item => `${item.sigla} - ${item.nombre} | ${item.entornoCodigo}`
   );
+  modalSelProducto(event: Event) {
+    event.preventDefault();
+    this.selProducto = this.dialogService.open(ProductoSelect, {
+      ...modalConfig,
+      header: "Seleccionar Producto"
+    });
+
+    this.selProducto.onClose.subscribe((result: any) => {
+      if (!result) return;
+      this.form.patchValue({
+        producto: result
+      });
+    });
+  }
 
   onFilesChange(files: File[]) {
     this.uploadedFiles = files;
@@ -102,40 +184,48 @@ export class EventoCrud extends CrudFormModal<Evento> {
   override ngOnInit(): void {
     super.ngOnInit();
 
-      this.dataLoadedCount = 0;
-      this.totalDataToLoad = 4;
+    this.dataLoadedCount = 0;
+    this.totalDataToLoad = 4;
 
-      this.moduloService.getAll().subscribe({
-        next: (res:any) => {
-          this.modulos = res;
-          this.searchModulo = createTypeaheadSearch(this.modulos, m => `${m.codigo} - ${m.nombre}`);
-          this.checkAndSetupEditMode();
-        }
-      });
+    this.moduloService.getAll().subscribe({
+      next: (res:any) => {
+        this.modulos = res;
+        this.searchModulo = createTypeaheadSearch(this.modulos, m => `${m.codigo} - ${m.nombre}`);
+        this.checkAndSetupEditMode();
+      }
+    });
 
-      this.tipoEventoService.getAll().subscribe({
-        next: (res:any) => {
-          this.tiposEvento = res;
-          this.searchTipoEvento = createTypeaheadSearch(this.tiposEvento, te => `${te.codigo} - ${te.descripcion}`);
-          this.checkAndSetupEditMode();
-        }
-      });
+    this.tipoEventoService.getAll().subscribe({
+      next: (res:any) => {
+        this.tiposEvento = res;
+        this.searchTipoEvento = createTypeaheadSearch(this.tiposEvento, te => `${te.codigo} - ${te.descripcion}`);
+        this.checkAndSetupEditMode();
+      }
+    });
 
-      this.clienteService.getAll().subscribe({
-        next: (res:any) => {
-          this.clientes = res;
-          this.searchCliente = createTypeaheadSearch(this.clientes, c => `${c.sigla} - ${c.nombre}`);
-          this.checkAndSetupEditMode();
-        }
-      });
+    this.clienteService.getAll().subscribe({
+      next: (res:any) => {
+        this.clientes = res;
+        this.searchCliente = createTypeaheadSearch(this.clientes, c => `${c.sigla} - ${c.nombre}`);
+        this.checkAndSetupEditMode();
+      }
+    });
 
-      this.productoService.getAll().subscribe({
-        next: (res:any) => {
-          this.productos = res;
-          this.searchProducto = createTypeaheadSearch(this.productos, p => `${p.sigla} - ${p.nombre} | ${p.entornoCodigo}`);
-          this.checkAndSetupEditMode();
-        }
-      });
+    this.productoService.getAll().subscribe({
+      next: (res:any) => {
+        this.productos = res;
+        this.searchProducto = createTypeaheadSearch(this.productos, p => `${p.sigla} - ${p.nombre} | ${p.entornoCodigo}`);
+        this.checkAndSetupEditMode();
+      }
+    });
+
+    this.proyectoService.getAll().subscribe({
+      next: (res:any) => {
+        this.proyectos = res;
+        this.searchProyecto = createTypeaheadSearch(this.proyectos, p => `${p.sigla} - ${p.nombre}`);
+        this.checkAndSetupEditMode();
+      }
+    });
   }
 
 
@@ -147,16 +237,14 @@ export class EventoCrud extends CrudFormModal<Evento> {
         titulo: new FormControl('', [Validators.required]),
         cerrado: new FormControl(false),
         etapaActual: new FormControl(1),
+        estimacion: new FormControl(0),
+        prioridadUsu: new FormControl(1),
+        facEventoCerr: new FormControl(false),
         cliente: new FormControl(null, [Validators.required]),
+        proyecto: new FormControl(null, [Validators.required]),
         producto: new FormControl(null, [Validators.required]),
         usuarioAltaId: new FormControl(this.usuarioActivo?.id),
-        estimacion: new FormControl(0),
         modulo: new FormControl(null, [Validators.required]),
-        prioridad: new FormControl(0),
-        activo: new FormControl(true),
-        createdAt: new FormControl(''),
-        updateAt: new FormControl(''),
-        deletedAt: new FormControl(''),
         comentario: new FormControl(''),
       });
   }
@@ -165,6 +253,7 @@ export class EventoCrud extends CrudFormModal<Evento> {
     // Buscar los objetos completos para los typeahead
     const tipoEventoObj = this.tiposEvento?.find(te => te.codigo === data.tipoCodigo) || null;
     const clienteObj = this.clientes?.find(c => c.id === data.clienteId) || null;
+    const proyectoObj = this.proyectos?.find(p => p.id === data.proyectoId) || null;
     const productoObj = this.productos?.find(p => p.id === data.productoId) || null;
     const moduloObj = this.modulos?.find(m => m.codigo === data.moduloCodigo) || null;
 
@@ -175,17 +264,15 @@ export class EventoCrud extends CrudFormModal<Evento> {
           numero: data.numero,
           titulo: data.titulo,
           cerrado: data.cerrado,
+          facEventoCerr: data.facEventoCerr,
           etapaActual: data.etapaActual,
           cliente: clienteObj,
+          proyecto: proyectoObj,
           producto: productoObj,
           usuarioAltaId: data.usuarioAltaId,
           estimacion: data.estimacion,
           modulo: moduloObj,
-          prioridad: data.prioridad,
-          activo: data.activo,
-          createdAt: data.createdAt,
-          updateAt: data.updatedAt,
-          deletedAt: data.deletedAt,
+          prioridadUsu: data.prioridadUsu,
           comentario: data.comentario ?? ''
         });
         this.cdr.detectChanges();
@@ -210,6 +297,7 @@ export class EventoCrud extends CrudFormModal<Evento> {
     let cliente = this.get('cliente')?.value;
     let producto = this.get('producto')?.value;
     let modulo = this.get('modulo')?.value;
+    let proyecto = this.get('proyecto')?.value;
 
     const formData = new FormData();
     if (this.get('id')?.value) {
@@ -217,21 +305,19 @@ export class EventoCrud extends CrudFormModal<Evento> {
     }
     formData.append('tipoCodigo', tipoEvento.codigo);
     formData.append('numero', this.get('numero')?.value);
-    formData.append('prioridad', this.get('prioridad')?.value);
+    formData.append('prioridadUsu', this.get('prioridadUsu')?.value);
     formData.append('titulo', this.get('titulo')?.value);
     formData.append('clienteId', cliente.id);
+    formData.append('proyectoId', proyecto.id);
     formData.append('productoId', producto.id);
     formData.append('moduloCodigo', modulo.codigo);
     formData.append('comentario', this.get('comentario')?.value);
-    formData.append('activo', this.get('activo')?.value);
+    formData.append('facEventoCerr', this.get('facEventoCerr')?.value);
 
     formData.append('cerrado', this.get('cerrado')?.value);
     formData.append('etapaActual', this.get('etapaActual')?.value);
     formData.append('usuarioAltaId', this.get('usuarioAltaId')?.value);
     formData.append('estimacion', this.get('estimacion')?.value);
-    formData.delete('createdAt');
-    formData.delete('updateAt');
-    formData.delete('deletedAt');
 
 
     this.uploadedFiles.forEach(file => formData.append('archivos', file));

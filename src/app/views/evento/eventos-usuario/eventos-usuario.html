@@ -122,32 +122,39 @@
                                 <td hidden>{{ evento.usuarioAlta.usuario }}</td>
                                 <td class="d-flex justify-content-end" style="min-height: 55px;">
                                     @if (evento.etapaSiguiente) {
-                                        @if (evento.etapaActualData.puedeContinuar){
-                                            <button class="btn btn-ghost-warning" (click)="mostrarModalCrud(evento, 'AVZ')"><ng-icon name="lucideFastForward"/></button>
+                                        @if (evento.etapaActualData.deAutoriza) {
+                                            <button class="btn btn-ghost-warning" (click)="mostrarModalCrud(evento, 'AUT')"><ng-icon name="lucideCircleCheckBig"/></button>
                                         } @else {
-                                            <div
-                                                style="min-height: 42px;"
-                                                placement="top"
-                                                container="body"
-                                                triggers="hover"
-                                                popoverClass="popover-warning"
-                                                ngbPopover="{{getRequisitosFaltantes(evento)}}"
-                                                popoverTitle="Requisitos Faltantes"
-                                                >
-                                                <button
+                                            @if (evento.etapaActualData.puedeContinuar){
+                                                <button class="btn btn-ghost-warning" (click)="mostrarModalCrud(evento, 'AVZ')"><ng-icon name="lucideFastForward"/></button>
+                                            } @else {
+                                                <div
                                                     style="min-height: 42px;"
-                                                    class="btn btn-ghost-warning"
-                                                    (click)="mostrarModalCrud(evento, 'AVZ')"
-                                                    disabled
-                                                >
-                                                    <ng-icon name="lucideFastForward"/>
-                                                </button>
-                                            </div>
-
+                                                    placement="top"
+                                                    container="body"
+                                                    triggers="hover"
+                                                    popoverClass="popover-warning"
+                                                    ngbPopover="{{getRequisitosFaltantes(evento)}}"
+                                                    popoverTitle="Requisitos Faltantes"
+                                                    >
+                                                    <button
+                                                        style="min-height: 42px;"
+                                                        class="btn btn-ghost-warning"
+                                                        (click)="mostrarModalCrud(evento, 'AVZ')"
+                                                        disabled
+                                                    >
+                                                        <ng-icon name="lucideFastForward"/>
+                                                    </button>
+                                                </div>
+                                            }    
                                         }
                                     }
                                     @if (evento.etapaAnterior) {
-                                        <button class="btn btn-ghost-danger" (click)="mostrarModalCrud(evento, 'RTO')"><ng-icon name="lucideRewind"/></button>
+                                        @if (evento.etapaActualData.deAutoriza) {
+                                            <button class="btn btn-ghost-danger" (click)="mostrarModalCrud(evento, 'REC')"><ng-icon name="lucideCircleSlash"/></button>
+                                        } @else {
+                                            <button class="btn btn-ghost-danger" (click)="mostrarModalCrud(evento, 'RTO')"><ng-icon name="lucideRewind"/></button>
+                                        }
                                     }
                                     <button class="btn btn-ghost-danger" (click)="mostrarModalCrud(evento, 'RAS')"><ng-icon name="lucideRotateCcw"/></button>
                                 </td>

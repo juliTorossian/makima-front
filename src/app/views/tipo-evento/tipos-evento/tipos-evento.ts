@@ -17,6 +17,9 @@ import { PermisoClave } from '@core/interfaces/rol';
 import { finalize } from 'rxjs';
 import { BooleanLabelPipe } from '@core/pipes/boolean-label.pipe';
 import { CommonModule } from '@angular/common';
+import { TipoEventoPrioridadReglas } from '../tipo-evento-crear-regla/tipo-evento-crear-regla';
+import { PrioridadService } from '@core/services/prioridad-regla';
+import { PrioridadRegla } from '@core/interfaces/prioridad-reglas';
 
 @Component({
   selector: 'app-tipo-evento',
@@ -41,8 +44,10 @@ import { CommonModule } from '@angular/common';
 })
 export class TiposEvento extends TrabajarCon<TipoEvento> {
   private tipoEventoService = inject(TipoEventoService);
+  private prioridadService = inject(PrioridadService);
   private dialogService = inject(DialogService);
   ref!: DynamicDialogRef;
+  refPrioridadRegla!: DynamicDialogRef;
 
   tiposEvento!:TipoEvento[];
 
@@ -104,6 +109,17 @@ export class TiposEvento extends TrabajarCon<TipoEvento> {
     this.ref.onClose.subscribe((tipoEventoCrud: TipoEvento) => {
       if (!tipoEventoCrud) return;
       modo === 'M' ? this.editar(tipoEventoCrud) : this.alta(tipoEventoCrud);
+    });
+  }
+
+  mostrarModalPrioridadReglas(tipoEvento: TipoEvento | null) {
+    const data = { tipoEventoCodigo: tipoEvento?.codigo };
+    const header = 'Reglas de Prioridad';
+
+    this.refPrioridadRegla = this.dialogService.open(TipoEventoPrioridadReglas, {
+      ...modalConfig,
+      header,
+      data
     });
   }
 }

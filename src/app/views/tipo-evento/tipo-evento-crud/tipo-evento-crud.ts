@@ -1,7 +1,8 @@
 import { getRandomColor } from '@/app/utils/color-utils';
-import { Component, inject, OnInit } from '@angular/core';
-import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
+import { FormArray, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CrudFormModal } from '@app/components/crud-form-modal/crud-form-modal';
+import { Etapa } from '@core/interfaces/etapa';
 import { TipoEvento, TipoEventoEtapa } from '@core/interfaces/tipo-evento';
 import { EtapaService } from '@core/services/etapa';
 import { MessageService } from 'primeng/api';
@@ -12,6 +13,7 @@ import { ToastModule } from 'primeng/toast';
   imports: [
     ReactiveFormsModule,
     ToastModule,
+    FormsModule,
   ],
   providers: [
     MessageService,
@@ -20,13 +22,24 @@ import { ToastModule } from 'primeng/toast';
   styleUrl: './tipo-evento-crud.scss'
 })
 export class TipoEventoCrud extends CrudFormModal<TipoEvento> implements OnInit {
+  // Para el selector de etapa final
   private etapaService = inject(EtapaService);
-  etapasCatalogo!: any[];
+  private cdr = inject(ChangeDetectorRef);
+  etapasCatalogo!: Etapa[];
+  etapasArchivo!: Etapa[];
 
   override ngOnInit(): void {
     super.ngOnInit();
     this.etapaService.getAll().subscribe({
-      next: (res: any) => this.etapasCatalogo = res,
+      next: (res: Etapa[]) => this.etapasCatalogo = res,
+      error: () => this.showError('Error', 'Error al cargar las etapas.')
+    });
+    this.etapaService.getAllArchivo().subscribe({
+      next: (res: Etapa[]) => {
+        console.log(res)
+        this.etapasArchivo = res
+        this.cdr.detectChanges();
+      },
       error: () => this.showError('Error', 'Error al cargar las etapas.')
     });
   }
@@ -40,7 +53,8 @@ export class TipoEventoCrud extends CrudFormModal<TipoEvento> implements OnInit 
       propio: new FormControl(false),
       facturable: new FormControl(false),
       facturableAuto: new FormControl(false),
-      etapas: new FormArray([])
+      etapas: new FormArray([]),
+      etapaFinal: new FormControl(null)
     });
   }
 
@@ -75,10 +89,10 @@ export class TipoEventoCrud extends CrudFormModal<TipoEvento> implements OnInit 
     this.reorderSequences();
   }
   getRollbackOptions(currentSeq: number): number[] {
-  return this.etapasFormArray.controls
-    .map(c => c.get('etapaSecuencia')?.value)
-    .filter(seq => seq < currentSeq);
-}
+    return this.etapasFormArray.controls
+      .map(c => c.get('etapaSecuencia')?.value)
+      .filter(seq => seq < currentSeq);
+  }
 
   private getNextSequence(): number {
     const secuencias = this.etapasFormArray.controls
@@ -116,8 +130,19 @@ export class TipoEventoCrud extends CrudFormModal<TipoEvento> implements OnInit 
       facturableAuto: data.facturableAuto
     });
 
+    // Extraer etapa final (secuencia 99) y asignar a etapaFinal
+    let etapaFinalId: number | null = null;
+    let etapasSinFinal = (data.etapas ?? []).filter(etapa => {
+      if (Number(etapa.etapaSecuencia) === 99) {
+        etapaFinalId = etapa.etapaId != null ? Number(etapa.etapaId) : null;
+        return false;
+      }
+      return true;
+    });
+    this.form.get('etapaFinal')?.setValue(etapaFinalId);
+
     this.etapasFormArray.clear();
-    data.etapas?.forEach(etapa => {
+    etapasSinFinal.forEach(etapa => {
       this.etapasFormArray.push(this.createEtapaForm({
         etapaId: etapa.etapaId != null ? Number(etapa.etapaId) : undefined,
         etapaSecuencia: etapa.etapaSecuencia != null ? Number(etapa.etapaSecuencia) : undefined,
@@ -127,6 +152,24 @@ export class TipoEventoCrud extends CrudFormModal<TipoEvento> implements OnInit 
   }
 
   protected toModel(): TipoEvento {
+    const etapas = this.etapasFormArray.value.map((e: any) => ({
+      etapaId: e.etapaId != null ? Number(e.etapaId) : null,
+      etapaSecuencia: Number(e.etapaSecuencia),
+      rollbackSec: (e.rollbackSec != null && e.rollbackSec !== '') ? Number(e.rollbackSec) : null
+    }));
+    // Si hay etapa final seleccionada, agregarla como secuencia 99
+    console.log(this.form.get('etapaFinal')?.value)
+    if (this.form.get('etapaFinal')?.value != null) {
+      const etapaFinalObj = this.etapasArchivo.find(e => Number(e.id) === this.form.get('etapaFinal')?.value);
+      console.log(etapaFinalObj)
+      if (etapaFinalObj) {
+        etapas.push({
+          etapaId: Number(etapaFinalObj.id),
+          etapaSecuencia: 99,
+          rollbackSec: null
+        });
+      }
+    }
     return {
       codigo: this.get('codigo')?.value,
       descripcion: this.get('descripcion')?.value,
@@ -135,11 +178,7 @@ export class TipoEventoCrud extends CrudFormModal<TipoEvento> implements OnInit 
       propio: this.get('propio')?.value,
       facturable: this.get('facturable')?.value,
       facturableAuto: this.get('facturableAuto')?.value,
-      etapas: this.etapasFormArray.value.map((e: any) => ({
-        etapaId: e.etapaId != null ? Number(e.etapaId) : null,
-        etapaSecuencia: Number(e.etapaSecuencia),
-        rollbackSec: (e.rollbackSec != null && e.rollbackSec !== '') ? Number(e.rollbackSec) : null
-      }))
+      etapas
     };
   }
 

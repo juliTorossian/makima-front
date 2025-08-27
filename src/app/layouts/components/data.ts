@@ -74,6 +74,12 @@ export const menuItems: MenuItemType[] = [
     permisoClave: PermisoClave.CLIENTE
   },
   {
+    label: 'Proyectos',
+    icon: 'lucideTarget',
+    url: '/proyecto/proyectos',
+    permisoClave: PermisoClave.PROYECTO
+  },
+  {
     label: 'Modulos',
     icon: 'lucidePuzzle',
     url: '/modulo/modulos',

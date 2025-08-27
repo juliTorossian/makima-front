@@ -43,7 +43,7 @@ export class EventoSelect extends SelectBase<Evento> {
     }
 
     abrirEventoDrawer(evento: EventoCompleto) {
-        this.eventoSeleccionadoId = evento.id;
+        this.eventoSeleccionadoId = evento.id || null;
         this.showEventoDrawer = true;
         this.cdr.detectChanges();
     }
@@ -60,7 +60,7 @@ export class EventoSelect extends SelectBase<Evento> {
             finalize(() => this.loadingSelect = false)
         ).subscribe({
             next: (res: EventoCompleto[]) => {
-                console.log(res);
+                // console.log(res);
                 this.eventos = res;
                 this.cdr.detectChanges();
             },

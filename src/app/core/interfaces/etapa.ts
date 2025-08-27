@@ -3,6 +3,8 @@ export interface Etapa {
   nombre: string;
   rolPreferido?: string;
   activo?: boolean;
+  deAutoriza?: boolean;
+  deArchivo?: boolean;
 
   requisitos?: Etapa_requisito[];
   // eventoEtapas?: EventoEtapa[];

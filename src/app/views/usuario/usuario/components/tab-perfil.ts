@@ -79,7 +79,7 @@ export class TabPerfil implements OnInit {
 
 
     abrirEventoDrawer(evento: EventoCompleto) {
-        this.eventoSeleccionadoId = evento.id;
+        this.eventoSeleccionadoId = evento.id || null;
         this.showEventoDrawer = true;
         this.cdr.detectChanges();
     }

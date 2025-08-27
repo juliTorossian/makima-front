@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, inject, OnInit, ViewChild, ViewContainerRef, ComponentRef, AfterViewInit } from '@angular/core';
 import { TrabajarCon } from '@app/components/trabajar-con/trabajar-con';
-import { Evento, EventoCompleto } from '@core/interfaces/evento';
+import { CircularEvento, Evento, EventoCompleto } from '@core/interfaces/evento';
 import { EventoService } from '@core/services/evento';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -24,6 +24,8 @@ import { UserStorageService, UsuarioLogeado } from '@core/services/user-storage'
 import { PermisoClave } from '@core/interfaces/rol';
 import { finalize } from 'rxjs';
 import { PadZeroPipe } from '@core/pipes/pad-zero.pipe';
+import { ModalSel } from '../eventos-usuario/components/modal-sel/modal-sel';
+import { EventoAccionesService } from '@core/services/evento-acciones';
 
 @Component({
   selector: 'app-eventos',
@@ -57,6 +59,7 @@ export class Eventos extends TrabajarCon<Evento> {
   private dialogService = inject(DialogService);
   ref!: DynamicDialogRef;
   private userStorageService = inject(UserStorageService);
+  private eventoAccionesService = inject(EventoAccionesService);
 
   usuarioActivo: UsuarioLogeado | null = this.userStorageService.getUsuario();
 
@@ -84,11 +87,11 @@ export class Eventos extends TrabajarCon<Evento> {
 
   protected loadItems(): void {
     this.loadingService.show();
-    this.eventoService.getAllComplete().pipe(
+    this.eventoService.getAllComplete('all').pipe(
       finalize(() => this.loadingService.hide())
     ).subscribe({
       next: (res) => {
-        // console.log(res)
+        console.log(res)
         this.eventos = res;
         this.cdr.detectChanges();
       },
@@ -97,7 +100,7 @@ export class Eventos extends TrabajarCon<Evento> {
   }
 
   abrirEventoDrawer(evento: EventoCompleto) {
-    this.eventoSeleccionadoId = evento.id;
+    this.eventoSeleccionadoId = evento.id || null;
     this.showEventoDrawer = true;
     this.cdr.detectChanges();
   }
@@ -124,7 +127,7 @@ export class Eventos extends TrabajarCon<Evento> {
     delete evento.id
     this.eventoService.create(evento).subscribe({
       next: () => this.afterChange('Evento creado correctamente.'),
-      error: (err) => this.showError(err.error.message ||'Error al crear el evento.')
+      error: (err) => this.showError(err.error.message || 'Error al crear el evento.')
     });
   }
 
@@ -132,7 +135,7 @@ export class Eventos extends TrabajarCon<Evento> {
     let eventoCodigo = evento.id ?? '';
     this.eventoService.update(eventoCodigo, evento).subscribe({
       next: () => this.afterChange('Evento actualizado correctamente.'),
-      error: (err) => this.showError(err.error.message ||'Error al modificar el evento.')
+      error: (err) => this.showError(err.error.message || 'Error al modificar el evento.')
     });
   }
 
@@ -163,6 +166,7 @@ export class Eventos extends TrabajarCon<Evento> {
           const id = evento?.id ?? '';
           this.editarFormData(id, result);
         } else {
+          console.log(result)
           this.altaFormData(result);
         }
       } else {
@@ -186,4 +190,48 @@ export class Eventos extends TrabajarCon<Evento> {
       error: () => this.showError('Error al modificar el evento.')
     });
   }
+
+  mostrarModalCrudReasignar(evento: EventoCompleto) {
+
+    let header = "Reasignar Evento";
+    let mensaje = `Etapa: ${evento?.etapaActualData?.nombre}`;
+    let rol = evento?.etapaActualData?.rolPreferido;
+    let reqComentario = false;
+
+    const data = {
+      reqComentario: reqComentario,
+      comentario: "",
+      mensaje: mensaje,
+    }
+
+    this.ref = this.dialogService.open(ModalSel, {
+      ...modalConfig,
+      header,
+      data
+    });
+
+    this.ref.onClose.subscribe((result: any) => {
+      if (!result) return;
+
+      console.log(result);
+      if (evento) {
+        const body: CircularEvento = {
+          eventoId: evento.id || '',
+          usuarioId: result.usuarioSeleccionado,
+          comentario: result.comentario
+        }
+
+        this.eventoAccionesService.reasignar(body).subscribe({
+          next: () => this.showSuccess('Evento reasignado correctamente.'),
+          error: (err: any) => this.showError(err.error.message || 'Error al reasignar el evento.'),
+          complete: () => {
+            this.loadItems();
+          },
+        });
+      }
+
+    });
+
+  }
+
 }

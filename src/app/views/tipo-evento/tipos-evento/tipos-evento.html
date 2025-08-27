@@ -62,6 +62,7 @@
                                 <td><input type="color" name="color" value="{{ tipoEvento.color }}" disabled></td>
                                 <td class="d-flex justify-content-end">
                                     @if (can('M')) {
+                                        <button class="btn btn-ghost-info" (click)="mostrarModalPrioridadReglas(tipoEvento)"><ng-icon name="lucidePencilRuler"/></button>
                                         <button class="btn btn-ghost-warning" (click)="mostrarModalCrud(tipoEvento, 'M')"><ng-icon name="lucidePencil"/></button>
                                     }
                                     @if (can('B')) {

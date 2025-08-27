@@ -28,6 +28,8 @@ import { showError } from '@/app/utils/message-utils';
 import { PermisosService } from '@core/services/permisos';
 import { PermisoAccion } from '@/app/types/permisos';
 import { PermisoClave } from '@core/interfaces/rol';
+import { getEstadoDescCorto } from '@/app/constants/evento_estados';
+import { PadZeroPipe } from '@core/pipes/pad-zero.pipe';
 
 
 export type TimelineType = {
@@ -56,6 +58,7 @@ export type TimelineType = {
     NgIcon,
     FormsModule,
     LoadingSpinnerComponent,
+    PadZeroPipe,
   ],
   providers: [
     DialogService,
@@ -75,6 +78,7 @@ export class Evento implements OnInit {
   private rutActiva = inject(ActivatedRoute);
   private cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
   private userStorageService = inject(UserStorageService);
+  getEstadoDescCorto = getEstadoDescCorto;
 
   usuarioActivo:UsuarioLogeado | null = this.userStorageService.getUsuario();
   permisoClave = PermisoClave.EVENTO_DOCUMENTO;
@@ -331,7 +335,7 @@ export class Evento implements OnInit {
 
   getRequerimientoDisabled(req: any): boolean {
     return (
-      this.evento.etapaActualData.id > req.etapa.id ||
+      this.evento.etapaActualData.id <= req.etapa.id ||
       this.evento.usuarioActual.id !== this.usuarioActivo?.id
     );
   }

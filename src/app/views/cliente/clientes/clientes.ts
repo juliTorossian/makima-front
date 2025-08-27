@@ -16,6 +16,8 @@ import { ClienteCrud } from '../cliente-crud/cliente-crud';
 import { modalConfig } from '@/app/types/modals';
 import { PermisoClave } from '@core/interfaces/rol';
 import { finalize } from 'rxjs';
+import { BooleanLabelPipe } from '@core/pipes/boolean-label.pipe';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-clientes',
@@ -27,6 +29,8 @@ import { finalize } from 'rxjs';
     ConfirmDialogModule,
     ToastModule,
     ShortcutDirective,
+    BooleanLabelPipe,
+    CommonModule,
   ],
   providers: [
     DialogService,

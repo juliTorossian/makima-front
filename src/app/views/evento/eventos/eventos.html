@@ -123,11 +123,14 @@
                                 <td>{{ evento.createdAt | date:'short'}}</td>
                                 <td hidden>{{ evento.usuarioAlta.usuario }}</td>
                                 <td class="d-flex justify-content-end" style="min-height: 55px;">
-                                    @if (can('M')) {
-                                        <button class="btn btn-ghost-warning" (click)="mostrarModalCrud(evento, 'M')"><ng-icon name="lucidePencil"/></button>
-                                    }
-                                    @if (can('B')) {
-                                        <button class="btn btn-ghost-danger" (click)="delete(evento)"><ng-icon name="lucideTrash2"/></button>
+                                    @if (!evento.cerrado) {
+                                        @if (can('M')) {
+                                            <button class="btn btn-ghost-warning" (click)="mostrarModalCrud(evento, 'M')"><ng-icon name="lucidePencil"/></button>
+                                            <button class="btn btn-ghost-danger" (click)="mostrarModalCrudReasignar(evento)"><ng-icon name="lucideRotateCcw"/></button>
+                                        }
+                                        @if (can('B')) {
+                                            <button class="btn btn-ghost-danger" (click)="delete(evento)"><ng-icon name="lucideTrash2"/></button>
+                                        }
                                     }
                                 </td>
                             </tr>

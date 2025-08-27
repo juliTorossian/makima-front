@@ -3,59 +3,74 @@
   <form class="row g-3 needs-validation" [formGroup]="form" (ngSubmit)="accion($event)" novalidate>
 
     <div class="row">
-      
-      <div class="col-md-6" hidden>
-        <label for="id" class="form-label">Id</label>
-        <input
-          id="id"
-          type="text"
-          formControlName="id"
-          class="form-control"
-          placeholder="id"
-        />
-      </div>
-    </div>
 
-    <div class="row">
+
       <div class="col-md-3">
         <label for="nombre" class="form-label">Nombre</label>
-        <input
-          id="nombre"
-          type="text"
-          formControlName="nombre"
-          class="form-control"
-          placeholder="nombre"
-          required
-        />
+        <input id="nombre" type="text" formControlName="nombre" class="form-control" placeholder="nombre" required />
         @if (get('nombre')?.invalid && get('nombre')?.touched) {
-          <div class="invalid-feedback">Debe ingresar un nombre.</div>
+        <div class="invalid-feedback">Debe ingresar un nombre.</div>
         }
       </div>
 
       <div class="col-md-3">
         <label for="rolPreferido" class="form-label">Rol Preferido</label>
         <select class="form-control" formControlName="rolPreferido" id="rolPreferido">
-            <option [value]="''">-- Seleccionar --</option>
-            @for (r of roles; track r.codigo) {
-              <option [value]="r.codigo + ''">{{ r.descripcion }}</option>
-            }
+          <option [value]="''" selected>-- Seleccionar --</option>
+          @for (r of roles; track r.codigo) {
+          <option [value]="r.codigo + ''">{{ r.descripcion }}</option>
+          }
         </select>
         @if (get('rolPreferido')?.invalid && get('rolPreferido')?.touched) {
-          <div class="invalid-feedback">Debe ingresar un rol preferido válido.</div>
+        <div class="invalid-feedback">Debe ingresar un rol preferido válido.</div>
         }
       </div>
 
-      <div class="col-md-3">
-          <div class="form-check form-switch">
-              <input
-                  id="activo"
-                  type="checkbox"
-                  formControlName="activo"
-                  class="form-check-input"
-                  role="switch"
-              >
-              <label class="form-check-label" for="activo">Activo</label>
+      <div class="col-md-6">
+        <div class="row">
+
+          <div class="col-md-4">
+            <label for="deAutoriza" class="form-label">De autoriza</label>
+            <div class="mb-2">
+              <input id="deAutoriza" type="checkbox" formControlName="deAutoriza" class="btn-check" />
+              <label class="btn btn-outline-primary" for="deAutoriza" style="min-width: 160px;">
+                @if (get('deAutoriza')?.value){
+                  Cir. Autoriza
+                } @else {
+                  Cir. Común
+                }
+              </label>
+            </div>
           </div>
+
+          <div class="col-md-4">
+            <label for="deArchivo" class="form-label">De archivo</label>
+            <div class="mb-2">
+              <input id="deArchivo" type="checkbox" formControlName="deArchivo" class="btn-check" />
+              <label class="btn btn-outline-primary" for="deArchivo" style="min-width: 160px;">
+                @if (get('deArchivo')?.value){
+                  ARCHIVO
+                } @else {
+                  COMÚN
+                }
+              </label>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <label for="activo" class="form-label">Activo</label>
+            <div class="mb-2">
+              <input id="activo" type="checkbox" formControlName="activo" class="btn-check" />
+              <label class="btn btn-outline-primary" for="activo" style="min-width: 160px;">
+                @if (get('activo')?.value){
+                  ACTIVO
+                } @else {
+                  INACTIVO
+                }
+              </label>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -72,31 +87,32 @@
               <div class="col-md-2"><label>Obligatorio</label></div>
             </div>
             @for (requisito of requisitosFormArray.controls; track $index) {
-              <div [formGroupName]="$index" class="row g-3 mb-2">
-                <div class="col-md-3">
-                  <input type="text" class="form-control" formControlName="codigo" placeholder="Código" required />
-                </div>
-                <div class="col-md-3">
-                  <input type="text" class="form-control" formControlName="descripcion" placeholder="Descripción" />
-                </div>
-                <div class="col-md-2">
-                  <select class="form-control" formControlName="tipo">
-                    <option [ngValue]="null">-- Seleccionar --</option>
-                    <option [ngValue]="Tipo_requisito.text">Texto</option>
-                    <option [ngValue]="Tipo_requisito.numeric">Numérico</option>
-                    <option [ngValue]="Tipo_requisito.file">Archivo</option>
-                    <option [ngValue]="Tipo_requisito.boolean">Booleano</option>
-                    <option [ngValue]="Tipo_requisito.date">Fecha</option>
-                  </select>
-                </div>
-                <div class="col-md-2 d-flex align-items-center">
-                  <input type="checkbox" class="form-check-input me-2" formControlName="obligatorio" id="obligatorio{{$index}}" />
-                  <label class="form-check-label" for="obligatorio{{$index}}">Obligatorio</label>
-                </div>
-                <div class="col-md-2 d-flex align-items-end">
-                  <button type="button" class="btn btn-danger w-100" (click)="removeRequisito($index)">Eliminar</button>
-                </div>
+            <div [formGroupName]="$index" class="row g-3 mb-2">
+              <div class="col-md-3">
+                <input type="text" class="form-control" formControlName="codigo" placeholder="Código" required />
               </div>
+              <div class="col-md-3">
+                <input type="text" class="form-control" formControlName="descripcion" placeholder="Descripción" />
+              </div>
+              <div class="col-md-2">
+                <select class="form-control" formControlName="tipo">
+                  <option [ngValue]="null">-- Seleccionar --</option>
+                  <option [ngValue]="Tipo_requisito.text">Texto</option>
+                  <option [ngValue]="Tipo_requisito.numeric">Numérico</option>
+                  <option [ngValue]="Tipo_requisito.file">Archivo</option>
+                  <option [ngValue]="Tipo_requisito.boolean">Booleano</option>
+                  <option [ngValue]="Tipo_requisito.date">Fecha</option>
+                </select>
+              </div>
+              <div class="col-md-2 d-flex align-items-center">
+                <input type="checkbox" class="form-check-input me-2" formControlName="obligatorio"
+                  id="obligatorio{{$index}}" />
+                <label class="form-check-label" for="obligatorio{{$index}}">Obligatorio</label>
+              </div>
+              <div class="col-md-2 d-flex align-items-end">
+                <button type="button" class="btn btn-danger w-100" (click)="removeRequisito($index)">Eliminar</button>
+              </div>
+            </div>
             }
           </div>
           <button type="button" class="btn btn-success mt-2" (click)="addRequisito()">Agregar requisito</button>
@@ -108,9 +124,9 @@
       <div class="col-12 mb-5">
         <button class="btn btn-primary" type="submit">
           @if (modo === 'A') {
-            Crear
+          Crear
           } @else if (modo === 'M') {
-            Modificar
+          Modificar
           }
         </button>
       </div>

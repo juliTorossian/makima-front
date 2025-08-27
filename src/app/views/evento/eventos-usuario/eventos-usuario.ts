@@ -43,8 +43,8 @@ import { TooltipModule } from 'primeng/tooltip';
     UsuarioDrawerComponent,
     PadZeroPipe,
     NgbPopoverModule,
-    TooltipModule 
-],
+    TooltipModule
+  ],
   providers: [
     DialogService,
     MessageService,
@@ -61,7 +61,7 @@ export class EventosUsuario extends TrabajarCon<Evento> {
   ref!: DynamicDialogRef;
   private userStorageService = inject(UserStorageService);
   @ViewChild('dt') table!: Table;
-  
+
   // Estado para el offcanvas
   showEventoDrawer = false;
   eventoSeleccionadoId: string | null = null;
@@ -69,7 +69,7 @@ export class EventosUsuario extends TrabajarCon<Evento> {
   showUsuarioDrawer = false;
   usuarioSeleccionadoId: string | null = null;
 
-  usuarioActivo:UsuarioLogeado | null = this.userStorageService.getUsuario();
+  usuarioActivo: UsuarioLogeado | null = this.userStorageService.getUsuario();
 
   eventos: EventoCompleto[] = [];
 
@@ -109,11 +109,11 @@ export class EventosUsuario extends TrabajarCon<Evento> {
     });
   }
 
-  alta(evento: Evento): void {}
-  editar(evento: Evento): void {}
-  eliminarDirecto(evento: Evento): void {}
+  alta(evento: Evento): void { }
+  editar(evento: Evento): void { }
+  eliminarDirecto(evento: Evento): void { }
 
-  mostrarModalCrud(evento: EventoCompleto | null, modo: 'AVZ' | 'RTO' | 'RAS') {
+  mostrarModalCrud(evento: EventoCompleto | null, modo: 'AVZ' | 'RTO' | 'RAS' | 'AUT' | 'REC') {
     // const data = { item: evento, modo };
     let header = "";
     let mensaje = "";
@@ -131,12 +131,21 @@ export class EventosUsuario extends TrabajarCon<Evento> {
       header = "Reasignar Evento";
       mensaje = `Etapa: ${evento?.etapaActualData?.nombre}`;
       rol = evento?.etapaActualData?.rolPreferido;
+    } else if (modo === 'AUT') {
+      header = "Autorizar Evento";
+      mensaje = `Etapa Actual: ${evento?.etapaActualData?.nombre} \nProxima etapa: ${evento?.etapaSiguiente?.nombre}`;
+      rol = evento?.etapaActualData?.rolPreferido;
+    } else if (modo === 'REC') {
+      header = "Rechazar Evento";
+      mensaje = `Confirma que rechaza en la etapa ${evento?.etapaActualData?.nombre}`;
+      rol = evento?.etapaActualData?.rolPreferido;
     }
 
     const data = {
       reqComentario: reqComentario,
       comentario: "",
       mensaje: mensaje,
+      modo: modo
     }
 
     this.ref = this.dialogService.open(ModalSel, {
@@ -149,9 +158,9 @@ export class EventosUsuario extends TrabajarCon<Evento> {
       if (!result) return;
 
       console.log(result);
-      if (evento){
-        const body:CircularEvento = {
-          eventoId: evento.id,
+      if (evento) {
+        const body: CircularEvento = {
+          eventoId: evento.id || '',
           usuarioId: result.usuarioSeleccionado,
           comentario: result.comentario
         }
@@ -159,7 +168,7 @@ export class EventosUsuario extends TrabajarCon<Evento> {
         if (modo === 'AVZ') {
           this.eventoAccionesService.avanzar(body).subscribe({
             next: () => this.showSuccess('Evento avanzado correctamente.'),
-            error: (err:any) => {this.showError(err.error.message || 'Error al avanzar el evento.')},
+            error: (err: any) => { this.showError(err.error.message || 'Error al avanzar el evento.') },
             complete: () => {
               this.loadItems();
             },
@@ -167,7 +176,7 @@ export class EventosUsuario extends TrabajarCon<Evento> {
         } else if (modo === 'RTO') {
           this.eventoAccionesService.retroceder(body).subscribe({
             next: () => this.showSuccess('Evento retrocedido correctamente.'),
-            error: (err:any) => this.showError(err.error.message || 'Error al retroceder el evento.'),
+            error: (err: any) => this.showError(err.error.message || 'Error al retroceder el evento.'),
             complete: () => {
               this.loadItems();
             },
@@ -175,20 +184,35 @@ export class EventosUsuario extends TrabajarCon<Evento> {
         } else if (modo === 'RAS') {
           this.eventoAccionesService.reasignar(body).subscribe({
             next: () => this.showSuccess('Evento reasignado correctamente.'),
-            error: (err:any) => this.showError(err.error.message || 'Error al reasignar el evento.'),
+            error: (err: any) => this.showError(err.error.message || 'Error al reasignar el evento.'),
+            complete: () => {
+              this.loadItems();
+            },
+          });
+        } else if (modo === 'AUT') {
+          this.eventoAccionesService.autorizar(body).subscribe({
+            next: () => this.showSuccess('Evento autorizado correctamente.'),
+            error: (err: any) => this.showError(err.error.message || 'Error al autorizar el evento.'),
+            complete: () => {
+              this.loadItems();
+            },
+          });
+        } else if (modo === 'REC') {
+          this.eventoAccionesService.rechazar(body).subscribe({
+            next: () => this.showSuccess('Evento rechazado correctamente.'),
+            error: (err: any) => this.showError(err.error.message || 'Error al rechazar el evento.'),
             complete: () => {
               this.loadItems();
             },
           });
         }
       }
-
     });
-    
+
   }
-  
+
   abrirEventoDrawer(evento: EventoCompleto) {
-    this.eventoSeleccionadoId = evento.id;
+    this.eventoSeleccionadoId = evento.id || null;
     this.showEventoDrawer = true;
     this.cdr.detectChanges();
   }

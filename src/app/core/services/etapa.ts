@@ -45,4 +45,8 @@ export class EtapaService {
     return this.http.delete<Etapa_requisito>(`${this.URL_COMPLETA}/etapa/requisito/${id}`);
   }
 
+  getAllArchivo(): Observable<EtapaInterface[]> {
+    return this.http.get<EtapaInterface[]>(`${this.URL_COMPLETA}/etapa/archivo/`);
+  }
+
 }

@@ -11,16 +11,16 @@ export class EventoService {
   private http = inject(HttpClient);
   URL_COMPLETA = environment.BASE_URL;
 
-  getAll(): Observable<Evento[]> {
-    return this.http.get<Evento[]>(`${this.URL_COMPLETA}/evento`);
+  getAll(cerrado: 'true' | 'false' | 'all' = 'true', estado: string | string[] = ''): Observable<Evento[]> {
+    return this.http.get<Evento[]>(`${this.URL_COMPLETA}/evento?cerrado=${cerrado}&estado=${estado}`);
   }
 
-  getAllComplete(): Observable<EventoCompleto[]> {
-    return this.http.get<EventoCompleto[]>(`${this.URL_COMPLETA}/evento/completo`);
+  getAllComplete(cerrado: 'true' | 'false' | 'all' = 'all', estado: string | string[] = ''): Observable<EventoCompleto[]> {
+    return this.http.get<EventoCompleto[]>(`${this.URL_COMPLETA}/evento/completo?cerrado=${cerrado}&estado=${estado}`);
   }
 
-  getAllCompleteByUsuario(usuarioId:string): Observable<EventoCompleto[]> {
-    return this.http.get<EventoCompleto[]>(`${this.URL_COMPLETA}/evento/completo/usuario/${usuarioId}`);
+  getAllCompleteByUsuario(usuarioId:string, cerrado: 'true' | 'false' | 'all' = 'false', estado: string | string[] = ''): Observable<EventoCompleto[]> {
+    return this.http.get<EventoCompleto[]>(`${this.URL_COMPLETA}/evento/completo/usuario/${usuarioId}?cerrado=${cerrado}&estado=${estado}`);
   }
 
   getById(eventoId: string): Observable<Evento> {

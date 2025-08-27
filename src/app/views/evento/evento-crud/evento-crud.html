@@ -4,163 +4,183 @@
 
     <div class="row">
 
-      <div class="col-md-2">
-        <label for="tipoCodigo" class="form-label">Tipo</label>
-            <input
-              class="form-control mb-2"
-              type="text"
-              formControlName="tipoEvento"
-              [ngbTypeahead]="searchTipoEvento"
-              [inputFormatter]="formatterTipoEvento"
-              [resultFormatter]="formatterTipoEvento"
-              placeholder="Buscar tipo evento..."
-            />
-          @if (get('tipoEvento')?.invalid && get('tipoEvento')?.touched) {
-            <div class="invalid-feedback">Debe ingresar un Tipo de evento.</div>
-          }
-      </div>
-    
-      <div class="col-md-2">
-        <label for="numero" class="form-label">Numero</label>
-        <input
-          id="numero"
-          type="number"
-          formControlName="numero"
-          class="form-control"
-          placeholder="numero"
-        />
-        @if (get('numero')?.invalid && get('numero')?.touched) {
-          <div class="invalid-feedback">Debe ingresar un numero.</div>
-        }
-      </div>
-    
-      <div class="col-md-2">
-        <label for="prioridad" class="form-label">Prioridad</label>
-        <select
-          id="prioridad"
-          formControlName="prioridad"
-          class="form-control"
-           
-        >
-          <option value=1 selected>1</option>
-          <option value=2>2</option>
-          <option value=3>3</option>
-          <option value=4>4</option>
-          <option value=5>5</option>
-        </select>
-        @if (get('prioridad')?.invalid && get('prioridad')?.touched) {
-          <div class="invalid-feedback">Debe ingresar una prioridad.</div>
-        }
-      </div>
-
-      <div class="col-md-6">
-        <label for="titulo" class="form-label">Titulo</label>
-        <input
-          id="titulo"
-          type="text"
-          formControlName="titulo"
-          class="form-control"
-          placeholder="titulo"
-           
-        />
-        @if (get('titulo')?.invalid && get('titulo')?.touched) {
-          <div class="invalid-feedback">Debe ingresar un titulo.</div>
-        }
-      </div>
-    </div>
-
-    <div class="row">
-
-      <div class="col-md-4">
-        <label for="clienteId" class="form-label">Cliente</label>
-            <input
-              class="form-control mb-2"
-              type="text"
-              formControlName="cliente"
-              [ngbTypeahead]="searchCliente"
-              [inputFormatter]="formatterCliente"
-              [resultFormatter]="formatterCliente"
-              placeholder="Buscar cliente..."
-            />
-          @if (get('cliente')?.invalid && get('cliente')?.touched) {
-            <div class="invalid-feedback">Debe ingresar un cliente.</div>
-          }
-      </div>
-
-      <div class="col-md-4">
-        <label for="productoId" class="form-label">Producto</label>
-            <input
-              class="form-control mb-2"
-              type="text"
-              formControlName="producto"
-              [ngbTypeahead]="searchProducto"
-              [inputFormatter]="formatterProducto"
-              [resultFormatter]="formatterProducto"
-              placeholder="Buscar producto..."
-            />
-          @if (get('producto')?.invalid && get('producto')?.touched) {
-            <div class="invalid-feedback">Debe ingresar un producto.</div>
-          }
-      </div>
-
-      <div class="col-md-4">
-        <label for="moduloCodigo" class="form-label">Modulo</label>
-            <input
-              class="form-control mb-2"
-              type="text"
-              formControlName="modulo"
-              [ngbTypeahead]="searchModulo"
-              [inputFormatter]="formatterModulo"
-              [resultFormatter]="formatterModulo"
-              placeholder="Buscar módulo..."
-            />
-          @if (get('modulo')?.invalid && get('modulo')?.touched) {
-            <div class="invalid-feedback">Debe ingresar un módulo.</div>
-          }
-      </div>
-
-    </div>
-
-    <div class="row">
       <div class="col-md-8">
-        <label for="comentario" class="form-label">Comentario</label>
-        <textarea
-          formControlName="comentario"
-          class="form-control"
-          id="comentario"
-          rows="5"
-        ></textarea>
-        @if (get('comentario')?.invalid && get('comentario')?.touched) {
-          <div class="invalid-feedback">Debe ingresar un comentario.</div>
-        }
+
+        <div class="row">
+
+          <div class="col-md-2">
+            <label for="tipoCodigo" class="form-label">Tipo</label>
+            <input class="form-control mb-2" type="text" formControlName="tipoEvento" [ngbTypeahead]="searchTipoEvento"
+              [inputFormatter]="formatterTipoEvento" [resultFormatter]="formatterTipoEvento"
+              placeholder="Tipo evento..." />
+            @if (get('tipoEvento')?.invalid && get('tipoEvento')?.touched) {
+            <div class="invalid-feedback">Debe ingresar un Tipo de evento.</div>
+            }
+          </div>
+
+          <div class="col-md-2">
+            <label for="numero" class="form-label">Numero</label>
+            <input id="numero" type="number" formControlName="numero" class="form-control" placeholder="numero" />
+            @if (get('numero')?.invalid && get('numero')?.touched) {
+            <div class="invalid-feedback">Debe ingresar un numero.</div>
+            }
+          </div>
+
+          <div class="col-md-8">
+            <label for="titulo" class="form-label">Titulo</label>
+            <input id="titulo" type="text" formControlName="titulo" class="form-control" placeholder="titulo" />
+            @if (get('titulo')?.invalid && get('titulo')?.touched) {
+            <div class="invalid-feedback">Debe ingresar un titulo.</div>
+            }
+          </div>
+
+        </div>
+
+        <div class="row">
+
+          <div class="col-md-6">
+            <label for="clienteId" class="form-label">Cliente</label>
+            <div class="row">
+              <div class="col-md-10">
+                <input id="cliente" class="form-control mb-2" type="text" formControlName="cliente"
+                  [ngbTypeahead]="searchCliente" [inputFormatter]="formatterCliente"
+                  [resultFormatter]="formatterCliente" placeholder="Buscar cliente..." />
+              </div>
+              <div class="col-md-2">
+                <button card-actions class="btn btn-icon btn-outline-info" (click)="modalSelCliente($event)">
+                  <ng-icon name="lucideSearch" />
+                </button>
+              </div>
+            </div>
+            @if (get('cliente')?.invalid && get('cliente')?.touched) {
+            <div class="invalid-feedback">Debe ingresar un cliente.</div>
+            }
+          </div>
+
+          <div class="col-md-6">
+            <label for="proyecto" class="form-label">Proyecto</label>
+            <div class="row">
+              <div class="col-md-10">
+                <input id="proyecto" class="form-control mb-2" type="text" formControlName="proyecto"
+                  [ngbTypeahead]="searchProyecto" [inputFormatter]="formatterProyecto"
+                  [resultFormatter]="formatterProyecto" placeholder="Buscar proyecto..." />
+              </div>
+              <div class="col-md-2">
+                <button card-actions class="btn btn-icon btn-outline-info" (click)="modalSelProyecto($event)">
+                  <ng-icon name="lucideSearch" />
+                </button>
+              </div>
+            </div>
+            @if (get('proyecto')?.invalid && get('proyecto')?.touched) {
+            <div class="invalid-feedback">Debe ingresar un proyecto.</div>
+            }
+          </div>
+
+        </div>
+
+        <div class="row">
+
+          <div class="col-md-6">
+            <label for="producto" class="form-label">Producto</label>
+            <div class="row">
+              <div class="col-md-10">
+                <input id="producto" class="form-control mb-2" type="text" formControlName="producto"
+                  [ngbTypeahead]="searchProducto" [inputFormatter]="formatterProducto"
+                  [resultFormatter]="formatterProducto" placeholder="Buscar producto..." />
+              </div>
+              <div class="col-md-2">
+                <button card-actions class="btn btn-icon btn-outline-info" (click)="modalSelProducto($event)">
+                  <ng-icon name="lucideSearch" />
+                </button>
+              </div>
+            </div>
+            @if (get('producto')?.invalid && get('producto')?.touched) {
+            <div class="invalid-feedback">Debe ingresar un producto.</div>
+            }
+          </div>
+
+          <div class="col-md-6">
+            <label for="modulo" class="form-label">Modulo</label>
+            <div class="row">
+              <div class="col-md-10">
+                <input id="modulo" class="form-control mb-2" type="text" formControlName="modulo"
+                  [ngbTypeahead]="searchModulo" [inputFormatter]="formatterModulo" [resultFormatter]="formatterModulo"
+                  placeholder="Buscar modulo..." />
+              </div>
+              <div class="col-md-2">
+                <button card-actions class="btn btn-icon btn-outline-info" (click)="modalSelModulo($event)">
+                  <ng-icon name="lucideSearch" />
+                </button>
+              </div>
+            </div>
+            @if (get('modulo')?.invalid && get('modulo')?.touched) {
+            <div class="invalid-feedback">Debe ingresar un módulo.</div>
+            }
+          </div>
+        </div>
+
+        <div class="row">
+
+          <div class="col-md-6">
+            <label for="prioridadUsu" class="form-label">Prioridad</label>
+            <select id="prioridadUsu" formControlName="prioridadUsu" class="form-control">
+              <option value=1 selected>1</option>
+              <option value=2>2</option>
+              <option value=3>3</option>
+              <option value=4>4</option>
+              <option value=5>5</option>
+            </select>
+            @if (get('prioridadUsu')?.invalid && get('prioridadUsu')?.touched) {
+            <div class="invalid-feedback">Debe ingresar una prioridad.</div>
+            }
+          </div>
+
+          <div class="col-md-6">
+            <label for="facEventoCerr" class="form-label">Tipo de facturacion</label>
+            <div class="mb-2">
+              <input id="facEventoCerr" type="checkbox" formControlName="facEventoCerr" class="btn-check" />
+              <label class="btn btn-outline-primary" for="facEventoCerr" style="min-width: 160px;">
+                @if (get('facEventoCerr')?.value){
+                EVENTO CERRADO
+                } @else {
+                POR HORAS
+                }
+              </label>
+            </div>
+          </div>
+
+
+        </div>
+
+        <div class="row">
+
+          <div class="col-12">
+            <label for="comentario" class="form-label">Comentario</label>
+            <textarea formControlName="comentario" class="form-control" id="comentario" rows="3"></textarea>
+            @if (get('comentario')?.invalid && get('comentario')?.touched) {
+            <div class="invalid-feedback">Debe ingresar un comentario.</div>
+            }
+          </div>
+
+
+        </div>
+
       </div>
+
       <div class="col-md-4">
-        <div class="pt-0">
+        <div class="pt-0 mt-4">
           <FileUploader (fileAdded)="onFileAdded($event)"></FileUploader>
         </div>
       </div>
-    </div>
 
-
-    <div class="col-md-3" hidden>
-        <div class="form-check form-switch">
-            <input
-                id="activo"
-                type="checkbox"
-                formControlName="activo"
-                class="form-check-input"
-                role="switch"
-            >
-            <label class="form-check-label" for="activo">Activo</label>
-        </div>
     </div>
 
     <div class="col-12 mb-5">
       <button class="btn btn-primary" type="submit">
         @if (modo === 'A') {
-          Crear
+        Crear
         } @else if (modo === 'M') {
-          Modificar
+        Modificar
         }
       </button>
     </div>

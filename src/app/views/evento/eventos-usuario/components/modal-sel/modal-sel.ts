@@ -34,12 +34,14 @@ export class ModalSel implements OnInit{
   comentario!: string;
 
   mensaje!: string;
+  modo!: string;
 
   ngOnInit(): void { 
     console.log(this.config.data);
     this.reqComentario = this.config.data.reqComentario;
     this.comentario = this.config.data.comentario;
     this.mensaje = this.config.data.mensaje;
+    this.modo = this.config.data.modo;
     if (this.config.data.rol) {
       this.usuarioService.getByRol(this.config.data.rol).pipe(
         tap((res: any) => console.log(res))
@@ -67,15 +69,24 @@ export class ModalSel implements OnInit{
     if (this.usuario){
       if ((this.reqComentario) && !(this.comentario)) {
       }else{
-
-        let res = {
+        this.cerrar({
           usuarioSeleccionado: this.usuario,
-          comentario: this.comentario
-        }
-
-        this.ref.close(res);
+          comentario: this.comentario,
+        });
+      }
+    }else if (this.modo === 'REC') {
+      if ((this.reqComentario) && !(this.comentario)) {
+      }else{
+        this.cerrar({
+          usuarioSeleccionado: null,
+          comentario: this.comentario,
+        });
       }
     }
+  }
+
+  cerrar(res:any){
+    this.ref.close(res);
   }
   
   get mensajeHtml(): string {

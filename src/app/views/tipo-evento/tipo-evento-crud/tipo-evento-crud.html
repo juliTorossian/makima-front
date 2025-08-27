@@ -117,6 +117,9 @@
                   @for (seq of getRollbackOptions(etapa.get('etapaSecuencia')?.value); track seq) {
                     <option [ngValue]="seq">Secuencia {{ seq }}</option>
                   }
+                  @for (eAr of etapasArchivo; track eAr) {
+                    <option [ngValue]="eAr.id != null ? -eAr.id : null">Archivar en {{ eAr.nombre }}</option>
+                  }
                 </select>
               </div>
 
@@ -128,6 +131,16 @@
           }
         </div>
         <button type="button" class="btn btn-success mt-2" (click)="addEtapa()">Agregar etapa</button>
+        <!-- Selector de etapa final (solo etapas de archivo) -->
+        <div class="mt-3">
+          <label for="etapaFinal" class="form-label">Etapa al finalizar</label>
+          <select id="etapaFinal" class="form-control" formControlName="etapaFinal">
+            <option [ngValue]="null">-- Seleccionar etapa final --</option>
+            @for (eAr of etapasArchivo; track eAr.id) {
+              <option [ngValue]="eAr.id">{{ eAr.nombre }}</option>
+            }
+          </select>
+        </div>
       </div>
     }
 
