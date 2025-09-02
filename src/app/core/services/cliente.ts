@@ -11,8 +11,8 @@ export class ClienteService {
   private http = inject(HttpClient);
   URL_COMPLETA = environment.BASE_URL;
 
-  getAll(): Observable<Cliente[]> {
-    return this.http.get<Cliente[]>(`${this.URL_COMPLETA}/cliente`);
+  getAll(activo: 'true' | 'false' | 'all' = 'true'): Observable<Cliente[]> {
+    return this.http.get<Cliente[]>(`${this.URL_COMPLETA}/cliente?activo=${activo}`);
   }
 
   getById(id: number): Observable<Cliente> {

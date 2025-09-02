@@ -17,6 +17,8 @@ import { PermisoClave } from '@core/interfaces/rol';
 import { finalize } from 'rxjs';
 import { BooleanLabelPipe } from '@core/pipes/boolean-label.pipe';
 import { CommonModule } from '@angular/common';
+import { FiltroRadioGroupComponent } from '@app/components/filtro-check';
+import { FiltroActivo } from '@/app/constants/filtros_activo';
 
 @Component({
   selector: 'app-proyectos',
@@ -30,6 +32,7 @@ import { CommonModule } from '@angular/common';
     ShortcutDirective,
     BooleanLabelPipe,
     CommonModule,
+    FiltroRadioGroupComponent,
   ],
   providers: [
     DialogService,
@@ -56,11 +59,17 @@ export class Proyectos extends TrabajarCon<Proyecto> {
 
   protected loadItems(): void {
     this.loadingService.show();
-    this.proyectoService.getAll().pipe(
+    this.proyectoService.getAll(this.filtroActivo).pipe(
       finalize(() => this.loadingService.hide())
     ).subscribe({
       next: (res) => {
         this.proyectos = res;
+        if (this.filtroActivo !== FiltroActivo.ALL){
+          this.proyectos = this.proyectos.filter((proyecto) => {
+            let aux = this.filtroActivo === FiltroActivo.TRUE;
+            return proyecto.activo === aux;
+          });
+        }
         this.cdr.detectChanges();
       },
       error: () => {

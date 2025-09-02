@@ -17,6 +17,8 @@ import { PermisoClave } from '@core/interfaces/rol';
 import { finalize } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { BooleanLabelPipe } from '@core/pipes/boolean-label.pipe';
+import { FiltroRadioGroupComponent } from '@app/components/filtro-check';
+import { FiltroActivo } from '@/app/constants/filtros_activo';
 
 @Component({
   selector: 'app-etapas',
@@ -30,6 +32,7 @@ import { BooleanLabelPipe } from '@core/pipes/boolean-label.pipe';
     ShortcutDirective,
     CommonModule,
     BooleanLabelPipe,
+    FiltroRadioGroupComponent,
   ],
   providers: [
     DialogService,
@@ -57,11 +60,17 @@ export class Etapas extends TrabajarCon<Etapa> {
 
   protected loadItems(): void {
     this.loadingService.show();
-    this.etapaService.getAll().pipe(
+    this.etapaService.getAll(this.filtroActivo).pipe(
       finalize(() => this.loadingService.hide())
     ).subscribe({
       next: (res) => {
         this.etapas = res;
+        if (this.filtroActivo !== FiltroActivo.ALL){
+          this.etapas = this.etapas.filter((etapa) => {
+            let aux = this.filtroActivo === FiltroActivo.TRUE;
+            return etapa.activo === aux;
+          });
+        }
         this.cdr.detectChanges();
       },
       error: () => this.showError('Error al cargar las etapas.')

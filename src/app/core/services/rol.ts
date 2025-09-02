@@ -11,8 +11,8 @@ export class RolService {
   private http = inject(HttpClient);
   URL_COMPLETA = environment.BASE_URL;
 
-  getAll(): Observable<RolInterface[]> {
-    return this.http.get<RolInterface[]>(`${this.URL_COMPLETA}/rol`);
+  getAll(activo: 'true' | 'false' | 'all' = 'true'): Observable<RolInterface[]> {
+    return this.http.get<RolInterface[]>(`${this.URL_COMPLETA}/rol?activo=${activo}`);
   }
 
   getByCodigo(rolCodigo: string): Observable<RolInterface> {

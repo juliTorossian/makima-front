@@ -11,8 +11,8 @@ export class ModuloService {
   private http = inject(HttpClient);
   URL_COMPLETA = environment.BASE_URL;
 
-  getAll(): Observable<Modulo[]> {
-    return this.http.get<Modulo[]>(`${this.URL_COMPLETA}/modulo`);
+  getAll(activo: 'true' | 'false' | 'all' = 'true'): Observable<Modulo[]> {
+    return this.http.get<Modulo[]>(`${this.URL_COMPLETA}/modulo?activo=${activo}`);
   }
 
   getByCodigo(moduloCodigo: string): Observable<Modulo> {

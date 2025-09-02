@@ -1,3 +1,4 @@
+import { FiltroActivo, FiltroActivoOptions, FiltroCerradoOptions } from '@/app/constants/filtros_activo';
 import { SHORTCUTS } from '@/app/constants/shortcut';
 import { PermisoAccion } from '@/app/types/permisos';
 import { Component, inject } from '@angular/core';
@@ -20,6 +21,11 @@ export abstract class TrabajarCon<T> {
   protected loadingService = inject(LoadingService);
   protected permisos: PermisoAccion[] = [];
   readonly SHORTCUTS = SHORTCUTS;
+  readonly FiltroActivo = FiltroActivo;
+  FiltroActivoOptions = FiltroActivoOptions;
+  FiltroCerradoOptions = FiltroCerradoOptions;
+
+  filtroActivo: FiltroActivo = FiltroActivo.TRUE;
 
   constructor(
     protected cdr: ChangeDetectorRef,
@@ -79,6 +85,12 @@ export abstract class TrabajarCon<T> {
   getEventValue($event:any) :string {
     return $event.target.value;
   } 
+  
+  filtroCambio(event:any) {
+    const selectedValue = event as FiltroActivo;
+    this.filtroActivo = selectedValue;
+    this.loadItems();
+  }
 }
 
 

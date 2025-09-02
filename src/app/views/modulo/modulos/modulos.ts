@@ -17,6 +17,8 @@ import { PermisoClave } from '@core/interfaces/rol';
 import { finalize } from 'rxjs';
 import { BooleanLabelPipe } from '@core/pipes/boolean-label.pipe';
 import { CommonModule } from '@angular/common';
+import { FiltroRadioGroupComponent } from '@app/components/filtro-check';
+import { FiltroActivo } from '@/app/constants/filtros_activo';
 
 @Component({
   selector: 'app-modulos',
@@ -30,6 +32,7 @@ import { CommonModule } from '@angular/common';
     ShortcutDirective,
     BooleanLabelPipe,
     CommonModule,
+    FiltroRadioGroupComponent,
   ],
   providers: [
     DialogService,
@@ -57,11 +60,17 @@ export class Modulos extends TrabajarCon<Modulo> {
 
   protected loadItems(): void {
     this.loadingService.show();
-    this.moduloService.getAll().pipe(
+    this.moduloService.getAll(this.filtroActivo).pipe(
       finalize(() => this.loadingService.hide())
     ).subscribe({
       next: (res) => {
         this.modulos = res;
+        if (this.filtroActivo !== FiltroActivo.ALL){
+          this.modulos = this.modulos.filter((modulo) => {
+            let aux = this.filtroActivo === FiltroActivo.TRUE;
+            return modulo.activo === aux;
+          });
+        }
         this.cdr.detectChanges();
       },
       error: () => this.showError('Error al cargar los modulos.')

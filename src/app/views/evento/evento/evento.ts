@@ -103,8 +103,6 @@ export class Evento implements OnInit {
   nuevoComentario: string = '';
 
   onActualizarRequisito(req:any, event: any) {
-    console.log('Valor cambiado:', event.target.value);
-    console.log('Valor cambiado:', req);
     // Aquí puedes ajustar el payload según lo que espera tu backend
     let payload:any = {
       requisitoId: req.requisito.id,
@@ -334,8 +332,9 @@ export class Evento implements OnInit {
   }
 
   getRequerimientoDisabled(req: any): boolean {
+    // console.log(this.evento.etapaActualData.id, req.etapa.id, this.evento.usuarioActual.id, this.usuarioActivo?.id);
     return (
-      this.evento.etapaActualData.id <= req.etapa.id ||
+      this.evento.etapaActualData.id < req.etapa.id ||
       this.evento.usuarioActual.id !== this.usuarioActivo?.id
     );
   }

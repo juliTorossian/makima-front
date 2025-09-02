@@ -11,8 +11,8 @@ export class ProductoService {
   private http = inject(HttpClient);
   URL_COMPLETA = environment.BASE_URL;
 
-  getAll(): Observable<Producto[]> {
-    return this.http.get<Producto[]>(`${this.URL_COMPLETA}/producto`);
+  getAll(activo: 'true' | 'false' | 'all' = 'true'): Observable<Producto[]> {
+    return this.http.get<Producto[]>(`${this.URL_COMPLETA}/producto?activo=${activo}`);
   }
 
   getById(id: number): Observable<Producto> {

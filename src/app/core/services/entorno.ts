@@ -11,8 +11,8 @@ export class EntornoService {
   private http = inject(HttpClient);
   URL_COMPLETA = environment.BASE_URL;
 
-  getAll(): Observable<Entorno[]> {
-    return this.http.get<Entorno[]>(`${this.URL_COMPLETA}/entorno`);
+  getAll(activo: 'true' | 'false' | 'all' = 'true'): Observable<Entorno[]> {
+    return this.http.get<Entorno[]>(`${this.URL_COMPLETA}/entorno?activo=${activo}`);
   }
 
   getByCodigo(entornoCodigo: string): Observable<Entorno> {

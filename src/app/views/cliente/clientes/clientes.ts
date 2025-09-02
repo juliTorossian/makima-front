@@ -18,6 +18,8 @@ import { PermisoClave } from '@core/interfaces/rol';
 import { finalize } from 'rxjs';
 import { BooleanLabelPipe } from '@core/pipes/boolean-label.pipe';
 import { CommonModule } from '@angular/common';
+import { FiltroRadioGroupComponent } from '@app/components/filtro-check';
+import { FiltroActivo } from '@/app/constants/filtros_activo';
 
 @Component({
   selector: 'app-clientes',
@@ -31,6 +33,7 @@ import { CommonModule } from '@angular/common';
     ShortcutDirective,
     BooleanLabelPipe,
     CommonModule,
+    FiltroRadioGroupComponent,
   ],
   providers: [
     DialogService,
@@ -44,6 +47,7 @@ export class Clientes extends TrabajarCon<Cliente> {
   private clienteService = inject(ClienteService);
   private dialogService = inject(DialogService);
   ref!: DynamicDialogRef;
+
   clientes!: Cliente[];
 
   constructor() {
@@ -57,11 +61,17 @@ export class Clientes extends TrabajarCon<Cliente> {
 
   protected loadItems(): void {
     this.loadingService.show();
-    this.clienteService.getAll().pipe(
+    this.clienteService.getAll(this.filtroActivo).pipe(
       finalize(() => this.loadingService.hide())
     ).subscribe({
       next: (res) => {
         this.clientes = res;
+        if (this.filtroActivo !== FiltroActivo.ALL){
+          this.clientes = this.clientes.filter((cliente) => {
+            let aux = this.filtroActivo === FiltroActivo.TRUE;
+            return cliente.activo === aux;
+          });
+        }
         this.cdr.detectChanges();
       },
       error: () => {

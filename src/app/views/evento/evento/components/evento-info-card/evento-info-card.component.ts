@@ -7,6 +7,7 @@ import { Evento, EventoCompleto, eventoFromEventoCompleto } from '@core/interfac
 import { EventoService } from '@core/services/evento';
 import { DividerModule } from 'primeng/divider';
 import { FormsModule } from "@angular/forms";
+import { PrioridadIconComponent } from '@app/components/priority-icon';
 
 @Component({
   selector: 'app-evento-info-card',
@@ -18,7 +19,8 @@ import { FormsModule } from "@angular/forms";
     DatePipe,
     UsuarioDrawerComponent,
     DividerModule,
-    FormsModule
+    FormsModule,
+    PrioridadIconComponent,
 ]
 })
 export class EventoInfoCardComponent implements OnInit {
@@ -41,7 +43,7 @@ export class EventoInfoCardComponent implements OnInit {
     }
 
   ngOnInit(): void {
-    console.log('Evento recibido en info card:', this.evento);
+    // console.log('Evento recibido en info card:', this.evento);
   }
 
   abrirUsuarioDrawer(usuarioId: string) {
@@ -57,7 +59,7 @@ export class EventoInfoCardComponent implements OnInit {
   onFechaChange(event:any, campo:string) {
     // event es el valor del input (string yyyy-MM-dd)
     const fecha = event ? new Date(event).toISOString() : null;
-    console.log(`Cambio en ${campo}: ${fecha}`);
+    // console.log(`Cambio en ${campo}: ${fecha}`);
     if (campo && this.evento) {
       (this.evento as any)[campo] = fecha;
     }

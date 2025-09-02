@@ -1,17 +1,24 @@
 import { Component, inject } from '@angular/core'
 import { AppLogo } from '@app/components/app-logo'
-import { Router } from '@angular/router'
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms'
+import { ActivatedRoute, Router } from '@angular/router'
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms'
 import { AuthService } from '@core/services/auth'
 import { NgIcon } from '@ng-icons/core'
 import { showError } from '@/app/utils/message-utils'
 import { MessageService } from 'primeng/api'
 import { LoadingSpinnerComponent } from '@app/components/index'
 import { finalize } from 'rxjs'
+import { LayoutStoreService } from '@core/services/layout-store.service'
 
 @Component({
   selector: 'app-sign-in',
-  imports: [AppLogo, ReactiveFormsModule, NgIcon, LoadingSpinnerComponent],
+  imports: [
+    AppLogo,
+    ReactiveFormsModule,
+    NgIcon,
+    LoadingSpinnerComponent,
+    FormsModule
+  ],
   template: `
     @if (cargando) {
         <app-loading-spinner></app-loading-spinner>
@@ -23,11 +30,7 @@ import { finalize } from 'rxjs'
             <div class="card">
               <div class="card-body">
                 <div class="auth-brand mb-4">
-                  <app-app-logo />
-                  <!-- <p class="text-muted w-lg-75 mt-3">
-                    Let’s get you signed in. Enter your email and password to
-                    continue.
-                  </p> -->
+                  <app-app-logo [logoMaxWidth]="220" />
                 </div>
 
                 <div class="">
@@ -80,7 +83,7 @@ import { finalize } from 'rxjs'
                       </div>
                     </div>
 
-                    <!-- <div
+                    <div
                       class="d-flex justify-content-between align-items-center mb-3"
                     >
                       <div class="form-check">
@@ -90,15 +93,15 @@ import { finalize } from 'rxjs'
                           id="rememberMe"
                         />
                         <label class="form-check-label" for="rememberMe"
-                          >Keep me signed in</label
+                          >Recordarme</label
                         >
                       </div>
-                      <a
+                      <!-- <a
                         routerLink="/auth/reset-password"
                         class="text-decoration-underline link-offset-3 text-muted"
                         >Forgot Password?</a
-                      >
-                    </div> -->
+                      > -->
+                    </div>
 
                     <div class="d-grid">
                       <button
@@ -110,22 +113,9 @@ import { finalize } from 'rxjs'
                     </div>
                   </form>
 
-                  <!-- <p class="text-muted text-center mt-4 mb-0">
-                    New here?
-                    <a
-                      routerLink="/auth/sign-up"
-                      class="text-decoration-underline link-offset-3 fw-semibold"
-                      >Create an account</a
-                    >
-                  </p> -->
                 </div>
               </div>
             </div>
-            <!-- <p class="text-center text-muted mt-4 mb-0">
-              ©
-              {{ currentYear }}
-              Simple — by <span class="fw-semibold">{{ credits.name }}</span>
-            </p> -->
           </div>
         </div>
       </div>
@@ -134,9 +124,12 @@ import { finalize } from 'rxjs'
   styles: ``,
 })
 export class SignIn {
+  constructor(public layout: LayoutStoreService) {}
   private authService = inject(AuthService);
   private router = inject(Router);
+  private rutActiva = inject(ActivatedRoute);
   private messageService = inject(MessageService);
+
   showPassword: boolean = false
   cargando:boolean = false;
 
@@ -151,8 +144,10 @@ export class SignIn {
 
   login() {
     if (this.loginForm.valid) {
+      const recordar = (document.getElementById('rememberMe') as HTMLInputElement).checked || false;
+
       this.cargando = true;
-      this.authService.login(this.loginForm.value).pipe(
+      this.authService.login(this.loginForm.value, recordar).pipe(
         finalize(() => this.cargando = false)
       ).subscribe({
         next: () => {
@@ -168,7 +163,9 @@ export class SignIn {
   }
 
   loginOk() {
-    this.router.navigateByUrl('/');
+    let returnUrl = this.rutActiva.snapshot.queryParams['returnUrl'];
+    console.log('returnUrl:', returnUrl);
+    this.router.navigateByUrl(returnUrl || '/');
   }
 
 }

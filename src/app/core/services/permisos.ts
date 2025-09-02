@@ -8,7 +8,7 @@ export class PermisosService {
     private static readonly STORAGE_KEY = 'permisos';
     private permisos: Record<PermisoClave, number> = PermisosService.loadPermisos();
 
-    cleanPermisos() {
+    clearPermisos() {
         this.permisos = permisosVacios;
         sessionStorage.removeItem(PermisosService.STORAGE_KEY);
     }

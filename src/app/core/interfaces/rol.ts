@@ -38,6 +38,7 @@ interface Nivel {
 export enum PermisoClave {
   ADMIN = 'ADM',
   EVENTO = 'EVT',
+  EVENTO_TIPO_FAC = 'ETF',
   CLIENTE = 'CLI',
   PROYECTO = 'PRO',
   USUARIO = 'USR',
@@ -54,6 +55,7 @@ export enum PermisoClave {
 export const permisosVacios = {
   [PermisoClave.ADMIN]: 0,
   [PermisoClave.EVENTO]: 0,
+  [PermisoClave.EVENTO_TIPO_FAC]: 0,
   [PermisoClave.CLIENTE]: 0,
   [PermisoClave.PROYECTO]: 0,
   [PermisoClave.USUARIO]: 0,
@@ -80,6 +82,12 @@ export const permisosData: PermisoConfig[] = [
     descripcion: 'Eventos',
     nivel: 0,
     acciones: { Lee: { activo: true, label: LEER }, Mod: { activo: true, label: LEER_Y_ESCRIBIR }, Eli: { activo: true, label: TODO } }
+  },
+  {
+    clave: PermisoClave.EVENTO_TIPO_FAC,
+    descripcion: 'Eventos tipo de facturacion',
+    nivel: 0,
+    acciones: { Lee: { activo: false, label: '' }, Mod: { activo: true, label: ESCRIBIR }, Eli: { activo: false, label: '' } }
   },
   {
     clave: PermisoClave.EVENTO_DOCUMENTO,

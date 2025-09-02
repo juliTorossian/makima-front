@@ -61,10 +61,10 @@ export class AuthService {
     );
   }
 
-  login(credentials: any): Observable<any> {
+  login(credentials: any, recordar:boolean=false): Observable<any> {
     return this.http.post(`${this.URL_COMPLETA}/auth/login`, credentials).pipe(
       tap((res: any) => {
-        this.setTokens(res.accessToken, res.refreshToken, false);
+        this.setTokens(res.accessToken, res.refreshToken, recordar);
         this.userStorage.setUsuario(res.usuario);
         if (res.permisos) {
           this.permisosService.setPermisos(res.permisos);
@@ -76,6 +76,7 @@ export class AuthService {
     console.log('logout')
     this.clearTokens();
     this.userStorage.clearUsuario()
+    this.permisosService.clearPermisos();
   }
 
 }

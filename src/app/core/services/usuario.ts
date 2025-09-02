@@ -11,8 +11,8 @@ export class UsuarioService {
   private http = inject(HttpClient);
   URL_COMPLETA = environment.BASE_URL;
   
-  getAll() : Observable<UsuarioInterface[]>{
-    return this.http.get<UsuarioInterface[]>(`${this.URL_COMPLETA}/usuario`);
+  getAll(activo: 'true' | 'false' | 'all' = 'true') : Observable<UsuarioInterface[]>{
+    return this.http.get<UsuarioInterface[]>(`${this.URL_COMPLETA}/usuario?activo=${activo}`);
   }
 
   getByID(usuarioId:string) : Observable<UsuarioInterface>{

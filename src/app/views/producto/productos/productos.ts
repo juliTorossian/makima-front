@@ -17,6 +17,8 @@ import { PermisoClave } from '@core/interfaces/rol';
 import { finalize } from 'rxjs';
 import { BooleanLabelPipe } from '@core/pipes/boolean-label.pipe';
 import { CommonModule } from '@angular/common';
+import { FiltroRadioGroupComponent } from '@app/components/filtro-check';
+import { FiltroActivo } from '@/app/constants/filtros_activo';
 
 @Component({
   selector: 'app-productos',
@@ -27,9 +29,10 @@ import { CommonModule } from '@angular/common';
     ToolbarModule,
     ConfirmDialogModule,
     ToastModule,
-  ShortcutDirective,
+    ShortcutDirective,
     BooleanLabelPipe,
     CommonModule,
+    FiltroRadioGroupComponent,
   ],
   providers: [
     DialogService,
@@ -57,11 +60,17 @@ export class Productos extends TrabajarCon<Producto> {
 
   protected loadItems(): void {
     this.loadingService.show();
-    this.productoService.getAll().pipe(
+    this.productoService.getAll(this.filtroActivo).pipe(
       finalize(() => this.loadingService.hide())
     ).subscribe({
       next: (res) => {
         this.productos = res;
+        if (this.filtroActivo !== FiltroActivo.ALL){
+          this.productos = this.productos.filter((producto) => {
+            let aux = this.filtroActivo === FiltroActivo.TRUE;
+            return producto.activo === aux;
+          });
+        }
         this.cdr.detectChanges();
       },
       error: () => this.showError('Error al cargar los productos.')

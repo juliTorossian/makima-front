@@ -26,6 +26,10 @@ import { finalize } from 'rxjs';
 import { PadZeroPipe } from '@core/pipes/pad-zero.pipe';
 import { ModalSel } from '../eventos-usuario/components/modal-sel/modal-sel';
 import { EventoAccionesService } from '@core/services/evento-acciones';
+import { PrioridadIconComponent } from '@app/components/priority-icon';
+import { TooltipModule } from 'primeng/tooltip';
+import { FiltroRadioGroupComponent } from '@app/components/filtro-check';
+import { FiltroActivo } from '@/app/constants/filtros_activo';
 
 @Component({
   selector: 'app-eventos',
@@ -44,6 +48,9 @@ import { EventoAccionesService } from '@core/services/evento-acciones';
     EventoDrawerComponent,
     UsuarioDrawerComponent,
     PadZeroPipe,
+    PrioridadIconComponent,
+    TooltipModule,
+    FiltroRadioGroupComponent,
   ],
   providers: [
     DialogService,
@@ -73,6 +80,7 @@ export class Eventos extends TrabajarCon<Evento> {
   usuarioSeleccionadoId: string | null = null;
 
   override ngOnInit(): void {
+    this.filtroActivo = FiltroActivo.ALL;
     this.loadItems();
   }
 
@@ -87,7 +95,7 @@ export class Eventos extends TrabajarCon<Evento> {
 
   protected loadItems(): void {
     this.loadingService.show();
-    this.eventoService.getAllComplete('all').pipe(
+    this.eventoService.getAllComplete(this.filtroActivo).pipe(
       finalize(() => this.loadingService.hide())
     ).subscribe({
       next: (res) => {

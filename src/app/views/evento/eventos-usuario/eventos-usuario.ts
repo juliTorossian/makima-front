@@ -25,6 +25,7 @@ import { UsuarioDrawerComponent } from '../../usuario/usuario-drawer/usuario-dra
 import { PadZeroPipe } from '@core/pipes/pad-zero.pipe';
 import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TooltipModule } from 'primeng/tooltip';
+import { PrioridadIconComponent } from '@app/components/priority-icon';
 
 @Component({
   selector: 'app-eventos-usuario',
@@ -43,7 +44,8 @@ import { TooltipModule } from 'primeng/tooltip';
     UsuarioDrawerComponent,
     PadZeroPipe,
     NgbPopoverModule,
-    TooltipModule
+    TooltipModule,
+    PrioridadIconComponent,
   ],
   providers: [
     DialogService,
@@ -237,13 +239,13 @@ export class EventosUsuario extends TrabajarCon<Evento> {
   }
 
   getRequisitosFaltantes(evento: EventoCompleto): string {
-    console.log(evento.etapaActualData?.requisitosFaltantes);
+    // console.log(evento.etapaActualData?.requisitosFaltantes);
     if (evento.etapaActualData?.requisitosFaltantes?.length === 0) return '';
     let req = '';
     evento.etapaActualData?.requisitosFaltantes?.forEach((r) => {
       req += `- ${r.descripcion}\n`;
     });
-    console.log(req);
+    // console.log(req);
     return req;
   }
 

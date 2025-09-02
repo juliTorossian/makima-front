@@ -16,6 +16,8 @@ import { ShortcutDirective } from '@core/directive/shortcut';
 import { finalize } from 'rxjs';
 import { BooleanLabelPipe } from '@core/pipes/boolean-label.pipe';
 import { CommonModule } from '@angular/common';
+import { FiltroRadioGroupComponent } from '@app/components/filtro-check';
+import { FiltroActivo } from '@/app/constants/filtros_activo';
 
 @Component({
   selector: 'app-roles',
@@ -29,6 +31,7 @@ import { CommonModule } from '@angular/common';
     ShortcutDirective,
     BooleanLabelPipe,
     CommonModule,
+    FiltroRadioGroupComponent,
   ],
   providers: [
     DialogService,
@@ -56,11 +59,17 @@ export class Roles extends TrabajarCon<Rol> {
 
   protected loadItems(): void {
     this.loadingService.show();
-    this.rolService.getAll().pipe(
+    this.rolService.getAll(this.filtroActivo).pipe(
       finalize(() => this.loadingService.hide())
     ).subscribe({
       next: (res) => {
         this.roles = res;
+        if (this.filtroActivo !== FiltroActivo.ALL){
+          this.roles = this.roles.filter((rol) => {
+            let aux = this.filtroActivo === FiltroActivo.TRUE;
+            return rol.activo === aux;
+          });
+        }
         this.cdr.detectChanges();
       },
       error: () => this.showError('Error al cargar los roles.')

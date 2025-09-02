@@ -15,6 +15,8 @@ import { ToastModule } from 'primeng/toast';
 import { ShortcutDirective } from '@core/directive/shortcut';
 import { PermisoClave } from '@core/interfaces/rol';
 import { finalize } from 'rxjs';
+import { FiltroActivo } from '@/app/constants/filtros_activo';
+import { FiltroRadioGroupComponent } from '@app/components/filtro-check';
 
 @Component({
   selector: 'app-entornos',
@@ -26,6 +28,7 @@ import { finalize } from 'rxjs';
     ConfirmDialogModule,
     ToastModule,
     ShortcutDirective,
+    FiltroRadioGroupComponent,
   ],
   providers: [
     DialogService,
@@ -53,11 +56,17 @@ export class Entornos extends TrabajarCon<Entorno> {
 
   protected loadItems(): void {
     this.loadingService.show();
-    this.entornoService.getAll().pipe(
+    this.entornoService.getAll(this.filtroActivo).pipe(
       finalize(() => this.loadingService.hide())
     ).subscribe({
       next: (res) => {
         this.entornos = res;
+        if (this.filtroActivo !== FiltroActivo.ALL){
+          this.entornos = this.entornos.filter((entorno) => {
+            let aux = this.filtroActivo === FiltroActivo.TRUE;
+            return entorno.activo === aux;
+          });
+        }
         this.cdr.detectChanges();
       },
       error: () => this.showError('Error al cargar los entornos.')

@@ -11,8 +11,8 @@ export class EtapaService {
   private http = inject(HttpClient);
   URL_COMPLETA = environment.BASE_URL;
 
-  getAll(): Observable<EtapaInterface[]> {
-    return this.http.get<EtapaInterface[]>(`${this.URL_COMPLETA}/etapa`);
+  getAll(activo: 'true' | 'false' | 'all' = 'true'): Observable<EtapaInterface[]> {
+    return this.http.get<EtapaInterface[]>(`${this.URL_COMPLETA}/etapa?activo=${activo}`);
   }
 
   getById(id: string): Observable<EtapaInterface> {

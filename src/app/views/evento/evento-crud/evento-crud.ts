@@ -26,6 +26,12 @@ import { modalConfig } from '@/app/types/modals';
 import { ProyectoSelect } from '../../proyecto/proyecto-select/proyecto-select';
 import { ModuloSelect } from '../../modulo/modulo-select/modulo-select';
 import { ProductoSelect } from '../../producto/producto-select/producto-select';
+import { PermisoAccion } from '@/app/types/permisos';
+import { PermisosService } from '@core/services/permisos';
+import { PermisoClave } from '@core/interfaces/rol';
+import { SelectModule } from 'primeng/select';
+import { PrioridadIconComponent } from '@app/components/priority-icon';
+import { getPrioridadDesc } from '@/app/constants/prioridad';
 
 
 @Component({
@@ -36,6 +42,8 @@ import { ProductoSelect } from '../../producto/producto-select/producto-select';
     ToastModule,
     NgbTypeaheadModule,
     FileUploader,
+    SelectModule,
+    PrioridadIconComponent,
   ],
   providers: [
     MessageService,
@@ -44,6 +52,7 @@ import { ProductoSelect } from '../../producto/producto-select/producto-select';
   styleUrl: './evento-crud.scss'
 })
 export class EventoCrud extends CrudFormModal<Evento> {
+  private permisosService = inject(PermisosService);
   private tipoEventoService = inject(TipoEventoService);
   private moduloService = inject(ModuloService);
   private clienteService = inject(ClienteService);
@@ -56,6 +65,8 @@ export class EventoCrud extends CrudFormModal<Evento> {
   private selProducto = inject(DynamicDialogRef);
   private selModulo = inject(DynamicDialogRef);
   private cdr = inject(ChangeDetectorRef);
+
+  getPrioridadDesc = getPrioridadDesc
 
   usuarioActivo:UsuarioLogeado | null = this.userStorageService.getUsuario();
 
@@ -329,5 +340,10 @@ export class EventoCrud extends CrudFormModal<Evento> {
     event.preventDefault();
     this.submit();
   }
+  
+  can(accion: PermisoAccion): boolean {
+    return this.permisosService.can(PermisoClave.EVENTO_TIPO_FAC, accion);
+  }
+  
 
 }

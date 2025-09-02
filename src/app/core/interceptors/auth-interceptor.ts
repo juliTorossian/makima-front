@@ -1,17 +1,20 @@
 
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { AuthService } from '@core/services/auth';
 import { catchError, switchMap, tap, throwError } from 'rxjs';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
+  const router = inject(Router);
   const token = authService.getAccessToken();
 
   // Si el request ya tiene la marca de intento de refresh, no lo reintentes
   if (req.headers.get('X-Refresh-Attempt')) {
     // Si el refresh falló, cerramos sesión directamente
     authService.logout();
+    router.navigateByUrl('/login');
     return throwError(() => new HttpErrorResponse({ status: 401, statusText: 'Refresh token expired' }));
   }
 
@@ -29,6 +32,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         // (evita bucle cuando el refresh token también expiró)
         if (req.url && req.url.includes('/auth/refresh')) {
           authService.logout();
+          router.navigateByUrl('/login');
           return throwError(() => error);
         }
 
@@ -49,6 +53,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           catchError(refreshError => {
             // Si falla el refresh token → cerramos sesión
             authService.logout();
+            router.navigateByUrl('/login');
             return throwError(() => refreshError);
           })
         );

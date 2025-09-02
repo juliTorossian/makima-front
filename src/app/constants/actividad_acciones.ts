@@ -6,12 +6,15 @@ export enum ACCIONES {
     RETROCEDIO = 'RETROCEDIO',
     ASIGNO = 'ASIGNO',
     REASIGNO = 'REASIGNO',
+    AUTORIZO = 'AUTORIZO',
+    RECHAZO = 'RECHAZO',
     COMENTARIO = 'COMENTARIO',
     ADJUNTO = 'ADJUNTO',
     ELIMINO = 'ELIMINO',
     ADD_REQUISITO = 'ADD_REQUISITO',
     REMOVE_REQUISITO = 'REMOVE_REQUISITO',
     MOD_REQUISITO = 'MOD_REQUISITO',
+    COMPLETADO = 'COMPLETADO',
 }
 
 export function getTitleAccion(actividad: VidaEvento): string {
@@ -31,12 +34,18 @@ export function getTitleAccion(actividad: VidaEvento): string {
             return `El usuario ${actividad.usuario?.usuario} retrocedió el evento.`;
         case ACCIONES.REASIGNO:
             return `El usuario ${actividad.usuario?.usuario} reasignó el evento.`;
+        case ACCIONES.AUTORIZO:
+            return `El usuario ${actividad.usuario?.usuario} autorizó el evento.`;
+        case ACCIONES.RECHAZO:
+            return `El usuario ${actividad.usuario?.usuario} rechazó el evento.`;
         case ACCIONES.ADD_REQUISITO:
             return `El usuario ${actividad.usuario?.usuario} completó un requisito al evento.`;
         case ACCIONES.REMOVE_REQUISITO:
             return `El usuario ${actividad.usuario?.usuario} eliminó un requisito del evento.`;
         case ACCIONES.MOD_REQUISITO:
             return `El usuario ${actividad.usuario?.usuario} modificó un requisito del evento.`;
+        case ACCIONES.COMPLETADO:
+            return `El usuario ${actividad.usuario?.usuario} completó el evento.`;
         default:
             return `El usuario ${actividad.usuario?.usuario} realizó una acción desconocida.`;
     }
@@ -57,6 +66,10 @@ export function getIconNameAccion(accion:string): string {
             return 'tablerArrowRight';
         case ACCIONES.RETROCEDIO:
             return 'tablerArrowLeft';
+        case ACCIONES.AUTORIZO:
+            return 'lucideShieldCheck';
+        case ACCIONES.RECHAZO:
+            return 'lucideShieldX';
         case ACCIONES.REASIGNO:
             return 'tablerUserBolt';
         case ACCIONES.ADD_REQUISITO:
@@ -65,6 +78,8 @@ export function getIconNameAccion(accion:string): string {
             return 'lucideBadgeMinus';
         case ACCIONES.MOD_REQUISITO:
             return 'lucideBadgeAlert';
+        case ACCIONES.COMPLETADO:
+            return 'tablerCheck';
         default:
             return 'tablerCircle';
     }
