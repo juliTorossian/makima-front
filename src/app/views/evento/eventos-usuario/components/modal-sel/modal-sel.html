@@ -1,33 +1,82 @@
-
 <div class="container container-modal">
 
-    
-    <div class="flex flex-column gap-2">
-        <p [innerHTML]="mensajeHtml"></p>
+
+    <div class="mb-3">
+        <p [innerHTML]="mensajeHtml" class="mb-0 text-muted"></p>
     </div>
 
-    @if (modo!='REC') {
-        <div class="flex flex-column gap-2 input-centrado">
-            <label for="usuario" class="form-label">Usuario</label>
-            <select class="form-control" [(ngModel)]="usuario" id="usuario" >
-                <option [ngValue]="null">-- Seleccionar --</option>
-                @for (u of usuarios; track u.id) {
-                <option [ngValue]="u.id">{{ u.usuario }}</option>
+    <div class="d-flex gap-3 mb-3 justify-content-center align-items-center">
+
+        @if(etapaActual) {
+            <div class="w-100">
+                @switch (modo) {
+                    @default {
+                        <label class="form-label">Etapa Actual</label>
+                    }
+                    @case ('RTO') {
+                        <label class="form-label">Etapa a retroceder</label>
+                    }
+                    @case ('REC') {
+                        <label class="form-label">Rechaza en la etapa</label>
+                    }
                 }
-            </select>
-        </div>
-    }
-    <div class="flex flex-column gap-2 input-centrado mt-2">
-        <label for="comentario" class="form-label">Comentario</label>
-        <textarea
-            [(ngModel)]="comentario"
-            class="form-control"
-            id="comentario"
-            rows="5"
-        ></textarea>
+                <input class="form-control" type="text" [value]="etapaActual" disabled>
+            </div>
+        }
+        @if(proximaEtapa) {
+            <div class="d-flex align-items-flex-end h-100">
+                <div class="">
+                    @switch (modo) {
+                        @default {
+                            <ng-icon name="lucideArrowBigRightDash" color="gray" style="width: 24px; height: 24px;"/>
+                        }
+                        @case ('RTO') {
+                            <ng-icon name="lucideArrowBigLeftDash" color="gray" style="width: 24px; height: 24px;"/>
+                        }
+                        @case ('REC') {
+                            <ng-icon name="lucideX" color="gray" style="width: 24px; height: 24px;"/>
+                        }
+                    }
+                </div>
+            </div>
+            <div class="w-100">
+                @switch (modo) {
+                    @default {
+                        <label class="form-label">Próxima Etapa</label>
+                    }
+                    @case ('RTO') {
+                        <label class="form-label">Etapa Actual</label>
+                    }
+                    @case ('REC') {
+                        <label class="form-label">Etapa de rechazo</label>
+                    }
+
+                }
+                <input class="form-control" type="text" [value]="proximaEtapa" disabled>
+            </div>
+        }
+
     </div>
 
-    <button class="btn btn-primary mt-3" (click)="seleccionar($event)">
-        Seleccionar
-    </button>
+    @if(modo !== 'REC') {
+    <div class="mb-3">
+        <label for="usuario" class="form-label">Usuario</label>
+        <input id="usuario" class="form-control mb-2" type="text" [(ngModel)]="usuario"
+                  [ngbTypeahead]="searchUsuario" [inputFormatter]="formatterUsuario"
+                  [resultFormatter]="formatterUsuario" placeholder="Buscar usuario..." />
+        <div class="form-text">Asigna al siguiente responsable.</div>
+    </div>
+    }
+
+    <div class="mb-3">
+        <label for="comentario" class="form-label">Comentario</label>
+        <textarea id="comentario" class="form-control" rows="5"
+            placeholder="Agrega detalles relevantes..." [(ngModel)]="comentario"></textarea>
+    </div>
+
+    <div class="mt-4">
+        <button class="btn btn-success w-100 py-2" (click)="seleccionar($event)">
+            ✓ Confirmar
+        </button>
+    </div>
 </div>

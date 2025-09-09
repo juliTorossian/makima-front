@@ -71,6 +71,10 @@ export class EventoService {
     return this.http.post<Evento>(`${this.URL_COMPLETA}/evento/adicion`, formData);
   }
 
+  eliminarAdicional(eventoId:string, adicionId:string): Observable<Evento> {
+    return this.http.delete<Evento>(`${this.URL_COMPLETA}/evento/adicion/${eventoId}/${adicionId}`);
+  }
+
   toggleObservador(eventoId: string, usuarioId: string): Observable<any> {
     return this.http.post<any>(
       `${this.URL_COMPLETA}/evento/toggle-observador/${eventoId}/${usuarioId}`,

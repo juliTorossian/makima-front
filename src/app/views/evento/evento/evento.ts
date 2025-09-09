@@ -73,6 +73,7 @@ export class Evento implements OnInit {
   private loadingService = inject(LoadingService);
   private dialogService = inject(DialogService);
   private messageService = inject(MessageService);
+  protected confirmationService = inject(ConfirmationService);
   protected permisosService = inject(PermisosService);
   ref!: DynamicDialogRef;
   private rutActiva = inject(ActivatedRoute);
@@ -276,7 +277,7 @@ export class Evento implements OnInit {
     this.eventoService.getActividad(this.eventoId).subscribe(
       {
         next: (res:any) => {
-          // console.log(res)
+          console.log(res)
           this.vidaEvento = res;
           this.cdr.detectChanges();
         },
@@ -289,6 +290,22 @@ export class Evento implements OnInit {
 
   onEliminarAdjunto(event:any){
     console.log('Eliminar adjunto:', event);
+    this.confirmationService.confirm({
+      message: `¿Seguro que querés eliminar ${event.nameFile}?`,
+      header: 'Confirmar eliminación',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.eventoService.eliminarAdicional(this.eventoId, event.id).subscribe({
+          next: (res) => {
+            console.log('Adjunto eliminado:', res);
+            this.onReloadAdjuntos();
+          },
+          error: (err) => {
+            console.error('Error al eliminar adjunto:', err);
+          }
+        });
+      }
+    });
   }
 
   onUploadAdjunto() {

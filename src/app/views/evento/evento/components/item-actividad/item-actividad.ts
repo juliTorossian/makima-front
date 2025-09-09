@@ -15,6 +15,9 @@ import { getTimeAgo } from '@/app/utils/datetime-utils';
 export class ItemActividadComponent {
   @Input() actividad!: VidaEvento;
   @Input() last: boolean = false;
+  ACCIONES = ACCIONES;
+  // ACCIONES_NO_MOSTRAR = [ACCIONES.CREO, ACCIONES.ASIGNO];?
+  ACCIONES_NO_MOSTRAR: string[] = [ACCIONES.CREO, ACCIONES.ASIGNO];
   
   getIconNameAccion() { return getIconNameAccion(this.actividad.accion) }
   getTitleAccion() { return getTitleAccion(this.actividad) }

@@ -17,6 +17,8 @@ import { PermisoClave } from '@core/interfaces/rol';
 import { finalize } from 'rxjs';
 import { FiltroActivo } from '@/app/constants/filtros_activo';
 import { FiltroRadioGroupComponent } from '@app/components/filtro-check';
+import { BooleanLabelPipe } from '@core/pipes/boolean-label.pipe';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-entornos',
@@ -29,6 +31,8 @@ import { FiltroRadioGroupComponent } from '@app/components/filtro-check';
     ToastModule,
     ShortcutDirective,
     FiltroRadioGroupComponent,
+    BooleanLabelPipe,
+    CommonModule,
   ],
   providers: [
     DialogService,

@@ -70,7 +70,7 @@ export class TabPreferencias implements OnInit {
         const checked = event.target.checked;
         if (checked) {
             if (!this.usuario.preferencias.some((p: any) => p.clave === pref.clave)) {
-                this.usuario.preferencias.push({ usuarioId: this.usuario.id!, clave: pref.clave, descripcion: pref.descripcion });
+                this.usuario.preferencias.push({ usuarioId: this.usuario.id!, clave: pref.clave, descripcion: '' /*pref.descripcion */ });
             }
         } else {
             this.usuario.preferencias = this.usuario.preferencias.filter((p: any) => p.clave !== pref.clave);

@@ -10,6 +10,7 @@ export enum ACCIONES {
     RECHAZO = 'RECHAZO',
     COMENTARIO = 'COMENTARIO',
     ADJUNTO = 'ADJUNTO',
+    ELIMINO_ADJUNTO = 'ELIMINO_ADJUNTO',
     ELIMINO = 'ELIMINO',
     ADD_REQUISITO = 'ADD_REQUISITO',
     REMOVE_REQUISITO = 'REMOVE_REQUISITO',
@@ -28,6 +29,8 @@ export function getTitleAccion(actividad: VidaEvento): string {
             return `El usuario ${actividad.usuario?.usuario} comentó en el evento.`;
         case ACCIONES.ADJUNTO:
             return `El usuario ${actividad.usuario?.usuario} adjuntó un archivo al evento.`;
+        case ACCIONES.ELIMINO_ADJUNTO:
+            return `El usuario ${actividad.usuario?.usuario} eliminó un archivo del evento.`;
         case ACCIONES.AVANZO:
             return `El usuario ${actividad.usuario?.usuario} avanzó el evento.`;
         case ACCIONES.RETROCEDIO:
@@ -62,6 +65,8 @@ export function getIconNameAccion(accion:string): string {
             return 'tablerMessage';
         case ACCIONES.ADJUNTO:
             return 'tablerPaperclip';
+        case ACCIONES.ELIMINO_ADJUNTO:
+            return 'tablerTrash';
         case ACCIONES.AVANZO:
             return 'tablerArrowRight';
         case ACCIONES.RETROCEDIO:
@@ -70,6 +75,8 @@ export function getIconNameAccion(accion:string): string {
             return 'lucideShieldCheck';
         case ACCIONES.RECHAZO:
             return 'lucideShieldX';
+        case ACCIONES.ASIGNO:
+            return 'lucideArrowDownToLine';
         case ACCIONES.REASIGNO:
             return 'tablerUserBolt';
         case ACCIONES.ADD_REQUISITO:
@@ -86,10 +93,13 @@ export function getIconNameAccion(accion:string): string {
 }
 
 export function getDescripcionAccion(actividad:VidaEvento): string {
-    if (actividad.accion === 'COMENTARIO' && actividad.adicion) {
+    if (actividad.accion === ACCIONES.COMENTARIO && actividad.adicion) {
       return actividad.adicion.comentario || '';
     }
-    if (actividad.accion === 'ADJUNTO' && actividad.adicion) {
+    if (actividad.accion === ACCIONES.ADJUNTO && actividad.adicion) {
+      return actividad.adicion.nameFile || '';
+    }
+    if (actividad.accion === ACCIONES.ELIMINO_ADJUNTO && actividad.adicion) {
       return actividad.adicion.nameFile || '';
     }
     return '';

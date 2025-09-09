@@ -59,7 +59,7 @@
                                 </td> -->
                                 <td>{{ entorno.codigo }}</td>
                                 <td>{{ entorno.nombre }}</td>
-                                <td>{{ entorno.activo }}</td>
+                                <td><span class="badge " style="min-width: 40%;" [ngClass]="entorno.activo ? 'text-bg-success' : 'text-bg-danger'">{{ entorno.activo | booleanLabel }}</span></td>
                                 <td class="d-flex justify-content-end">
                                     @if (can('M')) {
                                         <button class="btn btn-ghost-warning" (click)="mostrarModalCrud(entorno, 'M')"><ng-icon name="lucidePencil"/></button>

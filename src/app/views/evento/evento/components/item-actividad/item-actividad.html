@@ -1,4 +1,5 @@
 
+@if (!ACCIONES_NO_MOSTRAR.includes(actividad.accion)) {
 <div class="timeline-item d-flex align-items-stretch">
     <!-- <div class="timeline-time pe-3 text-muted">{{ getTimeAgo() }}</div> -->
     <div class="timeline-dot">
@@ -10,17 +11,21 @@
             <h5 class="mb-1">{{ getTitleAccion() }} </h5>
             <p class="mb-1 text-muted" style="margin-left: 8px; font-size: 10px;">{{ getTimeAgo() }}</p>
         </span>
-        @if (actividad.accion === "COMENTARIO") {
+        @if (actividad.accion === ACCIONES.COMENTARIO) {
             <textarea rows=2 [value]="actividad.adicion?.comentario" disabled (resize)="false" class="form-control w-100"></textarea>
         } @else {
             @if (getDescripcionAccion()) {
-                <p class="mb-1 text-muted">{{ getDescripcionAccion() }}</p>
+                @if (actividad.accion === ACCIONES.ELIMINO_ADJUNTO) {
+                    <p class="mb-1 text-muted text-danger text-decoration-line-through">{{ getDescripcionAccion() }}</p>
+                } @else {
+                    <p class="mb-1 text-muted">{{ getDescripcionAccion() }}</p>
+                }
             }
         }
         <!-- <span class="text-primary fw-medium">By {{ item.name }}</span> -->
     </div>
 </div>
-
+}
 
 <!-- <div class="timeline-item d-flex align-items-stretch">
     <div class="timeline-dot">

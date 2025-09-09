@@ -37,7 +37,7 @@
                 @if (get('deAutoriza')?.value){
                   Cir. Autoriza
                 } @else {
-                  Cir. Común
+                  Cir. Default
                 }
               </label>
             </div>
@@ -49,9 +49,9 @@
               <input id="deArchivo" type="checkbox" formControlName="deArchivo" class="btn-check" />
               <label class="btn btn-outline-primary" for="deArchivo" style="min-width: 160px;">
                 @if (get('deArchivo')?.value){
-                  ARCHIVO
+                  DE ARCHIVO
                 } @else {
-                  COMÚN
+                  DE CIRCUITO
                 }
               </label>
             </div>

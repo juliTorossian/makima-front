@@ -116,42 +116,53 @@ export class EventosUsuario extends TrabajarCon<Evento> {
   eliminarDirecto(evento: Evento): void { }
 
   mostrarModalCrud(evento: EventoCompleto | null, modo: 'AVZ' | 'RTO' | 'RAS' | 'AUT' | 'REC') {
-    // const data = { item: evento, modo };
-    let header = "";
-    let mensaje = "";
-    let rol = undefined;
-    let reqComentario = false;
-    if (modo === 'AVZ') {
-      header = "Avanzar Evento";
-      mensaje = `Etapa Actual: ${evento?.etapaActualData?.nombre} \nProxima etapa: ${evento?.etapaSiguiente?.nombre}`;
-      rol = evento?.etapaSiguiente?.rolPreferido;
-    } else if (modo === 'RTO') {
-      header = "Retroceder Evento";
-      mensaje = `Etapa Actual: ${evento?.etapaActualData?.nombre} \nProxima etapa: ${evento?.etapaAnterior?.nombre}`;
-      rol = evento?.etapaAnterior?.rolPreferido;
-    } else if (modo === 'RAS') {
-      header = "Reasignar Evento";
-      mensaje = `Etapa: ${evento?.etapaActualData?.nombre}`;
-      rol = evento?.etapaActualData?.rolPreferido;
-    } else if (modo === 'AUT') {
-      header = "Autorizar Evento";
-      mensaje = `Etapa Actual: ${evento?.etapaActualData?.nombre} \nProxima etapa: ${evento?.etapaSiguiente?.nombre}`;
-      rol = evento?.etapaActualData?.rolPreferido;
-    } else if (modo === 'REC') {
-      header = "Rechazar Evento";
-      mensaje = `Confirma que rechaza en la etapa ${evento?.etapaActualData?.nombre}`;
-      rol = evento?.etapaActualData?.rolPreferido;
+    let header: string;
+    let data = {
+      reqComentario: false,
+      comentario: '',
+      mensaje: '',
+      modo: modo,
+      etapaActual: '',
+      proximaEtapa: '',
+    };
+
+    switch (modo) {
+      case 'AVZ':
+        header = "Avanzar Evento";
+        // data.reqComentario = evento?.etapaSiguiente?.requiereComentario || false;
+        data.etapaActual = evento?.etapaActualData?.nombre!;
+        data.proximaEtapa = evento?.etapaSiguiente?.nombre!;
+        // rol = evento?.etapaSiguiente?.rolPreferido;
+        break;
+      case 'RTO':
+        header = "Retroceder Evento";
+        data.etapaActual = evento?.etapaActualData?.nombre!;
+        data.proximaEtapa = evento?.etapaSiguiente?.nombre!;
+        // data.rol = evento?.etapaAnterior?.rolPreferido;
+        break;
+      case 'RAS':
+        header = "Reasignar Evento";
+        data.etapaActual = evento?.etapaActualData?.nombre!;
+        // data.rol = evento?.etapaActualData?.rolPreferido;
+        break;
+      case 'AUT':
+        header = "Autorizar Evento";
+        data.etapaActual = evento?.etapaActualData?.nombre!;
+        data.proximaEtapa = evento?.etapaSiguiente?.nombre!;
+        // data.rol = evento?.etapaActualData?.rolPreferido;
+        break;
+      case 'REC':
+        header = "Rechazar Evento";
+        data.etapaActual = evento?.etapaActualData?.nombre!;
+        data.proximaEtapa = evento?.etapaAnterior?.nombre!;
+        // rol = evento?.etapaActualData?.rolPreferido;
+        break;
     }
 
-    const data = {
-      reqComentario: reqComentario,
-      comentario: "",
-      mensaje: mensaje,
-      modo: modo
-    }
 
     this.ref = this.dialogService.open(ModalSel, {
       ...modalConfig,
+      width: '50%',
       header,
       data
     });
@@ -166,6 +177,7 @@ export class EventosUsuario extends TrabajarCon<Evento> {
           usuarioId: result.usuarioSeleccionado,
           comentario: result.comentario
         }
+        this.loadingService.show();
 
         if (modo === 'AVZ') {
           this.eventoAccionesService.avanzar(body).subscribe({
