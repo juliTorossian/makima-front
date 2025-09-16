@@ -17,7 +17,7 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { NgIcon } from '@ng-icons/core';
 import { TableModule } from 'primeng/table';
 import { UserStorageService, UsuarioLogeado } from '@core/services/user-storage';
-import { getFechaLocal } from '@/app/utils/datetime-utils';
+import { getFechaLocal, parseIsoAsLocal } from '@/app/utils/datetime-utils';
 import { finalize } from 'rxjs';
 @Component({
   selector: 'app-horas-usuario',
@@ -44,6 +44,15 @@ import { finalize } from 'rxjs';
   styleUrl: './horas-usuario.scss'
 })
 export class HorasUsuario extends TrabajarCon<RegistroHora> {
+  protected override exportarExcelImpl(): void {
+    throw new Error('Method not implemented.');
+  }
+  protected override procesarExcel(file: File): void {
+    throw new Error('Method not implemented.');
+  }
+  protected override descargarPlantilla(): void {
+    throw new Error('Method not implemented.');
+  }
   private registroHoraService = inject(RegistroHoraService);
   private dialogService = inject(DialogService);
   ref!: DynamicDialogRef;
@@ -116,8 +125,8 @@ export class HorasUsuario extends TrabajarCon<RegistroHora> {
       finalize(() => this.loadingService.hide())
     ).subscribe({
       next: (res) => {
-        // console.log(res);
-        this.registrosHoras = res;
+        console.log(res);
+        this.registrosHoras = res.map(r => ({ ...r, fecha: parseIsoAsLocal((r as any).fecha) }));
         this.registrosHorasFiltradas = this.registrosHoras;
         this.cdr.detectChanges();
         this.aplicarFiltroFecha(fechaFiltro);
@@ -133,7 +142,7 @@ export class HorasUsuario extends TrabajarCon<RegistroHora> {
   aplicarFiltroFecha(fechaSel:any){
     const aux = new Date(fechaSel);
     this.registrosHorasFiltradas = this.registrosHoras.filter( (h) => {
-      const a = new Date(h.fecha)
+      const a = h.fecha instanceof Date ? h.fecha : parseIsoAsLocal(h.fecha as any);
       return (a.getMonth() === aux.getMonth()) && (a.getFullYear() === aux.getFullYear())
     })
   }

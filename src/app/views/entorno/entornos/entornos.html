@@ -16,7 +16,12 @@
                         </ng-template>
                         <ng-template pTemplate="right">
                             @if (can('A')) {
-                                <button class="btn btn-ghost-success btn-lg" (click)="mostrarModalCrud(null, 'A')" [appShortcut]="SHORTCUTS.NUEVO" (appShortcutTrigger)="mostrarModalCrud(null, 'A')"><ng-icon name="lucideCirclePlus"/></button>
+                                <app-control-trabajar-con
+                                    (nuevo)="mostrarModalCrud(null, 'A')"
+                                    (plantilla)="getPlantilla()"
+                                    (exportarExcel)="exportarExcel()"
+                                    (importar)="importarExcel($event)">
+                                ></app-control-trabajar-con>
                             }
                         </ng-template>
                     </p-toolbar>

@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Preferencia, UsuarioCompleto, Usuario as UsuarioInterface } from '@core/interfaces/usuario';
+import { FiltroActivo } from '@/app/constants/filtros_activo';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,7 @@ export class UsuarioService {
   private http = inject(HttpClient);
   URL_COMPLETA = environment.BASE_URL;
   
-  getAll(activo: 'true' | 'false' | 'all' = 'true') : Observable<UsuarioInterface[]>{
+  getAll(activo: FiltroActivo = FiltroActivo.TRUE) : Observable<UsuarioInterface[]>{
     return this.http.get<UsuarioInterface[]>(`${this.URL_COMPLETA}/usuario?activo=${activo}`);
   }
 
@@ -37,6 +38,24 @@ export class UsuarioService {
 
   delete(usuarioId:string): Observable<UsuarioInterface> {
     return this.http.delete<UsuarioInterface>(`${this.URL_COMPLETA}/usuario/${usuarioId}`);
+  }
+
+  // importaciones
+
+  descargarPlantilla(options?: any): Observable<any> {
+    const defaultOptions = { responseType: 'blob' as 'json' };
+    const finalOptions = options ? { ...defaultOptions, ...options } : defaultOptions;
+    return this.http.get<any>(`${this.URL_COMPLETA}/usuario/importacion/plantilla`, finalOptions);
+  }
+
+  exportarExcel(activo: FiltroActivo = FiltroActivo.TRUE, options?: any): Observable<any> {
+    const defaultOptions = { responseType: 'blob' as 'json' };
+    const finalOptions = options ? { ...defaultOptions, ...options } : defaultOptions;
+    return this.http.get<any>(`${this.URL_COMPLETA}/usuario/importacion/export?activo=${activo}`, finalOptions);
+  }
+
+  importarExcel(formData:FormData): Observable<any> {
+    return this.http.post<any>(`${this.URL_COMPLETA}/usuario/importacion/excel`, formData);
   }
 
   cambiarPassword(usuarioId: string, contrasenaActual: string, nuevaContrasena: string): Observable<any> {

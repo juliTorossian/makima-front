@@ -19,6 +19,9 @@ import { BooleanLabelPipe } from '@core/pipes/boolean-label.pipe';
 import { CommonModule } from '@angular/common';
 import { FiltroRadioGroupComponent } from '@app/components/filtro-check';
 import { FiltroActivo } from '@/app/constants/filtros_activo';
+import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
+import { ControlTrabajarCon } from '@app/components/trabajar-con/components/control-trabajar-con';
+import { getTimestamp } from '@/app/utils/time-utils';
 
 @Component({
   selector: 'app-productos',
@@ -29,10 +32,11 @@ import { FiltroActivo } from '@/app/constants/filtros_activo';
     ToolbarModule,
     ConfirmDialogModule,
     ToastModule,
-    ShortcutDirective,
     BooleanLabelPipe,
     CommonModule,
     FiltroRadioGroupComponent,
+    NgbDropdownModule,
+    ControlTrabajarCon,
   ],
   providers: [
     DialogService,
@@ -116,4 +120,48 @@ export class Productos extends TrabajarCon<Producto> {
       modo === 'M' ? this.editar(productoCrud) : this.alta(productoCrud);
     });
   }
+
+  descargarPlantilla() {
+    this.productoService.descargarPlantilla().subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'plantilla_productos.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    });
+  }
+  
+    exportarExcelImpl() {
+      this.productoService.exportarExcel(this.filtroActivo).subscribe({
+        next: (blob) => {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `export_productos_${getTimestamp()}.xlsx`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        }
+      });
+    }
+
+  procesarExcel(file:File): void {
+    const form = new FormData();
+    form.append('file', file);
+
+    this.loadingService.show();
+    this.productoService.importarProductos(form).pipe(
+      finalize(() => {
+        this.loadingService.hide();
+      })
+    ).subscribe({
+      next: () => this.afterChange('Productos importados correctamente.'),
+      error: (err) => this.showError(err?.error?.message || 'Error al importar productos.')
+    });
+  }
+
 }

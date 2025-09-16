@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Etapa_requisito, Etapa as EtapaInterface } from '@core/interfaces/etapa';
+import { FiltroActivo } from '@/app/constants/filtros_activo';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,7 @@ export class EtapaService {
   private http = inject(HttpClient);
   URL_COMPLETA = environment.BASE_URL;
 
-  getAll(activo: 'true' | 'false' | 'all' = 'true'): Observable<EtapaInterface[]> {
+  getAll(activo: FiltroActivo = FiltroActivo.TRUE): Observable<EtapaInterface[]> {
     return this.http.get<EtapaInterface[]>(`${this.URL_COMPLETA}/etapa?activo=${activo}`);
   }
 
@@ -47,6 +48,24 @@ export class EtapaService {
 
   getAllArchivo(): Observable<EtapaInterface[]> {
     return this.http.get<EtapaInterface[]>(`${this.URL_COMPLETA}/etapa/archivo/`);
+  }
+
+  // importaciones
+
+  descargarPlantilla(options?: any): Observable<any> {
+    const defaultOptions = { responseType: 'blob' as 'json' };
+    const finalOptions = options ? { ...defaultOptions, ...options } : defaultOptions;
+    return this.http.get<any>(`${this.URL_COMPLETA}/etapa/importacion/plantilla`, finalOptions);
+  }
+
+  exportarExcel(activo: FiltroActivo = FiltroActivo.TRUE, options?: any): Observable<any> {
+    const defaultOptions = { responseType: 'blob' as 'json' };
+    const finalOptions = options ? { ...defaultOptions, ...options } : defaultOptions;
+    return this.http.get<any>(`${this.URL_COMPLETA}/etapa/importacion/export?activo=${activo}`, finalOptions);
+  }
+
+  importarExcel(formData:FormData): Observable<any> {
+    return this.http.post<any>(`${this.URL_COMPLETA}/etapa/importacion/excel`, formData);
   }
 
 }

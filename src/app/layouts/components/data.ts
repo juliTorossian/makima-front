@@ -69,7 +69,6 @@ export const menuItems: MenuItemType[] = [
     icon: 'lucideClockPlus',
     url: '/hora/horas/usuario'
   },
-
   { label: 'Maestros', isTitle: true },
   {
     label: 'Eventos',
@@ -131,6 +130,13 @@ export const menuItems: MenuItemType[] = [
       { label: 'Usuarios', url: '/usuario/usuarios', permisoClave: PermisoClave.USUARIO },
       { label: 'Roles', url: '/rol/roles', permisoClave: PermisoClave.ROL },
     ],
+  },
+  { label: '', isTitle: true },
+  {
+    label: 'Reportes',
+    icon: 'tablerReport',
+    url: '/reporte/reportes',
+    permisoClave: PermisoClave.REPORTE
   },
 
 ]

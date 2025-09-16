@@ -1,3 +1,4 @@
+import { FiltroActivo } from '@/app/constants/filtros_activo';
 import { environment } from '@/environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
@@ -11,15 +12,15 @@ export class EventoService {
   private http = inject(HttpClient);
   URL_COMPLETA = environment.BASE_URL;
 
-  getAll(cerrado: 'true' | 'false' | 'all' = 'true', estado: string | string[] = ''): Observable<Evento[]> {
+  getAll(cerrado: FiltroActivo = FiltroActivo.TRUE, estado: string | string[] = ''): Observable<Evento[]> {
     return this.http.get<Evento[]>(`${this.URL_COMPLETA}/evento?cerrado=${cerrado}&estado=${estado}`);
   }
 
-  getAllComplete(cerrado: 'true' | 'false' | 'all' = 'all', estado: string | string[] = ''): Observable<EventoCompleto[]> {
+  getAllComplete(cerrado: FiltroActivo = FiltroActivo.ALL, estado: string | string[] = ''): Observable<EventoCompleto[]> {
     return this.http.get<EventoCompleto[]>(`${this.URL_COMPLETA}/evento/completo?cerrado=${cerrado}&estado=${estado}`);
   }
 
-  getAllCompleteByUsuario(usuarioId:string, cerrado: 'true' | 'false' | 'all' = 'false', estado: string | string[] = ''): Observable<EventoCompleto[]> {
+  getAllCompleteByUsuario(usuarioId:string, cerrado: FiltroActivo = FiltroActivo.FALSE, estado: string | string[] = ''): Observable<EventoCompleto[]> {
     return this.http.get<EventoCompleto[]>(`${this.URL_COMPLETA}/evento/completo/usuario/${usuarioId}?cerrado=${cerrado}&estado=${estado}`);
   }
 
@@ -61,6 +62,24 @@ export class EventoService {
 
   delete(eventoId:string): Observable<Evento> {
     return this.http.delete<Evento>(`${this.URL_COMPLETA}/evento/${eventoId}`);
+  }
+
+  // importaciones
+
+  descargarPlantilla(options?: any): Observable<any> {
+    const defaultOptions = { responseType: 'blob' as 'json' };
+    const finalOptions = options ? { ...defaultOptions, ...options } : defaultOptions;
+    return this.http.get<any>(`${this.URL_COMPLETA}/evento/importacion/plantilla`, finalOptions);
+  }
+
+  exportarExcel(cerrado: FiltroActivo = FiltroActivo.TRUE, estado: string | string[] = '', options?: any): Observable<any> {
+    const defaultOptions = { responseType: 'blob' as 'json' };
+    const finalOptions = options ? { ...defaultOptions, ...options } : defaultOptions;
+    return this.http.get<any>(`${this.URL_COMPLETA}/evento/importacion/export?cerrado=${cerrado}&estado=${estado}`, finalOptions);
+  }
+
+  importarExcel(formData:FormData): Observable<any> {
+    return this.http.post<any>(`${this.URL_COMPLETA}/evento/importacion/excel`, formData);
   }
 
   getAdjuntoBlob(adjuntoId:number): Observable<Blob> {

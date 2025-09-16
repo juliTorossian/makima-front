@@ -9,6 +9,8 @@ import { finalize } from 'rxjs';
 import { EventoDrawerComponent } from '../evento-drawer/evento-drawer';
 import { PadZeroPipe } from '@core/pipes/pad-zero.pipe';
 import { NgIcon } from '@ng-icons/core';
+import { FiltroActivo } from '@/app/constants/filtros_activo';
+import { DynamicDialogConfig } from 'primeng/dynamicdialog';
 
 @Component({
     selector: 'app-evento-select',
@@ -26,6 +28,9 @@ import { NgIcon } from '@ng-icons/core';
 })
 export class EventoSelect extends SelectBase<Evento> {
     private eventoService = inject(EventoService);
+    protected config = inject(DynamicDialogConfig);
+
+    filtroEvento: FiltroActivo = FiltroActivo.ALL;
 
     eventos: EventoCompleto[] = [];
     eventoSeleccionado!: Evento;
@@ -42,6 +47,14 @@ export class EventoSelect extends SelectBase<Evento> {
         );
     }
 
+    override ngOnInit(): void {
+        const data = this.config.data.filtroEvento;
+        if (data) {
+            this.filtroEvento = data;
+        }
+        super.ngOnInit();
+    }
+
     abrirEventoDrawer(evento: EventoCompleto) {
         this.eventoSeleccionadoId = evento.id || null;
         this.showEventoDrawer = true;
@@ -56,8 +69,11 @@ export class EventoSelect extends SelectBase<Evento> {
 
     loadItems() {
         this.loadingSelect = true;
-        this.eventoService.getAllComplete().pipe(
-            finalize(() => this.loadingSelect = false)
+        this.eventoService.getAllComplete(this.filtroEvento).pipe(
+            finalize(() => {
+                this.loadingSelect = false
+                
+            })
         ).subscribe({
             next: (res: EventoCompleto[]) => {
                 // console.log(res);

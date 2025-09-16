@@ -1,3 +1,4 @@
+import { FiltroActivo } from '@/app/constants/filtros_activo';
 import { environment } from '@/environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
@@ -11,7 +12,7 @@ export class ProyectoService {
   private http = inject(HttpClient);
   URL_COMPLETA = environment.BASE_URL;
 
-  getAll(activo: 'true' | 'false' | 'all' = 'true'): Observable<Proyecto[]> {
+  getAll(activo: FiltroActivo = FiltroActivo.TRUE): Observable<Proyecto[]> {
     return this.http.get<Proyecto[]>(`${this.URL_COMPLETA}/proyecto?activo=${activo}`);
   }
 
@@ -30,4 +31,23 @@ export class ProyectoService {
   delete(id:number): Observable<Proyecto> {
     return this.http.delete<Proyecto>(`${this.URL_COMPLETA}/proyecto/${id}`);
   }
+
+  // importaciones
+
+  descargarPlantilla(options?: any): Observable<any> {
+    const defaultOptions = { responseType: 'blob' as 'json' };
+    const finalOptions = options ? { ...defaultOptions, ...options } : defaultOptions;
+    return this.http.get<any>(`${this.URL_COMPLETA}/proyecto/importacion/plantilla`, finalOptions);
+  }
+
+  exportarExcel(activo: FiltroActivo = FiltroActivo.TRUE, options?: any): Observable<any> {
+    const defaultOptions = { responseType: 'blob' as 'json' };
+    const finalOptions = options ? { ...defaultOptions, ...options } : defaultOptions;
+    return this.http.get<any>(`${this.URL_COMPLETA}/proyecto/importacion/export?activo=${activo}`, finalOptions);
+  }
+
+  importarExcel(formData:FormData): Observable<any> {
+    return this.http.post<any>(`${this.URL_COMPLETA}/proyecto/importacion/excel`, formData);
+  }
+  
 }

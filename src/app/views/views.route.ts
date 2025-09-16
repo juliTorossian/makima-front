@@ -86,4 +86,10 @@ export const VIEWS_ROUTES: Routes = [
       import('./registroHora/registroHora.route').then((mod) => mod.HORAS_ROUTES),
   },
   
+  {
+    path: '',
+    loadChildren: () =>
+      import('./reporte/reporte.route').then((mod) => mod.REPORTES_ROUTES),
+  },
+  
 ]

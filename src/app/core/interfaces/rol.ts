@@ -49,7 +49,8 @@ export enum PermisoClave {
   EVENTO_DOCUMENTO = 'EVD',
   ETAPA = 'ETA',
   TIPO_EVENTO = 'TEV',
-  ROL = 'ROL'
+  ROL = 'ROL',
+  REPORTE = 'REP',
 }
 
 export const permisosVacios = {
@@ -66,7 +67,8 @@ export const permisosVacios = {
   [PermisoClave.EVENTO_DOCUMENTO]: 0,
   [PermisoClave.ETAPA]: 0,
   [PermisoClave.TIPO_EVENTO]: 0,
-  [PermisoClave.ROL]: 0
+  [PermisoClave.ROL]: 0,
+  [PermisoClave.REPORTE]: 0
 };
 
 const LEER = "Leer";
@@ -152,6 +154,12 @@ export const permisosData: PermisoConfig[] = [
   {
     clave: PermisoClave.USUARIO,
     descripcion: 'Usuarios',
+    nivel: 0,
+    acciones: { Lee: { activo: true, label: LEER }, Mod: { activo: true, label: LEER_Y_ESCRIBIR }, Eli: { activo: true, label: TODO } }
+  },
+  {
+    clave: PermisoClave.REPORTE,
+    descripcion: 'Reportes',
     nivel: 0,
     acciones: { Lee: { activo: true, label: LEER }, Mod: { activo: true, label: LEER_Y_ESCRIBIR }, Eli: { activo: true, label: TODO } }
   },

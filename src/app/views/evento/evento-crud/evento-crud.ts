@@ -68,15 +68,15 @@ export class EventoCrud extends CrudFormModal<Evento> {
 
   getPrioridadDesc = getPrioridadDesc
 
-  usuarioActivo:UsuarioLogeado | null = this.userStorageService.getUsuario();
+  usuarioActivo: UsuarioLogeado | null = this.userStorageService.getUsuario();
 
   uploadedFiles: File[] = [];
 
-  tiposEvento!:TipoEvento[];
-  modulos!:Modulo[];
-  clientes!:Cliente[];
-  productos!:Producto[];
-  proyectos!:Proyecto[];
+  tiposEvento!: TipoEvento[];
+  modulos!: Modulo[];
+  clientes!: Cliente[];
+  productos!: Producto[];
+  proyectos!: Proyecto[];
 
   // Vars para typeahead
   selectedTipoEvento?: TipoEvento;
@@ -187,7 +187,7 @@ export class EventoCrud extends CrudFormModal<Evento> {
   onFilesChange(files: File[]) {
     this.uploadedFiles = files;
   }
-  
+
   onFileAdded(file: File) {
     this.uploadedFiles.push(file);
   }
@@ -199,7 +199,7 @@ export class EventoCrud extends CrudFormModal<Evento> {
     this.totalDataToLoad = 4;
 
     this.moduloService.getAll().subscribe({
-      next: (res:any) => {
+      next: (res: any) => {
         this.modulos = res;
         this.searchModulo = createTypeaheadSearch(this.modulos, m => `${m.codigo} - ${m.nombre}`);
         this.checkAndSetupEditMode();
@@ -207,7 +207,7 @@ export class EventoCrud extends CrudFormModal<Evento> {
     });
 
     this.tipoEventoService.getAll().subscribe({
-      next: (res:any) => {
+      next: (res: any) => {
         this.tiposEvento = res;
         this.searchTipoEvento = createTypeaheadSearch(this.tiposEvento, te => `${te.codigo} - ${te.descripcion}`);
         this.checkAndSetupEditMode();
@@ -215,7 +215,7 @@ export class EventoCrud extends CrudFormModal<Evento> {
     });
 
     this.clienteService.getAll().subscribe({
-      next: (res:any) => {
+      next: (res: any) => {
         this.clientes = res;
         this.searchCliente = createTypeaheadSearch(this.clientes, c => `${c.sigla} - ${c.nombre}`);
         this.checkAndSetupEditMode();
@@ -223,7 +223,7 @@ export class EventoCrud extends CrudFormModal<Evento> {
     });
 
     this.productoService.getAll().subscribe({
-      next: (res:any) => {
+      next: (res: any) => {
         this.productos = res;
         this.searchProducto = createTypeaheadSearch(this.productos, p => `${p.sigla} - ${p.nombre} | ${p.entornoCodigo}`);
         this.checkAndSetupEditMode();
@@ -231,33 +231,38 @@ export class EventoCrud extends CrudFormModal<Evento> {
     });
 
     this.proyectoService.getAll().subscribe({
-      next: (res:any) => {
+      next: (res: any) => {
         this.proyectos = res;
         this.searchProyecto = createTypeaheadSearch(this.proyectos, p => `${p.sigla} - ${p.nombre}`);
         this.checkAndSetupEditMode();
       }
     });
+
+    // Suscribirse a cambios en tipoEvento para ajustar validadores dinámicamente
+    this.form.get('tipoEvento')?.valueChanges.subscribe((te: TipoEvento | null) => {
+      this.applyTipoPropioValidators(te);
+    });
   }
 
 
   protected buildForm(): FormGroup {
-      return new FormGroup({
-        id: new FormControl(''),
-        tipoEvento: new FormControl(null, [Validators.required]),
-        numero: new FormControl({value: 0, disabled: true}),
-        titulo: new FormControl('', [Validators.required]),
-        cerrado: new FormControl(false),
-        etapaActual: new FormControl(1),
-        estimacion: new FormControl(0),
-        prioridadUsu: new FormControl(1),
-        facEventoCerr: new FormControl(false),
-        cliente: new FormControl(null, [Validators.required]),
-        proyecto: new FormControl(null, [Validators.required]),
-        producto: new FormControl(null, [Validators.required]),
-        usuarioAltaId: new FormControl(this.usuarioActivo?.id),
-        modulo: new FormControl(null, [Validators.required]),
-        comentario: new FormControl(''),
-      });
+    return new FormGroup({
+      id: new FormControl(''),
+      tipoEvento: new FormControl(null, [Validators.required]),
+      numero: new FormControl({ value: 0, disabled: true }),
+      titulo: new FormControl('', [Validators.required]),
+      cerrado: new FormControl(false),
+      etapaActual: new FormControl(1),
+      estimacion: new FormControl(0),
+      prioridadUsu: new FormControl(1),
+      facEventoCerr: new FormControl(false),
+      cliente: new FormControl(null, [Validators.required]),
+      proyecto: new FormControl(null, [Validators.required]),
+      producto: new FormControl(null, [Validators.required]),
+      usuarioAltaId: new FormControl(this.usuarioActivo?.id),
+      modulo: new FormControl(null, [Validators.required]),
+      comentario: new FormControl(''),
+    });
   }
 
   protected populateForm(data: Evento): void {
@@ -268,26 +273,29 @@ export class EventoCrud extends CrudFormModal<Evento> {
     const productoObj = this.productos?.find(p => p.id === data.productoId) || null;
     const moduloObj = this.modulos?.find(m => m.codigo === data.moduloCodigo) || null;
 
-      setTimeout(() => {
-        this.form.patchValue({
-          id: data.id ?? '',
-          tipoEvento: tipoEventoObj,
-          numero: data.numero,
-          titulo: data.titulo,
-          cerrado: data.cerrado,
-          facEventoCerr: data.facEventoCerr,
-          etapaActual: data.etapaActual,
-          cliente: clienteObj,
-          proyecto: proyectoObj,
-          producto: productoObj,
-          usuarioAltaId: data.usuarioAltaId,
-          estimacion: data.estimacion,
-          modulo: moduloObj,
-          prioridadUsu: data.prioridadUsu,
-          comentario: data.comentario ?? ''
-        });
-        this.cdr.detectChanges();
-      }, 0);
+    setTimeout(() => {
+      this.form.patchValue({
+        id: data.id ?? '',
+        tipoEvento: tipoEventoObj,
+        numero: data.numero,
+        titulo: data.titulo,
+        cerrado: data.cerrado,
+        facEventoCerr: data.facEventoCerr,
+        etapaActual: data.etapaActual,
+        cliente: clienteObj,
+        proyecto: proyectoObj,
+        producto: productoObj,
+        usuarioAltaId: data.usuarioAltaId,
+        estimacion: data.estimacion,
+        modulo: moduloObj,
+        prioridadUsu: data.prioridadUsu,
+        comentario: data.comentario ?? ''
+      });
+      // Aplicar validadores según el tipo (propio o no) después de poblar el formulario
+      this.applyTipoPropioValidators(tipoEventoObj);
+
+      this.cdr.detectChanges();
+    }, 0);
   }
 
   protected override setupEditMode(): void {
@@ -318,10 +326,12 @@ export class EventoCrud extends CrudFormModal<Evento> {
     formData.append('numero', this.get('numero')?.value);
     formData.append('prioridadUsu', this.get('prioridadUsu')?.value);
     formData.append('titulo', this.get('titulo')?.value);
-    formData.append('clienteId', cliente.id);
-    formData.append('proyectoId', proyecto.id);
-    formData.append('productoId', producto.id);
-    formData.append('moduloCodigo', modulo.codigo);
+    if (!tipoEvento.propio) {
+      formData.append('clienteId', cliente.id);
+      formData.append('proyectoId', proyecto.id);
+      formData.append('productoId', producto.id);
+      formData.append('moduloCodigo', modulo.codigo);
+    }
     formData.append('comentario', this.get('comentario')?.value);
     formData.append('facEventoCerr', this.get('facEventoCerr')?.value);
 
@@ -340,10 +350,29 @@ export class EventoCrud extends CrudFormModal<Evento> {
     event.preventDefault();
     this.submit();
   }
-  
+
   can(accion: PermisoAccion): boolean {
     return this.permisosService.can(PermisoClave.EVENTO_TIPO_FAC, accion);
   }
-  
+
+  private applyTipoPropioValidators(tipo: TipoEvento | null) {
+  const propio = !!tipo?.propio;
+  const controlNames = ['cliente', 'proyecto', 'producto', 'modulo'];
+
+  controlNames.forEach(name => {
+    const ctrl = this.form.get(name);
+    if (!ctrl) return;
+
+    if (propio) {
+      // quitar required si es propio
+      ctrl.clearValidators();
+    } else {
+      // volver a poner required si no es propio
+      ctrl.setValidators([Validators.required]);
+    }
+    ctrl.updateValueAndValidity({ emitEvent: false });
+  });
+}
+
 
 }

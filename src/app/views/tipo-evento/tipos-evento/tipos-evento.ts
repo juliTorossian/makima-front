@@ -20,6 +20,8 @@ import { CommonModule } from '@angular/common';
 import { TipoEventoPrioridadReglas } from '../tipo-evento-crear-regla/tipo-evento-crear-regla';
 import { PrioridadService } from '@core/services/prioridad-regla';
 import { PrioridadRegla } from '@core/interfaces/prioridad-reglas';
+import { ControlTrabajarCon } from '@app/components/trabajar-con/components/control-trabajar-con';
+import { getTimestamp } from '@/app/utils/time-utils';
 
 @Component({
   selector: 'app-tipo-evento',
@@ -30,9 +32,9 @@ import { PrioridadRegla } from '@core/interfaces/prioridad-reglas';
     ToolbarModule,
     ConfirmDialogModule,
     ToastModule,
-    ShortcutDirective,
     BooleanLabelPipe,
-    CommonModule
+    CommonModule,
+    ControlTrabajarCon,
 ],
   providers: [
     DialogService,
@@ -120,6 +122,49 @@ export class TiposEvento extends TrabajarCon<TipoEvento> {
       ...modalConfig,
       header,
       data
+    });
+  }
+
+  descargarPlantilla() {
+    this.tipoEventoService.descargarPlantilla().subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'plantilla_tipos_evento.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    });
+  }
+
+  exportarExcelImpl() {
+    this.tipoEventoService.exportarExcel(this.filtroActivo).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `export_tipos_evento_${getTimestamp()}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    });
+  }
+
+  procesarExcel(file: File): void {
+    const form = new FormData();
+    form.append('file', file);
+
+    this.loadingService.show();
+    this.tipoEventoService.importarExcel(form).pipe(
+      finalize(() => {
+        this.loadingService.hide();
+      })
+    ).subscribe({
+      next: () => this.afterChange('Tipos de Evento importados correctamente.'),
+      error: (err) => this.showError(err?.error?.message || 'Error al importar Tipos de Evento.')
     });
   }
 }

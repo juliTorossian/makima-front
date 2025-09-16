@@ -19,6 +19,8 @@ import { BooleanLabelPipe } from '@core/pipes/boolean-label.pipe';
 import { CommonModule } from '@angular/common';
 import { FiltroRadioGroupComponent } from '@app/components/filtro-check';
 import { FiltroActivo } from '@/app/constants/filtros_activo';
+import { ControlTrabajarCon } from '@app/components/trabajar-con/components/control-trabajar-con';
+import { getTimestamp } from '@/app/utils/time-utils';
 
 @Component({
   selector: 'app-proyectos',
@@ -29,10 +31,10 @@ import { FiltroActivo } from '@/app/constants/filtros_activo';
     ToolbarModule,
     ConfirmDialogModule,
     ToastModule,
-    ShortcutDirective,
     BooleanLabelPipe,
     CommonModule,
     FiltroRadioGroupComponent,
+    ControlTrabajarCon,
   ],
   providers: [
     DialogService,
@@ -115,6 +117,49 @@ export class Proyectos extends TrabajarCon<Proyecto> {
     this.ref.onClose.subscribe((proyectoCrud: Proyecto) => {
       if (!proyectoCrud) return;
       modo === 'M' ? this.editar(proyectoCrud) : this.alta(proyectoCrud);
+    });
+  }
+
+  descargarPlantilla() {
+    this.proyectoService.descargarPlantilla().subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'plantilla_proyectos.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    });
+  }
+
+  exportarExcelImpl() {
+    this.proyectoService.exportarExcel(this.filtroActivo).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `export_proyectos_${getTimestamp()}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    });
+  }
+
+  procesarExcel(file:File): void {
+    const form = new FormData();
+    form.append('file', file);
+
+    this.loadingService.show();
+    this.proyectoService.importarExcel(form).pipe(
+      finalize(() => {
+        this.loadingService.hide();
+      })
+    ).subscribe({
+      next: () => this.afterChange('Proyectos importados correctamente.'),
+      error: (err) => this.showError(err?.error?.message || 'Error al importar proyectos.')
     });
   }
 }

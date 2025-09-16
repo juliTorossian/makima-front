@@ -13,6 +13,7 @@ import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { EventoSelect } from '../../evento/evento-select/evento-select';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { FiltroActivo } from '@/app/constants/filtros_activo';
 
 @Component({
   selector: 'app-hora-crud',
@@ -41,7 +42,7 @@ export class HoraCrud extends CrudFormModal<RegistroHora> {
   override ngOnInit(): void {
     super.ngOnInit();
 
-    this.eventoService.getAll().subscribe({
+    this.eventoService.getAll(FiltroActivo.FALSE).subscribe({
       next: (res: any) => {
         this.eventos = res
       },
@@ -152,7 +153,10 @@ export class HoraCrud extends CrudFormModal<RegistroHora> {
     event.preventDefault();
     this.modalSel = this.dialogService.open(EventoSelect, {
       ...modalConfig,
-      header: "Seleccionar Evento"
+      header: "Seleccionar Evento",
+      data: {
+        filtroEvento: FiltroActivo.FALSE
+      }
     });
 
     this.modalSel.onClose.subscribe((result: any) => {

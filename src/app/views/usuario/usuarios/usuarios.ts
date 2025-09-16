@@ -20,6 +20,8 @@ import { finalize } from 'rxjs';
 import { FiltroActivo } from '@/app/constants/filtros_activo';
 import { FiltroRadioGroupComponent } from '@app/components/filtro-check';
 import { UsuarioDrawerComponent } from '../usuario-drawer/usuario-drawer';
+import { ControlTrabajarCon } from '@app/components/trabajar-con/components/control-trabajar-con';
+import { getTimestamp } from '@/app/utils/time-utils';
 
 @Component({
   selector: 'app-usuarios',
@@ -31,9 +33,9 @@ import { UsuarioDrawerComponent } from '../usuario-drawer/usuario-drawer';
     ToolbarModule,
     ConfirmDialogModule,
     ToastModule,
-    ShortcutDirective,
     FiltroRadioGroupComponent,
     UsuarioDrawerComponent,
+    ControlTrabajarCon,
   ],
   providers: [
     DialogService,
@@ -133,6 +135,49 @@ export class Usuarios extends TrabajarCon<Usuario> {
     this.showUsuarioDrawer = false;
     this.usuarioSeleccionadoId = null;
     this.cdr.detectChanges();
+  }
+
+  descargarPlantilla() {
+    this.usuarioService.descargarPlantilla().subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'plantilla_usuarios.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    });
+  }
+  
+  exportarExcelImpl() {
+    this.usuarioService.exportarExcel(this.filtroActivo).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `export_usuarios_${getTimestamp()}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    });
+  }
+
+  procesarExcel(file:File): void {
+    const form = new FormData();
+    form.append('file', file);
+
+    this.loadingService.show();
+    this.usuarioService.importarExcel(form).pipe(
+      finalize(() => {
+        this.loadingService.hide();
+      })
+    ).subscribe({
+      next: () => this.afterChange('Usuarios importados correctamente.'),
+      error: (err) => this.showError(err?.error?.message || 'Error al importar usuarios.')
+    });
   }
   
 }

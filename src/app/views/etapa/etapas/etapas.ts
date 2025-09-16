@@ -19,6 +19,8 @@ import { CommonModule } from '@angular/common';
 import { BooleanLabelPipe } from '@core/pipes/boolean-label.pipe';
 import { FiltroRadioGroupComponent } from '@app/components/filtro-check';
 import { FiltroActivo } from '@/app/constants/filtros_activo';
+import { ControlTrabajarCon } from '@app/components/trabajar-con/components/control-trabajar-con';
+import { getTimestamp } from '@/app/utils/time-utils';
 
 @Component({
   selector: 'app-etapas',
@@ -29,10 +31,10 @@ import { FiltroActivo } from '@/app/constants/filtros_activo';
     ToolbarModule,
     ConfirmDialogModule,
     ToastModule,
-    ShortcutDirective,
     CommonModule,
     BooleanLabelPipe,
     FiltroRadioGroupComponent,
+    ControlTrabajarCon,
   ],
   providers: [
     DialogService,
@@ -118,6 +120,49 @@ export class Etapas extends TrabajarCon<Etapa> {
     this.ref.onClose.subscribe((etapaCrud: Etapa) => {
       if (!etapaCrud) return;
       modo === 'M' ? this.editar(etapaCrud) : this.alta(etapaCrud);
+    });
+  }
+
+  descargarPlantilla() {
+    this.etapaService.descargarPlantilla().subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'plantilla_etapas.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    });
+  }
+  
+  exportarExcelImpl() {
+    this.etapaService.exportarExcel(this.filtroActivo).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `export_etapas_${getTimestamp()}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    });
+  }
+
+  procesarExcel(file:File): void {
+    const form = new FormData();
+    form.append('file', file);
+
+    this.loadingService.show();
+    this.etapaService.importarExcel(form).pipe(
+      finalize(() => {
+        this.loadingService.hide();
+      })
+    ).subscribe({
+      next: () => this.afterChange('Etapas importadas correctamente.'),
+      error: (err) => this.showError(err?.error?.message || 'Error al importar etapas.')
     });
   }
 }

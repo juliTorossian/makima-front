@@ -57,7 +57,7 @@
                                     <p-button type="button" pRipple [pRowToggler]="registro" [text]="true" severity="secondary" [rounded]="true" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" />
                                 </td>
                                 <td hidden>{{ registro.id }}</td>
-                                <td>{{ getFechaLocal(registro.fecha) | date:'dd MMMM yy'}}</td>
+                                <td>{{ registro.fecha | date:'dd MMMM yy'}}</td>
                                 <td>{{ registro.usuario.usuario }}</td>
                                 <td>{{ registro.horasTotales }} hs.</td>
                                 <td class="d-flex justify-content-end"  style="min-height: 55px;">

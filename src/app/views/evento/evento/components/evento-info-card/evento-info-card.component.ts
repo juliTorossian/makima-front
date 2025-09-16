@@ -8,6 +8,7 @@ import { EventoService } from '@core/services/evento';
 import { DividerModule } from 'primeng/divider';
 import { FormsModule } from "@angular/forms";
 import { PrioridadIconComponent } from '@app/components/priority-icon';
+import { parseIsoAsLocal } from '@/app/utils/datetime-utils';
 
 @Component({
   selector: 'app-evento-info-card',
@@ -32,14 +33,12 @@ export class EventoInfoCardComponent implements OnInit {
   usuarioSeleccionadoId: string | null = null;
 
     // Utilidad para mostrar fechas en formato yyyy-MM-dd
-    formatDateForInput(dateStr: string | null | undefined): string | null {
-      if (!dateStr) return null;
-      const d = new Date(dateStr);
-      if (isNaN(d.getTime())) return null;
-      // Ajuste de zona horaria para evitar desfases
-      const tzOffset = d.getTimezoneOffset() * 60000;
-      const localISO = new Date(d.getTime() - tzOffset).toISOString().slice(0, 10);
-      return localISO;
+    formatDateForInput(dateVal: string | Date | null | undefined): string | null {
+      if (!dateVal) return null;
+      const d = dateVal instanceof Date ? dateVal : parseIsoAsLocal(dateVal as any);
+      if (!d || isNaN(d.getTime())) return null;
+      const pad = (n: number) => n.toString().padStart(2, '0');
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
     }
 
   ngOnInit(): void {
@@ -57,17 +56,15 @@ export class EventoInfoCardComponent implements OnInit {
   }
 
   onFechaChange(event:any, campo:string) {
-    // event es el valor del input (string yyyy-MM-dd)
-    const fecha = event ? new Date(event).toISOString() : null;
-    // console.log(`Cambio en ${campo}: ${fecha}`);
+    // event es el valor del input (string yyyy-MM-dd) o null
+    const iso = event ? `${event}T00:00:00.000Z` : null; // enviar ISO con Z para backend
     if (campo && this.evento) {
-      (this.evento as any)[campo] = fecha;
+      (this.evento as any)[campo] = iso;
     }
-    let aux:Evento = eventoFromEventoCompleto(this.evento);
-    aux = {
-      ...aux,
-      [campo]: (this.evento as any)[campo]
-    }
+    const aux: Evento = {
+      ...eventoFromEventoCompleto(this.evento),
+      [campo]: iso
+    };
     this.eventoService.update(this.evento.id!, aux).subscribe({
       next: () => {
         console.log(`Evento ${campo} actualizado`);

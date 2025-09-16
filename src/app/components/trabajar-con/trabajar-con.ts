@@ -42,6 +42,31 @@ export abstract class TrabajarCon<T> {
   abstract editar(item: T): void;
   abstract eliminarDirecto(item: T): void;
 
+  exportarExcel(): void {
+    this.exportarExcelImpl();
+  }
+
+  importarExcel(event:any): void {
+    console.log(event);
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    input.value = ''; // permitir re-subida del mismo archivo
+    this.procesarExcel(file);
+  }
+
+  getPlantilla(): void {
+    this.descargarPlantilla();
+  }
+
+
+
+  // métodos que deben implementar las pantallas concretas
+  protected abstract procesarExcel(file: File): void;
+  protected abstract descargarPlantilla(): void;
+  protected abstract exportarExcelImpl(): void;
+  // ------------------------------------------------------------------
+
   delete(item: T, label: string = 'el registro'): void {
     this.confirmationService.confirm({
       message: `¿Seguro que querés eliminar ${label}?`,

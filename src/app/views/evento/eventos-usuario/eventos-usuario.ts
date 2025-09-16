@@ -25,6 +25,7 @@ import { UsuarioDrawerComponent } from '../../usuario/usuario-drawer/usuario-dra
 import { PadZeroPipe } from '@core/pipes/pad-zero.pipe';
 import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TooltipModule } from 'primeng/tooltip';
+import { parseIsoAsLocal } from '@/app/utils/datetime-utils';
 import { PrioridadIconComponent } from '@app/components/priority-icon';
 
 @Component({
@@ -56,7 +57,15 @@ import { PrioridadIconComponent } from '@app/components/priority-icon';
   styleUrl: './eventos-usuario.scss'
 })
 export class EventosUsuario extends TrabajarCon<Evento> {
-  // ...existing code...
+  protected override exportarExcelImpl(): void {
+    throw new Error('Method not implemented.');
+  }
+  protected override procesarExcel(file: File): void {
+    throw new Error('Method not implemented.');
+  }
+  protected override descargarPlantilla(): void {
+    throw new Error('Method not implemented.');
+  }
   private eventoService = inject(EventoService);
   private eventoAccionesService = inject(EventoAccionesService);
   private dialogService = inject(DialogService);
@@ -94,9 +103,15 @@ export class EventosUsuario extends TrabajarCon<Evento> {
     this.loadingService.show();
     this.eventoService.getAllCompleteByUsuario(this.usuarioActivo?.id ?? '').subscribe({
       next: (res) => {
-        console.log(res)
+        console.log(res);
         setTimeout(() => {
-          this.eventos = [...res];
+          this.eventos = res.map(e => ({
+            ...e,
+            fechaInicio: (e as any).fechaInicio ? parseIsoAsLocal((e as any).fechaInicio) : null,
+            fechaFinReal: (e as any).fechaFinReal ? parseIsoAsLocal((e as any).fechaFinReal) : null,
+            fechaFinEst: (e as any).fechaFinEst ? parseIsoAsLocal((e as any).fechaFinEst) : null,
+            fechaEntrega: (e as any).fechaEntrega ? parseIsoAsLocal((e as any).fechaEntrega) : null
+          })) as unknown as EventoCompleto[];
           if (this.table) {
             this.table.reset(); // Esto fuerza el refresco de la grilla
           }
@@ -130,31 +145,31 @@ export class EventosUsuario extends TrabajarCon<Evento> {
       case 'AVZ':
         header = "Avanzar Evento";
         // data.reqComentario = evento?.etapaSiguiente?.requiereComentario || false;
-        data.etapaActual = evento?.etapaActualData?.nombre!;
-        data.proximaEtapa = evento?.etapaSiguiente?.nombre!;
+        data.etapaActual = evento?.etapaActualData?.nombre ?? '';
+        data.proximaEtapa = evento?.etapaSiguiente?.nombre ?? '';
         // rol = evento?.etapaSiguiente?.rolPreferido;
         break;
       case 'RTO':
         header = "Retroceder Evento";
-        data.etapaActual = evento?.etapaActualData?.nombre!;
-        data.proximaEtapa = evento?.etapaSiguiente?.nombre!;
+        data.etapaActual = evento?.etapaActualData?.nombre ?? '';
+        data.proximaEtapa = evento?.etapaSiguiente?.nombre ?? '';
         // data.rol = evento?.etapaAnterior?.rolPreferido;
         break;
       case 'RAS':
         header = "Reasignar Evento";
-        data.etapaActual = evento?.etapaActualData?.nombre!;
+        data.etapaActual = evento?.etapaActualData?.nombre ?? '';
         // data.rol = evento?.etapaActualData?.rolPreferido;
         break;
       case 'AUT':
         header = "Autorizar Evento";
-        data.etapaActual = evento?.etapaActualData?.nombre!;
-        data.proximaEtapa = evento?.etapaSiguiente?.nombre!;
+        data.etapaActual = evento?.etapaActualData?.nombre ?? '';
+        data.proximaEtapa = evento?.etapaSiguiente?.nombre ?? '';
         // data.rol = evento?.etapaActualData?.rolPreferido;
         break;
       case 'REC':
         header = "Rechazar Evento";
-        data.etapaActual = evento?.etapaActualData?.nombre!;
-        data.proximaEtapa = evento?.etapaAnterior?.nombre!;
+        data.etapaActual = evento?.etapaActualData?.nombre ?? '';
+        data.proximaEtapa = evento?.etapaAnterior?.nombre ?? '';
         // rol = evento?.etapaActualData?.rolPreferido;
         break;
     }
@@ -238,8 +253,8 @@ export class EventosUsuario extends TrabajarCon<Evento> {
     this.cdr.detectChanges();
   }
 
-  abrirUsuarioDrawer(usuarioId: string) {
-    this.usuarioSeleccionadoId = usuarioId;
+  abrirUsuarioDrawer(usuarioId: string | null | undefined) {
+    this.usuarioSeleccionadoId = usuarioId ?? null;
     this.showUsuarioDrawer = true;
     this.cdr.detectChanges();
   }

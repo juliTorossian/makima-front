@@ -20,6 +20,8 @@ import { BooleanLabelPipe } from '@core/pipes/boolean-label.pipe';
 import { CommonModule } from '@angular/common';
 import { FiltroRadioGroupComponent } from '@app/components/filtro-check';
 import { FiltroActivo } from '@/app/constants/filtros_activo';
+import { ControlTrabajarCon } from '@app/components/trabajar-con/components/control-trabajar-con';
+import { getTimestamp } from '@/app/utils/time-utils';
 
 @Component({
   selector: 'app-clientes',
@@ -30,10 +32,10 @@ import { FiltroActivo } from '@/app/constants/filtros_activo';
     ToolbarModule,
     ConfirmDialogModule,
     ToastModule,
-    ShortcutDirective,
     BooleanLabelPipe,
     CommonModule,
     FiltroRadioGroupComponent,
+    ControlTrabajarCon,
   ],
   providers: [
     DialogService,
@@ -117,6 +119,49 @@ export class Clientes extends TrabajarCon<Cliente> {
     this.ref.onClose.subscribe((clienteCrud: Cliente) => {
       if (!clienteCrud) return;
       modo === 'M' ? this.editar(clienteCrud) : this.alta(clienteCrud);
+    });
+  }
+
+  descargarPlantilla() {
+    this.clienteService.descargarPlantilla().subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'plantilla_clientes.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    });
+  }
+  
+  exportarExcelImpl() {
+    this.clienteService.exportarExcel(this.filtroActivo).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `export_clientes_${getTimestamp()}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    });
+  }
+
+  procesarExcel(file:File): void {
+    const form = new FormData();
+    form.append('file', file);
+
+    this.loadingService.show();
+    this.clienteService.importarExcel(form).pipe(
+      finalize(() => {
+        this.loadingService.hide();
+      })
+    ).subscribe({
+      next: () => this.afterChange('Clientes importados correctamente.'),
+      error: (err) => this.showError(err?.error?.message || 'Error al importar clientes.')
     });
   }
 }

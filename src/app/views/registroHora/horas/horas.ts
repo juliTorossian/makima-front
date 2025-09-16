@@ -43,6 +43,15 @@ import { getFechaLocal } from '@/app/utils/datetime-utils';
   styleUrl: './horas.scss'
 })
 export class Horas extends TrabajarCon<RegistroHora> {
+  protected override exportarExcelImpl(): void {
+    throw new Error('Method not implemented.');
+  }
+  protected override procesarExcel(file: File): void {
+    throw new Error('Method not implemented.');
+  }
+  protected override descargarPlantilla(): void {
+    throw new Error('Method not implemented.');
+  }
   private registroHoraService = inject(RegistroHoraService);
   private dialogService = inject(DialogService);
   ref!: DynamicDialogRef;

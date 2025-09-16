@@ -19,6 +19,8 @@ import { BooleanLabelPipe } from '@core/pipes/boolean-label.pipe';
 import { CommonModule } from '@angular/common';
 import { FiltroRadioGroupComponent } from '@app/components/filtro-check';
 import { FiltroActivo } from '@/app/constants/filtros_activo';
+import { ControlTrabajarCon } from '@app/components/trabajar-con/components/control-trabajar-con';
+import { getTimestamp } from '@/app/utils/time-utils';
 
 @Component({
   selector: 'app-modulos',
@@ -29,10 +31,10 @@ import { FiltroActivo } from '@/app/constants/filtros_activo';
     ToolbarModule,
     ConfirmDialogModule,
     ToastModule,
-    ShortcutDirective,
     BooleanLabelPipe,
     CommonModule,
     FiltroRadioGroupComponent,
+    ControlTrabajarCon,
   ],
   providers: [
     DialogService,
@@ -113,6 +115,49 @@ export class Modulos extends TrabajarCon<Modulo> {
     this.ref.onClose.subscribe((moduloCrud: Modulo) => {
       if (!moduloCrud) return;
       modo === 'M' ? this.editar(moduloCrud) : this.alta(moduloCrud);
+    });
+  }
+
+  descargarPlantilla() {
+    this.moduloService.descargarPlantilla().subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'plantilla_modulos.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    });
+  }
+  
+  exportarExcelImpl() {
+    this.moduloService.exportarExcel(this.filtroActivo).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `export_modulos_${getTimestamp()}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    });
+  }
+
+  procesarExcel(file:File): void {
+    const form = new FormData();
+    form.append('file', file);
+
+    this.loadingService.show();
+    this.moduloService.importarExcel(form).pipe(
+      finalize(() => {
+        this.loadingService.hide();
+      })
+    ).subscribe({
+      next: () => this.afterChange('Modulos importados correctamente.'),
+      error: (err) => this.showError(err?.error?.message || 'Error al importar modulos.')
     });
   }
 }

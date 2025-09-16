@@ -30,6 +30,9 @@ import { PrioridadIconComponent } from '@app/components/priority-icon';
 import { TooltipModule } from 'primeng/tooltip';
 import { FiltroRadioGroupComponent } from '@app/components/filtro-check';
 import { FiltroActivo } from '@/app/constants/filtros_activo';
+import { ControlTrabajarCon } from '@app/components/trabajar-con/components/control-trabajar-con';
+import { getTimestamp } from '@/app/utils/time-utils';
+import { parseIsoAsLocal } from '@/app/utils/datetime-utils';
 
 @Component({
   selector: 'app-eventos',
@@ -40,7 +43,6 @@ import { FiltroActivo } from '@/app/constants/filtros_activo';
     ToolbarModule,
     ConfirmDialogModule,
     ToastModule,
-    ShortcutDirective,
     BadgeClickComponent,
     DatePipe,
     DrawerModule,
@@ -51,6 +53,7 @@ import { FiltroActivo } from '@/app/constants/filtros_activo';
     PrioridadIconComponent,
     TooltipModule,
     FiltroRadioGroupComponent,
+    ControlTrabajarCon,
   ],
   providers: [
     DialogService,
@@ -61,7 +64,6 @@ import { FiltroActivo } from '@/app/constants/filtros_activo';
   styleUrl: './eventos.scss'
 })
 export class Eventos extends TrabajarCon<Evento> {
-  // ...existing code...
   private eventoService = inject(EventoService);
   private dialogService = inject(DialogService);
   ref!: DynamicDialogRef;
@@ -70,7 +72,7 @@ export class Eventos extends TrabajarCon<Evento> {
 
   usuarioActivo: UsuarioLogeado | null = this.userStorageService.getUsuario();
 
-  eventos!: EventoCompleto[];
+  eventos: EventoCompleto[] = [];
 
   // Estado para el offcanvas
   showEventoDrawer = false;
@@ -100,7 +102,13 @@ export class Eventos extends TrabajarCon<Evento> {
     ).subscribe({
       next: (res) => {
         console.log(res)
-        this.eventos = res;
+        this.eventos = res.map(e => ({
+          ...e,
+          fechaInicio: (e as any).fechaInicio ? parseIsoAsLocal((e as any).fechaInicio) : null,
+          fechaFinReal: (e as any).fechaFinReal ? parseIsoAsLocal((e as any).fechaFinReal) : null,
+          fechaFinEst: (e as any).fechaFinEst ? parseIsoAsLocal((e as any).fechaFinEst) : null,
+          fechaEntrega: (e as any).fechaEntrega ? parseIsoAsLocal((e as any).fechaEntrega) : null
+        })) as unknown as EventoCompleto[];
         this.cdr.detectChanges();
       },
       error: () => this.showError('Error al cargar los eventos.')
@@ -118,9 +126,9 @@ export class Eventos extends TrabajarCon<Evento> {
     this.eventoSeleccionadoId = null;
     this.cdr.detectChanges();
   }
-
-  abrirUsuarioDrawer(usuarioId: string) {
-    this.usuarioSeleccionadoId = usuarioId;
+  
+  abrirUsuarioDrawer(usuarioId: string | null | undefined) {
+    this.usuarioSeleccionadoId = usuarioId ?? null;
     this.showUsuarioDrawer = true;
     this.cdr.detectChanges();
   }
@@ -184,6 +192,49 @@ export class Eventos extends TrabajarCon<Evento> {
     });
   }
 
+  descargarPlantilla() {
+    this.eventoService.descargarPlantilla().subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'plantilla_eventos.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    });
+  }
+  
+  exportarExcelImpl() {
+    this.eventoService.exportarExcel().subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `export_eventos_${getTimestamp()}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    });
+  }
+
+  procesarExcel(file:File): void {
+    const form = new FormData();
+    form.append('file', file);
+
+    this.loadingService.show();
+    this.eventoService.importarExcel(form).pipe(
+      finalize(() => {
+        this.loadingService.hide();
+      })
+    ).subscribe({
+      next: () => this.afterChange('Eventos importados correctamente.'),
+      error: (err) => this.showError(err?.error?.message || 'Error al importar eventos.')
+    });
+  }
+
   // Métodos privados para manejar FormData
   private altaFormData(formData: FormData): void {
     this.eventoService.createAdicional(formData).subscribe({
@@ -202,7 +253,7 @@ export class Eventos extends TrabajarCon<Evento> {
   mostrarModalCrudReasignar(evento: EventoCompleto) {
 
     let header = "Reasignar Evento";
-    let mensaje = `Etapa: ${evento?.etapaActualData?.nombre}`;
+    let mensaje = `Etapa: ${evento?.etapaActualData?.nombre ?? ''}`;
     let rol = evento?.etapaActualData?.rolPreferido;
     let reqComentario = false;
 
