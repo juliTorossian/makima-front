@@ -119,18 +119,22 @@
                 </td>
                 <td>{{ evento?.titulo }}</td>
                 <td>{{ evento?.etapaActualData?.nombre }}</td>
-                <td>{{ evento?.cliente ? evento.cliente?.sigla + " - " + evento.cliente?.nombre : "" }} </td>
-                <td>{{ evento?.producto ? evento.producto?.sigla + " - " + evento.producto?.nombre + (evento.producto?.entornoCodigo ? " | " + evento.producto.entornoCodigo : "") : "" }} </td>
-                <td>{{ evento?.modulo ? evento.modulo?.codigo + " - " + evento.modulo?.nombre : "" }} </td>
+                <td>{{ evento?.cliente ? evento.cliente?.sigla + " - " + evento.cliente?.nombre : "-" }} </td>
+                <td>{{ evento?.producto ? evento.producto?.sigla + " - " + evento.producto?.nombre + (evento.producto?.entornoCodigo ? " | " + evento.producto.entornoCodigo : "") : "-" }} </td>
+                <td>{{ evento?.modulo ? evento.modulo?.codigo + " - " + evento.modulo?.nombre : "-" }} </td>
                 <td>
                   <div class="d-flex justify-content-center">
                     <app-prioridad-icon [nivel]="evento?.prioridadFin" ></app-prioridad-icon>
                   </div>
                 </td>
                 <td>
-                  <app-badge-click style="cursor: pointer" (click)="abrirUsuarioDrawer(evento?.usuarioActual?.id)" >
-                    {{ evento?.usuarioActual?.usuario }}
-                  </app-badge-click>
+                  @if (evento?.usuarioActual) {
+                    <app-badge-click style="cursor: pointer" (click)="abrirUsuarioDrawer(evento?.usuarioActual?.id)" >
+                      {{ evento?.usuarioActual?.usuario }}
+                    </app-badge-click>
+                  } @else {
+                    -
+                  }
                 </td>
                 <td> {{ evento?.createdAt ? (evento.createdAt | date : "short") : "" }} </td>
                 <td> {{ evento?.fechaInicio ? (evento.fechaInicio | date : "shortDate") : "" }} </td>

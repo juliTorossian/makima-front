@@ -46,8 +46,8 @@ import { TableModule } from "primeng/table";
                                     </app-badge-click>
                                 </td>
                                 <td>{{ evento.titulo }}</td>
-                                <td>{{ evento.cliente.sigla }} - {{ evento.cliente.nombre }}</td>
-                                <td>{{ evento.producto.sigla }} - {{ evento.producto.nombre }} | {{ evento.producto.entornoCodigo }}</td>
+                                <td>{{ evento?.cliente ? evento.cliente?.sigla + " - " + evento.cliente?.nombre : "-" }} </td>
+                                <td>{{ evento?.producto ? evento.producto.sigla + " - " + evento.producto.nombre + " | " + evento.producto.entornoCodigo : "-" }}</td>
                             </tr>
                         </ng-template>
                     </p-table>

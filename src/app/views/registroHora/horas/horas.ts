@@ -19,7 +19,7 @@ import { ButtonModule } from 'primeng/button';
 import { FormsModule } from '@angular/forms';
 import { PermisoClave } from '@core/interfaces/rol';
 import { finalize } from 'rxjs';
-import { getFechaLocal } from '@/app/utils/datetime-utils';
+import { getFechaLocal, parseIsoAsLocal } from '@/app/utils/datetime-utils';
 
 @Component({
   selector: 'app-horas',
@@ -122,7 +122,26 @@ export class Horas extends TrabajarCon<RegistroHora> {
     ).subscribe({
       next: (res) => {
         // console.log(res)
-        const filtrados = res.filter((usuario: any) => Array.isArray(usuario.registrosHora) && usuario.registrosHora.length > 0);
+        const registros = (res || []).map((usuario: any) => {
+          const registrosHora = Array.isArray(usuario.registrosHora)
+            ? usuario.registrosHora.map((reg: any) => {
+                const fecha = reg?.fecha ? parseIsoAsLocal(reg.fecha) : undefined;
+                const horas = Array.isArray(reg.horas)
+                  ? reg.horas.map((h: any) => ({
+                      ...h,
+                      inicio: h?.inicio ? parseIsoAsLocal(h.inicio) : undefined,
+                      fin: h?.fin ? parseIsoAsLocal(h.fin) : undefined
+                    }))
+                  : reg.horas;
+                return { ...reg, fecha, horas };
+              })
+            : usuario.registrosHora;
+          return { ...usuario, registrosHora };
+        });
+
+        const filtrados = registros.filter((usuario: any) =>
+          Array.isArray(usuario.registrosHora) && usuario.registrosHora.length > 0
+        );
         this.registrosHorasGenerales = filtrados;
         this.registrosHorasGeneralesFiltradas = filtrados;
         this.cdr.detectChanges();

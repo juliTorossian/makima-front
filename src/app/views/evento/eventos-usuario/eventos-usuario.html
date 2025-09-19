@@ -108,9 +108,9 @@
                                 </td>
                                 <td>{{ evento?.titulo }}</td>
                                 <td>{{ evento?.etapaActualData?.nombre }}</td>
-                                <td>{{ evento?.cliente ? evento.cliente?.sigla + " - " + evento.cliente?.nombre : "" }} </td>
-                                <td>{{ evento?.producto ? evento.producto?.sigla + " - " + evento.producto?.nombre + (evento.producto?.entornoCodigo ? " | " + evento.producto.entornoCodigo : "") : "" }} </td>
-                                <td>{{ evento?.modulo ? evento.modulo?.codigo + " - " + evento.modulo?.nombre : "" }} </td>
+                                <td>{{ evento?.cliente ? evento.cliente?.sigla + " - " + evento.cliente?.nombre : "-" }} </td>
+                                <td>{{ evento?.producto ? evento.producto?.sigla + " - " + evento.producto?.nombre + (evento.producto?.entornoCodigo ? " | " + evento.producto.entornoCodigo : "") : "-" }} </td>
+                                <td>{{ evento?.modulo ? evento.modulo?.codigo + " - " + evento.modulo?.nombre : "-" }} </td>
                                 <td>
                                 <div class="d-flex justify-content-center">
                                     <app-prioridad-icon [nivel]="evento?.prioridadFin" ></app-prioridad-icon>

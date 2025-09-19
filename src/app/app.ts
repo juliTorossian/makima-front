@@ -11,6 +11,7 @@ import { Title } from '@angular/platform-browser';
 import { Toast, ToastModule } from "primeng/toast";
 import { MessageService } from 'primeng/api';
 import { appTitle } from './constants';
+import Clarity from '@microsoft/clarity';
 
 @Component({
   selector: 'app-root',
@@ -37,6 +38,9 @@ export class App implements OnInit {
   isLoading = false;
 
   ngOnInit(): void {
+
+    // Clarity.init("tcuivyetkx");
+
     this.loadingService.loading$.subscribe((loading) => {
       this.isLoading = loading;
       this.cdr.detectChanges();

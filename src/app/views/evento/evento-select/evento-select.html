@@ -79,9 +79,9 @@
                     </app-badge-click>
                 </td>
                 <td>{{ evento.titulo }}</td>
-                <td>{{ evento.cliente.sigla }} - {{ evento.cliente.nombre }}</td>
-                <td>{{ evento.producto.sigla }} - {{ evento.producto.nombre }} | {{ evento.producto.entornoCodigo }}</td>
-                <td>{{ evento.modulo.codigo }} - {{ evento.modulo.nombre }}</td>
+                <td>{{ evento?.cliente ? evento.cliente?.sigla + " - " + evento.cliente?.nombre : "-" }} </td>
+                <td>{{ evento?.producto ? evento.producto.sigla + " - " + evento.producto.nombre + " | " + evento.producto.entornoCodigo : "-" }}</td>
+                <td>{{ evento?.modulo ? evento.modulo.codigo + " - " + evento.modulo.nombre : "-" }}</td>
                 <td class="d-flex justify-content-end" style="min-height: 55px;">
                     <button class="btn btn-ghost-warning" (click)="select(evento)"><ng-icon name="lucideSearchCheck"/></button>
                 </td>
