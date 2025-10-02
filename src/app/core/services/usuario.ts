@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { Preferencia, UsuarioCompleto, Usuario as UsuarioInterface } from '@core/interfaces/usuario';
+import { Adicional, Preferencia, UsuarioCompleto, Usuario as UsuarioInterface } from '@core/interfaces/usuario';
 import { FiltroActivo } from '@/app/constants/filtros_activo';
 
 @Injectable({
@@ -76,7 +76,23 @@ export class UsuarioService {
     return this.http.get<Preferencia[]>(`${this.URL_COMPLETA}/usuario/${usuarioId}/preferencias`);
   }
 
+  // adicionales
 
+  getAdicionales(usuarioId:string) : Observable<Adicional[]>{
+    return this.http.get<Adicional[]>(`${this.URL_COMPLETA}/usuario/${usuarioId}/adicionales`);
+  }
 
+  getAdicional(usuarioId:string, clave:string) : Observable<Adicional>{
+    return this.http.get<Adicional>(`${this.URL_COMPLETA}/usuario/${usuarioId}/adicional/${clave}`);
+  }
+
+  actualizarAdicional(usuarioId:string, clave:string, valor:string) : Observable<any>{
+    return this.http.post<any>(`${this.URL_COMPLETA}/usuario/${usuarioId}/adicional`, { usuarioId, clave, valor });
+  }
+
+  deleteAdicional(usuarioId:string, clave:string) : Observable<any>{
+    return this.http.delete<any>(`${this.URL_COMPLETA}/usuario/${usuarioId}/adicional/${clave}`);
+  }
+  
 
 }

@@ -12,8 +12,9 @@ export class ProyectoService {
   private http = inject(HttpClient);
   URL_COMPLETA = environment.BASE_URL;
 
-  getAll(activo: FiltroActivo = FiltroActivo.TRUE): Observable<Proyecto[]> {
-    return this.http.get<Proyecto[]>(`${this.URL_COMPLETA}/proyecto?activo=${activo}`);
+  getAll(activo: FiltroActivo = FiltroActivo.TRUE, clienteId: number | null = null): Observable<Proyecto[]> {
+    let clienteIdParam = clienteId !== null ? `&clienteId=${clienteId}` : '';
+    return this.http.get<Proyecto[]>(`${this.URL_COMPLETA}/proyecto?activo=${activo}${clienteIdParam}`);
   }
 
   getById(id: number): Observable<Proyecto> {

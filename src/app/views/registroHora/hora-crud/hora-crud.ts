@@ -1,8 +1,8 @@
 import { modalConfig } from '@/app/types/modals';
 import { formatTime } from '@/app/utils/datetime-utils';
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CrudFormModal } from '@app/components/index';
+import { CrudFormModal, LoadingSpinnerComponent } from '@app/components/index';
 import { Evento } from '@core/interfaces/evento';
 import { Hora, RegistroHora } from '@core/interfaces/registro-hora';
 import { EventoService } from '@core/services/evento';
@@ -20,7 +20,8 @@ import { FiltroActivo } from '@/app/constants/filtros_activo';
   imports: [
     ReactiveFormsModule,
     ToastModule,
-    NgIcon
+    NgIcon,
+    LoadingSpinnerComponent,
   ],
   providers: [
     MessageService,
@@ -33,18 +34,29 @@ export class HoraCrud extends CrudFormModal<RegistroHora> {
   private eventoService = inject(EventoService)
   private userStorageService = inject(UserStorageService);
   private dialogService = inject(DialogService);
+  private cdr = inject(ChangeDetectorRef);
 
   usuarioActivo: UsuarioLogeado | null = this.userStorageService.getUsuario();
 
   eventos!: Evento[];
   eventosFiltrados!: Evento[];
 
+  loading: boolean = false;
+  private dataLoadedCount = 0;
+  private totalDataToLoad = 1;
+
   override ngOnInit(): void {
     super.ngOnInit();
+
+    if (this.modo === 'M') {
+      this.loading = true;
+      // this.loadingService.show();
+    }
 
     this.eventoService.getAll(FiltroActivo.FALSE).subscribe({
       next: (res: any) => {
         this.eventos = res
+        this.checkAndSetupEditMode();
       },
       error: () => this.showError('Error', 'Error al cargar los eventos.')
     })
@@ -92,7 +104,6 @@ export class HoraCrud extends CrudFormModal<RegistroHora> {
   }
 
   protected toModel(): RegistroHora {
-    console.log('hola')
     return {
       id: this.get('id')?.value,
       fecha: this.get('fecha')?.value,
@@ -165,6 +176,20 @@ export class HoraCrud extends CrudFormModal<RegistroHora> {
         eventoId: result.id
       })
     });
+  }
+  
+  private checkAndSetupEditMode() {
+    this.dataLoadedCount++;
+    if (this.dataLoadedCount === this.totalDataToLoad) {
+      if (this.modo === 'M') {
+        this.setupEditMode();
+        // Usar setTimeout para evitar el error NG0100
+        setTimeout(() => {
+          this.loading = false;
+          this.cdr.detectChanges();
+        });
+      }
+    }
   }
 
 }

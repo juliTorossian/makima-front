@@ -11,10 +11,14 @@ export class PermisosService {
     clearPermisos() {
         this.permisos = permisosVacios;
         sessionStorage.removeItem(PermisosService.STORAGE_KEY);
+        localStorage.removeItem(PermisosService.STORAGE_KEY);
     }
 
     private static loadPermisos(): Record<PermisoClave, number> {
-        const raw = sessionStorage.getItem(PermisosService.STORAGE_KEY);
+        let raw = sessionStorage.getItem(PermisosService.STORAGE_KEY);
+        if (!raw) {
+            raw = localStorage.getItem(PermisosService.STORAGE_KEY);
+        }
         if (raw) {
             try {
                 return JSON.parse(raw);
@@ -25,14 +29,19 @@ export class PermisosService {
         return permisosVacios;
     }
 
-    setPermisos(permisos: Array<{ clave: PermisoClave; nivel: number }>) {
+    setPermisos(permisos: Array<{ clave: PermisoClave; nivel: number }>, recordar: boolean = false) {
+        this.clearPermisos();
         const base: Record<PermisoClave, number> = permisosVacios;
         
         for (const permiso of permisos) {
             base[permiso.clave] = permiso.nivel;
         }
         this.permisos = base;
-        sessionStorage.setItem(PermisosService.STORAGE_KEY, JSON.stringify(base));
+        if (recordar) {
+            localStorage.setItem(PermisosService.STORAGE_KEY, JSON.stringify(base));
+        } else {
+            sessionStorage.setItem(PermisosService.STORAGE_KEY, JSON.stringify(base));
+        }
     }
 
     can(clave: PermisoClave, accion: PermisoAccion): boolean {

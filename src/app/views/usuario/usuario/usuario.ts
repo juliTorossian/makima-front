@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject, Inject, Input, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, Input, OnInit } from '@angular/core';
 import { UsuarioService } from '../../../core/services/usuario';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -6,21 +6,23 @@ import { UiCard } from '../../../components/ui-card';
 import { UserStorageService } from '@core/services/user-storage';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgIcon } from '@ng-icons/core';
-import { TableModule } from 'primeng/table';
-import { BadgeClickComponent } from '@app/components/badge-click';
-import { PadZeroPipe } from '@core/pipes/pad-zero.pipe';
 import { EventoCompleto } from '@core/interfaces/evento';
 import { UsuarioCompleto } from '@core/interfaces/usuario';
-import { EventoDrawerComponent } from '../../evento/evento-drawer/evento-drawer';
 import { LoadingSpinnerComponent } from '@app/components/index';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { ConfirmDialog, ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { TabPerfil } from './components/tab-perfil';
 import { TabModificar } from './components/tab-modificar';
 import { TabSeguridad } from './components/tab-seguridad';
 import { TabPreferencias } from './components/tab-preferencias';
+import { AvatarEditableComponent } from '@app/components/avatar-editable';
+import { ModalSeleccionarAvatarComponent } from './components/modal-seleccionar-avatar/modal-seleccionar-avatar';
+import { UsuarioAdicionalClave } from '@/app/constants/adicionales_usuario';
+import { AVATAR_POR_DEFECTO, getAvatarPath } from '@/app/constants/avatares-disponibles';
+import { AvatarSyncService } from '@core/services/avatar-sync.service';
+import { getDiscordUserUrl } from '@/app/constants/social-urls';
 
 @Component({
     selector: 'app-usuario',
@@ -38,6 +40,8 @@ import { TabPreferencias } from './components/tab-preferencias';
         TabModificar,
         TabPreferencias,
         TabSeguridad,
+        AvatarEditableComponent,
+        ModalSeleccionarAvatarComponent,
     ],
     providers: [
         MessageService,
@@ -55,6 +59,7 @@ export class Usuario implements OnInit {
     private cdr = inject(ChangeDetectorRef);
     protected messageService = inject(MessageService);
     protected confirmationService = inject(ConfirmationService);
+    private avatarSyncService = inject(AvatarSyncService);
 
     usuario!:UsuarioCompleto;
     eventosActuales!: EventoCompleto[];
@@ -62,6 +67,7 @@ export class Usuario implements OnInit {
 
     activeTab:number = 1;
     esPropioPerfil: boolean = false;
+    mostrarModalAvatar: boolean = false;
 
     ngOnInit() {
         const userId = this.getUsuarioId();
@@ -102,4 +108,48 @@ export class Usuario implements OnInit {
         this.messageService.add({ severity: 'error', summary, detail });
     }
 
+    getUrlDiscord(): string | null {
+        if (!this.usuario?.adicionales) return null;
+        const adicionalDiscord = this.usuario.adicionales.find(
+            adicional => adicional.clave === UsuarioAdicionalClave.URL_DISCORD
+        );
+        return adicionalDiscord && adicionalDiscord.valor 
+            ? getDiscordUserUrl(adicionalDiscord.valor) 
+            : null;
+    }
+
+    getFotoPerfil(): string {
+        if (!this.usuario?.adicionales) return getAvatarPath(AVATAR_POR_DEFECTO);
+        const adicionalFoto = this.usuario.adicionales.find(
+            adicional => adicional.clave === UsuarioAdicionalClave.FOTO_PERFIL
+        );
+        return adicionalFoto 
+            ? getAvatarPath(adicionalFoto.valor)
+            : getAvatarPath(AVATAR_POR_DEFECTO);
+    }
+
+    getNombreFotoPerfil(): string {
+        if (!this.usuario?.adicionales) return AVATAR_POR_DEFECTO;
+        const adicionalFoto = this.usuario.adicionales.find(
+            adicional => adicional.clave === UsuarioAdicionalClave.FOTO_PERFIL
+        );
+        return adicionalFoto ? adicionalFoto.valor : AVATAR_POR_DEFECTO;
+    }
+
+    abrirModalAvatar(): void {
+        if (this.esPropioPerfil) {
+            this.mostrarModalAvatar = true;
+        }
+    }
+
+    cambiarFotoPerfil(nombreImagen: string): void {
+        this.usuarioService.actualizarAdicional(this.usuario.id!, UsuarioAdicionalClave.FOTO_PERFIL, nombreImagen).subscribe({
+            next: () => {
+                this.showSuccess('Foto actualizada', 'La foto de perfil se actualizó correctamente');
+                this.avatarSyncService.notificarCambioAvatar(nombreImagen);
+                this.cargarUsuario(this.usuario.id!);
+            },
+            error: (err) => this.showError('Error', 'No se pudo actualizar la foto')
+        });
+    }
 }

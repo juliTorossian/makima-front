@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, Input } from '@angular/core';
 import { LoadingSpinnerComponent } from '@app/components/index';
 import { SelectBase } from '@app/components/select-base/select-base';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -9,6 +9,8 @@ import { CommonModule } from '@angular/common';
 import { BooleanLabelPipe } from '@core/pipes/boolean-label.pipe';
 import { Proyecto } from '@core/interfaces/proyecto';
 import { ProyectoService } from '@core/services/proyecto';
+import { FiltroActivo } from '@/app/constants/filtros_activo';
+import { DynamicDialogConfig } from 'primeng/dynamicdialog';
 
 @Component({
     selector: 'app-evento-select',
@@ -25,9 +27,11 @@ import { ProyectoService } from '@core/services/proyecto';
 })
 export class ProyectoSelect extends SelectBase<Proyecto> {
     private proyectoService = inject(ProyectoService);
+    protected config = inject(DynamicDialogConfig);
 
     proyectos: Proyecto[] = [];
     proyectoSeleccionado!: Proyecto;
+    clienteId: number | null = null;
 
     constructor() {
         super(
@@ -37,13 +41,19 @@ export class ProyectoSelect extends SelectBase<Proyecto> {
         );
     }
 
+    override ngOnInit(): void {
+        // Obtener el clienteId de la configuración del diálogo
+        this.clienteId = this.config?.data?.clienteId ?? null;
+        
+        super.ngOnInit();
+    }
+
     loadItems() {
         this.loadingSelect = true;
-        this.proyectoService.getAll().pipe(
+        this.proyectoService.getAll(FiltroActivo.TRUE, this.clienteId).pipe(
             finalize(() => this.loadingSelect = false)
         ).subscribe({
             next: (res: Proyecto[]) => {
-                // console.log(res);
                 this.proyectos = res;
                 this.cdr.detectChanges();
             },

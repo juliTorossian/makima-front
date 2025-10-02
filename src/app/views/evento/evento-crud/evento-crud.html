@@ -1,4 +1,7 @@
 <p-toast></p-toast>
+@if (loading) {
+  <app-loading-spinner></app-loading-spinner>
+}
 <div class="container">
   <form class="row g-3 needs-validation" [formGroup]="form" (ngSubmit)="accion($event)" novalidate>
 
@@ -10,9 +13,15 @@
 
           <div class="col-md-2">
             <label for="tipoCodigo" class="form-label">Tipo</label>
-            <input class="form-control mb-2" type="text" formControlName="tipoEvento" [ngbTypeahead]="searchTipoEvento"
-              [inputFormatter]="formatterTipoEvento" [resultFormatter]="formatterTipoEvento"
-              placeholder="Tipo evento..." />
+            <input 
+              class="form-control mb-2"
+              type="text"
+              formControlName="tipoEvento"
+              [ngbTypeahead]="searchTipoEvento"
+              [inputFormatter]="formatterTipoEvento"
+              [resultFormatter]="formatterTipoEvento"
+              placeholder="Tipo evento..."
+            />
             @if (get('tipoEvento')?.invalid && get('tipoEvento')?.touched) {
             <div class="invalid-feedback">Debe ingresar un Tipo de evento.</div>
             }

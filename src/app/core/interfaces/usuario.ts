@@ -20,7 +20,16 @@ export interface Usuario {
   // eventosCreados?: Evento[];
   // registrosHora?: RegistroHora[];
   // auditorias?: VidaEvento[];
-  // adicionales?: Adicional[];
+  adicionales?: Adicional[];
+}
+
+export interface Adicional {
+  id?: number;
+  usuarioId?: string;
+  clave: string;
+  valor: string;
+  creadoEn?: Date;
+  actualizadoEn?: Date;
 }
 
 interface UsuarioRol {

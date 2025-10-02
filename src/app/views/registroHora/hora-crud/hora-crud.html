@@ -1,4 +1,7 @@
 <p-toast></p-toast>
+@if (loading) {
+  <app-loading-spinner></app-loading-spinner>
+}
 <div class="container">
   <form class="row g-3 needs-validation" [formGroup]="form" (ngSubmit)="accion($event)" novalidate>
     <!-- Campos de TipoEvento -->

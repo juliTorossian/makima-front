@@ -10,13 +10,25 @@
                 @if (usuario) {
                     <div class="row">
                         <div [ngClass]="esMitadPantalla ? 'col-4' : 'col-12'">
-                            <img [src]="'assets/images/users/User-1.png'" class="rounded-circle mb-3" width="120"
-                                height="120" alt="Foto de perfil">
+                            <app-avatar-editable
+                                [imageSrc]="getFotoPerfil()"
+                                [size]="120"
+                                [editable]="esPropioPerfil"
+                                (edit)="abrirModalAvatar()"
+                                class="mb-3 d-inline-block">
+                            </app-avatar-editable>
                         </div>
                         <div [ngClass]="esMitadPantalla ? 'col-8' : 'col-12'">
                             <h4 class="mb-0">{{ usuario.nombre }} {{ usuario.apellido }}</h4>
                             <p class="text-muted mb-1">{{ usuario.usuario }}</p>
                             <p class="text-muted mb-1">{{ usuario.email }}</p>
+                            <div class="d-flex gap-2 justify-content-center">
+                                @if (getUrlDiscord()) {
+                                    <a [href]="getUrlDiscord()" target="_blank" rel="noopener noreferrer" class="btn btn-sm rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px; padding: 0; background-color: #5865F2; border-color: #5865F2; color: white;" title="Discord">
+                                        <ng-icon name="tablerBrandDiscord" size="20" />
+                                    </a>
+                                }
+                            </div>
                         </div>
                     </div>
                 }
@@ -90,3 +102,9 @@
         </app-ui-card>
     </div>
 </div>
+
+<app-modal-seleccionar-avatar
+    [(visible)]="mostrarModalAvatar"
+    [imagenActual]="getNombreFotoPerfil()"
+    (imagenCambiada)="cambiarFotoPerfil($event)">
+</app-modal-seleccionar-avatar>

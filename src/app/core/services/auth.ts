@@ -67,7 +67,7 @@ export class AuthService {
         this.setTokens(res.accessToken, res.refreshToken, recordar);
         this.userStorage.setUsuario(res.usuario);
         if (res.permisos) {
-          this.permisosService.setPermisos(res.permisos);
+          this.permisosService.setPermisos(res.permisos, recordar);
         }
       })
     )
@@ -77,6 +77,7 @@ export class AuthService {
     this.clearTokens();
     this.userStorage.clearUsuario()
     this.permisosService.clearPermisos();
+    // localStorage.removeItem('__SIMPLE_ANGULAR_CONFIG__'); // Limpia configuración de la app
   }
 
 }

@@ -175,6 +175,7 @@ export class Eventos extends TrabajarCon<Evento> {
 
     this.ref.onClose.subscribe((result: any) => {
       if (!result) return;
+      this.loadingService.show();
       // Si es FormData, usar los métodos privados
       if (result instanceof FormData) {
         if (modo === 'M') {

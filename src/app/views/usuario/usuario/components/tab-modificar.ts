@@ -4,6 +4,7 @@ import { UsuarioCompleto } from "@core/interfaces/usuario";
 import { UsuarioService } from "@core/services/usuario";
 import { ConfirmationService, MessageService } from "primeng/api";
 import { ConfirmDialogModule } from "primeng/confirmdialog";
+import { UsuarioAdicionalClave } from "@/app/constants/adicionales_usuario";
 
 @Component({
     selector: 'app-tab-modificar',
@@ -13,6 +14,7 @@ import { ConfirmDialogModule } from "primeng/confirmdialog";
     ],
     template: `
         <form [formGroup]="formUsuario" (ngSubmit)="modificarUsuario($event)" id="formUsuario">
+            <h5 class="mb-3">Información Personal</h5>
             <div class="row">
                 <div class="col-md-6">
                     <label for="nombre" class="form-label">Nombre</label>
@@ -62,26 +64,52 @@ import { ConfirmDialogModule } from "primeng/confirmdialog";
                 <div class="col-md-6">
                     <label for="color" class="form-label">Color</label>
                     <input
-                    id="color"
-                    type="color"
-                    formControlName="color"
-                    class="form-control form-control-color"
-                    required
-                    >
+                        id="color"
+                        type="color"
+                        formControlName="color"
+                        class="form-control form-control-color"
+                        required
+                    />
                     @if (get('color')?.invalid && get('color')?.touched) {
-                    <div class="invalid-feedback">Debe ingresar un color válido.</div>
+                        <div class="invalid-feedback">Debe ingresar un color válido.</div>
                     }
                 </div>
             </div>
             <button class="btn btn-primary mt-3" type="submit" form="formUsuario">
-                Modificar
+                Modificar Información
             </button>
+        </form>
+
+        <hr class="my-4">
+
+        <form [formGroup]="formAdicionales" (ngSubmit)="modificarAdicionales($event)" id="formAdicionales">
+            <h5 class="mb-3">Información Adicional</h5>
+            <div class="row">
+                <div class="col-md-12">
+                    <label for="urlDiscord" class="form-label">Discord</label>
+                    <div class="input-group">
+                        <span class="input-group-text">https://discordapp.com/users/</span>
+                        <input
+                            id="urlDiscord"
+                            type="text"
+                            formControlName="urlDiscord"
+                            class="form-control"
+                            placeholder="ID de Discord"
+                        />
+                        <button class="btn btn-primary" type="submit">
+                            Actualizar
+                        </button>
+                    </div>
+                    <small class="form-text text-muted">
+                        Ingresa tu ID de usuario de Discord
+                    </small>
+                </div>
+            </div>
         </form>
     `,
 })
 export class TabModificar implements OnInit {
     @Input() usuario!: UsuarioCompleto;
-
     @Output() usuarioModificado = new EventEmitter<void>()
 
     private fb = inject(FormBuilder);
@@ -95,10 +123,15 @@ export class TabModificar implements OnInit {
         email: ['', [Validators.required, Validators.email]],
         color: ['']
     });
+
+    formAdicionales = this.fb.group({
+        urlDiscord: ['']
+    });
     
     ngOnInit(): void {
         if (this.usuario) {
             this.populateForm();
+            this.populateAdicionales();
         }
     }
     
@@ -111,14 +144,26 @@ export class TabModificar implements OnInit {
         })
     }
 
-    modificarUsuario(event:any) {
+    private populateAdicionales(): void {
+        const urlDiscord = this.usuario.adicionales?.find(
+            a => a.clave === UsuarioAdicionalClave.URL_DISCORD
+        );
+        
+        if (urlDiscord && urlDiscord.valor) {
+            this.formAdicionales.patchValue({
+                urlDiscord: urlDiscord.valor
+            });
+        }
+    }
+
+    modificarUsuario(event: any) {
         let usuario = {
             id: this.usuario.id,
             nombre: this.formUsuario.get('nombre')?.value ?? this.usuario.nombre,
             apellido: this.formUsuario.get('apellido')?.value ?? this.usuario.apellido,
             email: this.formUsuario.get('email')?.value ?? this.usuario.email,
             color: this.formUsuario.get('color')?.value ?? this.usuario.color,
-            usuario: this.usuario.usuario, // No se puede modificar el usuario
+            usuario: this.usuario.usuario,
         };
         this.confirmationService.confirm({
             message: '¿Está seguro que desea modificar los datos del usuario?',
@@ -128,13 +173,31 @@ export class TabModificar implements OnInit {
                 this.usuarioService.update(usuario.id!, usuario).subscribe({
                     next: () => {
                         this.showSuccess('Usuario actualizado', 'Los datos se actualizaron correctamente');
-                        // this.cargarUsuario(usuario.id!);
                         this.usuarioModificado.emit();
                     },
                     error: () => {
                         this.showError('Error', 'No se pudo modificar el usuario');
                     }
                 });
+            }
+        });
+    }
+
+    modificarAdicionales(event: any) {
+        event.preventDefault();
+        const discordId = this.formAdicionales.get('urlDiscord')?.value || '';
+
+        this.usuarioService.actualizarAdicional(
+            this.usuario.id!,
+            UsuarioAdicionalClave.URL_DISCORD,
+            discordId
+        ).subscribe({
+            next: () => {
+                this.showSuccess('Discord actualizado', 'El ID de Discord se actualizó correctamente');
+                this.usuarioModificado.emit();
+            },
+            error: () => {
+                this.showError('Error', 'No se pudo actualizar el ID de Discord');
             }
         });
     }
@@ -150,6 +213,4 @@ export class TabModificar implements OnInit {
     protected showError(summary: string, detail: string) {
         this.messageService.add({ severity: 'error', summary, detail });
     }
-
-
 }

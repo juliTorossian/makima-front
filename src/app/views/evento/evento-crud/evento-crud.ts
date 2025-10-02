@@ -32,6 +32,9 @@ import { PermisoClave } from '@core/interfaces/rol';
 import { SelectModule } from 'primeng/select';
 import { PrioridadIconComponent } from '@app/components/priority-icon';
 import { getPrioridadDesc } from '@/app/constants/prioridad';
+import { LoadingService } from '@core/services/loading.service';
+import { LoadingSpinnerComponent } from '@app/components/index';
+import { FiltroActivo } from '@/app/constants/filtros_activo';
 
 
 @Component({
@@ -44,6 +47,7 @@ import { getPrioridadDesc } from '@/app/constants/prioridad';
     FileUploader,
     SelectModule,
     PrioridadIconComponent,
+    LoadingSpinnerComponent
   ],
   providers: [
     MessageService,
@@ -65,6 +69,7 @@ export class EventoCrud extends CrudFormModal<Evento> {
   private selProducto = inject(DynamicDialogRef);
   private selModulo = inject(DynamicDialogRef);
   private cdr = inject(ChangeDetectorRef);
+  private loadingService = inject(LoadingService);
 
   getPrioridadDesc = getPrioridadDesc
 
@@ -77,6 +82,8 @@ export class EventoCrud extends CrudFormModal<Evento> {
   clientes!: Cliente[];
   productos!: Producto[];
   proyectos!: Proyecto[];
+
+  loading: boolean = false;
 
   // Vars para typeahead
   selectedTipoEvento?: TipoEvento;
@@ -149,9 +156,13 @@ export class EventoCrud extends CrudFormModal<Evento> {
   );
   modalSelProyecto(event: Event) {
     event.preventDefault();
+    const clienteId = this.form.get('cliente')?.value?.id ?? null;
     this.selProyecto = this.dialogService.open(ProyectoSelect, {
       ...modalConfig,
-      header: "Seleccionar Proyecto"
+      header: "Seleccionar Proyecto",
+      data: {
+        clienteId: clienteId
+      }
     });
 
     this.selProyecto.onClose.subscribe((result: any) => {
@@ -195,8 +206,15 @@ export class EventoCrud extends CrudFormModal<Evento> {
   override ngOnInit(): void {
     super.ngOnInit();
 
+    // Mostrar loading si estamos en modo modificar
+    if (this.modo === 'M') {
+      this.loading = true;
+      // Deshabilitar el campo tipoEvento en modo modificar
+      this.form.get('tipoEvento')?.disable();
+    }
+
     this.dataLoadedCount = 0;
-    this.totalDataToLoad = 4;
+    this.totalDataToLoad = 5;
 
     this.moduloService.getAll().subscribe({
       next: (res: any) => {
@@ -230,20 +248,43 @@ export class EventoCrud extends CrudFormModal<Evento> {
       }
     });
 
-    this.proyectoService.getAll().subscribe({
+    // Cargar proyectos inicialmente sin filtro
+    this.getProyectos();
+
+    // Suscribirse a cambios en tipoEvento para ajustar validadores dinámicamente
+    this.form.get('tipoEvento')?.valueChanges.subscribe((te: TipoEvento | null) => {
+      this.applyTipoPropioValidators(te);
+    });
+
+    // Suscribirse a cambios en cliente para recargar proyectos filtrados
+    this.form.get('cliente')?.valueChanges.subscribe((cliente: Cliente | null) => {
+      // Solo recargar proyectos si es un objeto Cliente válido, no un string
+      if (cliente && typeof cliente === 'object' && cliente.id) {
+        const clienteId = cliente.id;
+        this.getProyectos(clienteId);
+        // Limpiar el proyecto seleccionado cuando cambia el cliente
+        this.form.patchValue({ proyecto: null }, { emitEvent: false });
+      }
+    });
+
+    // Validar que el proyecto pertenezca al cliente seleccionado
+    this.form.get('proyecto')?.valueChanges.subscribe((proyecto: Proyecto | null) => {
+      // Solo validar si es un objeto Proyecto válido, no un string
+      if (proyecto && typeof proyecto === 'object' && proyecto.id) {
+        this.validateProyectoCliente();
+      }
+    });
+  }
+
+  getProyectos(clienteId: number | null = null) {
+    this.proyectoService.getAll(FiltroActivo.TRUE, clienteId).subscribe({
       next: (res: any) => {
         this.proyectos = res;
         this.searchProyecto = createTypeaheadSearch(this.proyectos, p => `${p.sigla} - ${p.nombre}`);
         this.checkAndSetupEditMode();
       }
     });
-
-    // Suscribirse a cambios en tipoEvento para ajustar validadores dinámicamente
-    this.form.get('tipoEvento')?.valueChanges.subscribe((te: TipoEvento | null) => {
-      this.applyTipoPropioValidators(te);
-    });
   }
-
 
   protected buildForm(): FormGroup {
     return new FormGroup({
@@ -306,8 +347,15 @@ export class EventoCrud extends CrudFormModal<Evento> {
   }
   private checkAndSetupEditMode() {
     this.dataLoadedCount++;
-    if (this.dataLoadedCount === this.totalDataToLoad && this.modo === 'M') {
-      this.setupEditMode();
+    if (this.dataLoadedCount === this.totalDataToLoad) {
+      if (this.modo === 'M') {
+        this.setupEditMode();
+        // Usar setTimeout para evitar el error NG0100
+        setTimeout(() => {
+          this.loading = false;
+          this.cdr.detectChanges();
+        });
+      }
     }
   }
 
@@ -331,6 +379,14 @@ export class EventoCrud extends CrudFormModal<Evento> {
       formData.append('proyectoId', proyecto.id);
       formData.append('productoId', producto.id);
       formData.append('moduloCodigo', modulo.codigo);
+    } else {
+      // Si es tipo propio, solo agregar cliente y proyecto si están seleccionados
+      if (cliente?.id) {
+        formData.append('clienteId', cliente.id);
+      }
+      if (proyecto?.id) {
+        formData.append('proyectoId', proyecto.id);
+      }
     }
     formData.append('comentario', this.get('comentario')?.value);
     formData.append('facEventoCerr', this.get('facEventoCerr')?.value);
@@ -356,23 +412,56 @@ export class EventoCrud extends CrudFormModal<Evento> {
   }
 
   private applyTipoPropioValidators(tipo: TipoEvento | null) {
-  const propio = !!tipo?.propio;
-  const controlNames = ['cliente', 'proyecto', 'producto', 'modulo'];
+    const propio = !!tipo?.propio;
+    const controlNames = ['cliente', 'proyecto', 'producto', 'modulo'];
 
-  controlNames.forEach(name => {
-    const ctrl = this.form.get(name);
-    if (!ctrl) return;
+    controlNames.forEach(name => {
+      const ctrl = this.form.get(name);
+      if (!ctrl) return;
 
-    if (propio) {
-      // quitar required si es propio
-      ctrl.clearValidators();
-    } else {
-      // volver a poner required si no es propio
-      ctrl.setValidators([Validators.required]);
+      if (propio) {
+        // quitar required si es propio
+        ctrl.clearValidators();
+      } else {
+        // volver a poner required si no es propio
+        ctrl.setValidators([Validators.required]);
+      }
+      ctrl.updateValueAndValidity({ emitEvent: false });
+    });
+  }
+
+  private validateProyectoCliente() {
+    const clienteCtrl = this.form.get('cliente');
+    const proyectoCtrl = this.form.get('proyecto');
+    const tipoEventoCtrl = this.form.get('tipoEvento');
+    
+    const cliente = clienteCtrl?.value;
+    const proyecto = proyectoCtrl?.value;
+    const tipoEvento = tipoEventoCtrl?.value;
+    const esPropio = !!tipoEvento?.propio;
+
+    // Verificar que proyecto sea un objeto válido, no un string
+    if (!proyecto || typeof proyecto !== 'object' || !proyecto.id) {
+      return;
     }
-    ctrl.updateValueAndValidity({ emitEvent: false });
-  });
-}
 
+    // Si hay proyecto pero no hay cliente válido
+    if (!cliente || typeof cliente !== 'object' || !cliente.id) {
+      // Si es tipo propio, es válido (proyecto sin cliente)
+      if (esPropio) {
+        return;
+      }
+      // Si no es propio, es inválido
+      this.showError('Error', 'Debe seleccionar un cliente antes de seleccionar un proyecto.');
+      this.form.patchValue({ proyecto: null }, { emitEvent: false });
+      return;
+    }
+
+    // Si hay cliente y proyecto válidos, validar que coincidan
+    if (proyecto.clienteId !== cliente.id) {
+      this.showError('Error', 'El proyecto seleccionado no pertenece al cliente seleccionado.');
+      this.form.patchValue({ proyecto: null }, { emitEvent: false });
+    }
+  }
 
 }
