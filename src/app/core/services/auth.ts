@@ -22,21 +22,26 @@ export class AuthService {
 
 
   getAccessToken(): string | null {
-    return localStorage.getItem(this.accessTokenKey)
+    return localStorage.getItem(this.accessTokenKey) ?? sessionStorage.getItem(this.accessTokenKey);
   }
   setAccessToken(accessToken:string): void {
-    return localStorage.setItem(this.accessTokenKey, accessToken)
+    if (localStorage.getItem(this.accessTokenKey)) {
+      localStorage.setItem(this.accessTokenKey, accessToken);
+    } else {
+      sessionStorage.setItem(this.accessTokenKey, accessToken);
+    }
   }
 
   getRefreshToken(): string | null {
-    return localStorage.getItem(this.refreshTokenKey) ?? sessionStorage.getItem(this.refreshTokenKey)
+    return localStorage.getItem(this.refreshTokenKey) ?? sessionStorage.getItem(this.refreshTokenKey);
   }
 
   setTokens(accessToken: string, refreshToken: string, rememberMe: boolean) {
-    localStorage.setItem(this.accessTokenKey, accessToken)
     if (rememberMe) {
+      localStorage.setItem(this.accessTokenKey, accessToken)
       localStorage.setItem(this.refreshTokenKey, refreshToken)
     } else {
+      sessionStorage.setItem(this.accessTokenKey, accessToken)
       sessionStorage.setItem(this.refreshTokenKey, refreshToken)
     }
   }
@@ -44,6 +49,7 @@ export class AuthService {
   clearTokens() {
     localStorage.removeItem(this.accessTokenKey)
     localStorage.removeItem(this.refreshTokenKey)
+    sessionStorage.removeItem(this.accessTokenKey)
     sessionStorage.removeItem(this.refreshTokenKey)
   }
 
@@ -65,15 +71,15 @@ export class AuthService {
     return this.http.post(`${this.URL_COMPLETA}/auth/login`, credentials).pipe(
       tap((res: any) => {
         this.setTokens(res.accessToken, res.refreshToken, recordar);
-        this.userStorage.setUsuario(res.usuario);
+        this.userStorage.setUsuario(res.usuario, recordar);
         if (res.permisos) {
           this.permisosService.setPermisos(res.permisos, recordar);
         }
       })
     )
   }
+
   logout(): void {
-    console.log('logout')
     this.clearTokens();
     this.userStorage.clearUsuario()
     this.permisosService.clearPermisos();
