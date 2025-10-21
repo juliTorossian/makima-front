@@ -62,12 +62,26 @@
 
             <div class="col-md-2">
               <!-- <label>Secuencia</label> -->
-              <input type="time" class="form-control" formControlName="inicio" />
+              <input type="time" class="form-control" 
+                formControlName="inicio" 
+                [class.is-invalid]="hora.errors?.['overlap']" />
+              @if (hora.errors?.['overlap']) {
+                <div class="invalid-feedback">
+                  Horario superpuesto
+                </div>
+              }
             </div>
 
             <div class="col-md-2">
               <!-- <label>Secuencia</label> -->
-              <input type="time" class="form-control" formControlName="fin" />
+              <input type="time" class="form-control" 
+                formControlName="fin" 
+                [class.is-invalid]="hora.errors?.['overlap']" />
+              @if (hora.errors?.['overlap']) {
+                <div class="invalid-feedback">
+                  Horario superpuesto
+                </div>
+              }
             </div>
 
             <div class="col-md-3">

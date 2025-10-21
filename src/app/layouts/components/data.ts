@@ -41,7 +41,7 @@ export const userDropdownItems: UserDropdownItemType[] = [
   {
     label: 'Sugerencias',
     icon: 'lucideTicket',
-    url: 'https://discordapp.com/channels/753407526027919520/1419834083760148591',
+    url: 'https://discord.com/channels/1366451551064821782/1429920790274637984',
     newTab: true,
   },
   {
