@@ -18,7 +18,8 @@ import { appLogo } from '@/app/constants'
     ThemeToggler,
     UserProfile,
     NotificationDropdown,
-    AppLogo
+    AppLogo,
+    // ThemeDropdown,
 ],
   templateUrl: './topbar.html',
   standalone: true

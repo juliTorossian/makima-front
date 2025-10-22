@@ -30,4 +30,22 @@ export class TipoEventoService {
   delete(id:string): Observable<TipoEvento> {
     return this.http.delete<TipoEvento>(`${this.URL_COMPLETA}/tipo-evento/${id}`);
   }
+  
+  // importaciones
+
+  descargarPlantilla(options?: any): Observable<any> {
+    const defaultOptions = { responseType: 'blob' as 'json' };
+    const finalOptions = options ? { ...defaultOptions, ...options } : defaultOptions;
+    return this.http.get<any>(`${this.URL_COMPLETA}/tipo-evento/importacion/plantilla`, finalOptions);
+  }
+
+  exportarExcel(options?: any): Observable<any> {
+    const defaultOptions = { responseType: 'blob' as 'json' };
+    const finalOptions = options ? { ...defaultOptions, ...options } : defaultOptions;
+    return this.http.get<any>(`${this.URL_COMPLETA}/tipo-evento/importacion/export`, finalOptions);
+  }
+
+  importarExcel(formData:FormData): Observable<any> {
+    return this.http.post<any>(`${this.URL_COMPLETA}/tipo-evento/importacion/excel`, formData);
+  }
 }

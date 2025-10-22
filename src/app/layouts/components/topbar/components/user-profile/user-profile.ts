@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core'
+import { ChangeDetectorRef, Component, inject, OnInit, AfterViewInit } from '@angular/core'
 import {
   NgbDropdown,
   NgbDropdownMenu,
@@ -10,6 +10,11 @@ import { NgIcon } from '@ng-icons/core'
 import { AuthService } from '@core/services/auth'
 import { toTitleCase } from '@/app/utils/string-utils'
 import { UserStorageService } from '@core/services/user-storage'
+import { Adicional, UsuarioCompleto } from '@core/interfaces/usuario'
+import { UsuarioService } from '@core/services/usuario'
+import { UsuarioAdicionalClave } from '@/app/constants/adicionales_usuario'
+import { AVATAR_POR_DEFECTO, getAvatarPath } from '@/app/constants/avatares-disponibles';
+import { AvatarSyncService } from '@core/services/avatar-sync.service';
 
 @Component({
   selector: 'app-user-profile-topbar',
@@ -22,19 +27,24 @@ import { UserStorageService } from '@core/services/user-storage'
   ],
   templateUrl: './user-profile.html',
 })
-export class UserProfile implements OnInit{
+export class UserProfile implements OnInit, AfterViewInit {
   private router = inject(Router)
   private authService = inject(AuthService)
-  private userStorageService = inject(UserStorageService)
+  private usuarioService = inject(UsuarioService);
+  private userStorageService = inject(UserStorageService);
+  private cdr = inject(ChangeDetectorRef);
+  private avatarSyncService = inject(AvatarSyncService);
 
-  menuItems:UserDropdownItemType[] = {
-    ...userDropdownItems
-  }
+  menuItems: UserDropdownItemType[] = []
+  imagenPerfil: Adicional | null = null;
+  fotoPerfil: string = getAvatarPath(AVATAR_POR_DEFECTO);
+  private usuarioId: string | null = null;
 
-  ngOnInit(): void {
-
-    let usuario = this.userStorageService.getUsuario()
+  ngOnInit() {
+    const usuario = this.userStorageService.getUsuario();
+    
     if (usuario) {
+      this.usuarioId = usuario.id;
       this.menuItems = [
         {
           label: `${toTitleCase(usuario.nombre)} ${toTitleCase(usuario.apellido)}`,
@@ -45,27 +55,58 @@ export class UserProfile implements OnInit{
             ? { ...item, url: `/usuario/perfil/${usuario.id}` }
             : item
         )
-      ]
-    }
+      ];
 
+      // Escuchar cambios de avatar
+      this.avatarSyncService.avatarCambiado$.subscribe(nombreImagen => {
+        if (nombreImagen) {
+          this.fotoPerfil = getAvatarPath(nombreImagen);
+          this.cdr.detectChanges();
+        }
+      });
+    }
+  }
+
+  ngAfterViewInit() {
+    if (this.usuarioId) {
+      this.cargarFotoPerfil(this.usuarioId);
+    }
+  }
+
+  private cargarFotoPerfil(usuarioId: string): void {
+    this.usuarioService.getAdicional(usuarioId, UsuarioAdicionalClave.FOTO_PERFIL).subscribe({
+      next: (adicional: Adicional) => {
+        this.imagenPerfil = adicional;
+        this.fotoPerfil = adicional 
+          ? getAvatarPath(adicional.valor)
+          : getAvatarPath(AVATAR_POR_DEFECTO);
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.fotoPerfil = getAvatarPath(AVATAR_POR_DEFECTO);
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   handleEvent(event: string | undefined) {
-  if (!event) return;
+    if (!event) return;
 
-  switch (event) {
-    case 'logout':
-      this.logout();
-      break;
-    // podés agregar más eventos acá
-    default:
-      console.warn('Evento no manejado:', event);
+    switch (event) {
+      case 'logout':
+        this.logout();
+        break;
+      default:
+        console.warn('Evento no manejado:', event);
+    }
   }
-}
 
-
-  logout(){
+  logout() {
     this.authService.logout();
     this.router.navigateByUrl('/login')
+  }
+
+  getFotoPerfil(): string {
+    return this.fotoPerfil;
   }
 }

@@ -24,6 +24,8 @@
                         [showCurrentPageReport]="true"
                         [scrollable]="true"
                         size="small"
+                        [scrollable]="true" [resizableColumns]="true"
+                        sortField="prioridadFin" [sortOrder]="-1"
                     >
                         <ng-template pTemplate="caption">
                             <div class="flex align-items-center justify-content-between" style="display: flex;">
@@ -76,6 +78,7 @@
                                         <p-columnFilter type="text" field="modulo.nombre" display="menu" matchMode="contains" style="margin-left: 2px;"></p-columnFilter>
                                     </div>
                                 </th>
+                                <th pSortableColumn="prioridadFin">Prioridad  <p-sortIcon field="prioridadFin"></p-sortIcon></th>
                                 <th pSortableColumn="usuarioActual.usuario" style="min-width: 115px;" filterField="usuarioActual.usuario">
                                     <div class="flex align-items-center" style="justify-content: space-around;">
                                         Usuario
@@ -83,18 +86,17 @@
                                     </div>
                                 </th>
                                 <th pSortableColumn="createdAt">Alta</th>
+                                <th pSortableColumn="fechaInicio">Inicio</th>
+                                <th pSortableColumn="fechaFin">Fin</th>
                                 <th pSortableColumn="usuarioAlta.usuario" hidden>Usuario Alta</th>
                                 <th></th>
                             </tr>
                         </ng-template>
                         <ng-template pTemplate="body" let-evento>
-                            <tr style="min-height: 55px;">
-                                <!-- <td>
-                                    <p-tableCheckbox [value]="evento"></p-tableCheckbox>
-                                </td> -->
-                                <td hidden>{{ evento.id }}</td>
-                                <td hidden>{{ evento.tipo.id }}</td>
-                                <td hidden>{{ evento.numero }}</td>
+                            <tr style="min-height: 55px">
+                                <td hidden>{{ evento?.id }}</td>
+                                <td hidden>{{ evento?.tipo?.id }}</td>
+                                <td hidden>{{ evento?.numero }}</td>
                                 <td>
                                     <app-badge-click 
                                         [backgroundColor]="evento.tipo.color"
@@ -104,30 +106,64 @@
                                         {{ evento.tipo.codigo }}-{{evento.numero | padZero:3}}
                                     </app-badge-click>
                                 </td>
-                                <td>{{ evento.titulo }}</td>
-                                <td>{{ evento.etapaActualData.nombre }}</td>
-                                <td>{{ evento.cliente.sigla }} - {{ evento.cliente.nombre }}</td>
-                                <td>{{ evento.producto.sigla }} - {{ evento.producto.nombre }} | {{ evento.producto.entornoCodigo }}</td>
-                                <td>{{ evento.modulo.codigo }} - {{ evento.modulo.nombre }}</td>
+                                <td>{{ evento?.titulo }}</td>
+                                <td>{{ evento?.etapaActualData?.nombre }}</td>
+                                <td>{{ evento?.cliente ? evento.cliente?.sigla + " - " + evento.cliente?.nombre : "-" }} </td>
+                                <td>{{ evento?.producto ? evento.producto?.sigla + " - " + evento.producto?.nombre + (evento.producto?.entornoCodigo ? " | " + evento.producto.entornoCodigo : "") : "-" }} </td>
+                                <td>{{ evento?.modulo ? evento.modulo?.codigo + " - " + evento.modulo?.nombre : "-" }} </td>
                                 <td>
-                                    <app-badge-click 
-                                        [backgroundColor]="evento.usuarioActual.color"
-                                        (click)="abrirUsuarioDrawer(evento.usuarioActual.id)"
-                                        style="cursor:pointer"
-                                    >
-                                        {{ evento.usuarioActual.usuario }}
-                                    </app-badge-click>
+                                <div class="d-flex justify-content-center">
+                                    <app-prioridad-icon [nivel]="evento?.prioridadFin" ></app-prioridad-icon>
+                                </div>
                                 </td>
-                                <td>{{ evento.createdAt | date:'short'}}</td>
-                                <td hidden>{{ evento.usuarioAlta.usuario }}</td>
+                                <td>
+                                <app-badge-click style="cursor: pointer" (click)="abrirUsuarioDrawer(evento?.usuarioActual?.id)" >
+                                    {{ evento?.usuarioActual?.usuario }}
+                                </app-badge-click>
+                                </td>
+                                <td> {{ evento?.createdAt ? (evento.createdAt | date : "short") : "" }} </td>
+                                <td> {{ evento?.fechaInicio ? (evento.fechaInicio | date : "shortDate") : "" }} </td>
+                                <td> {{ evento?.fechaFin ? (evento.fechaFin | date : "shortDate") : "" }} </td>
+                                <td hidden>{{ evento?.usuarioAlta?.usuario }}</td>
                                 <td class="d-flex justify-content-end" style="min-height: 55px;">
-                                    @if (evento.etapaSiguiente) {
-                                        <button class="btn btn-ghost-warning" (click)="mostrarModalCrud(evento, 'AVZ')"><ng-icon name="lucideFastForward"/></button>
+                                    @if (!evento.cerrado && !evento.tipo.propio) {
+                                        @if (evento.etapaSiguiente) {
+                                            @if (evento.etapaActualData.deAutoriza) {
+                                                <button class="btn btn-ghost-warning" (click)="mostrarModalCrud(evento, 'AUT')"><ng-icon name="lucideCircleCheckBig"/></button>
+                                            } @else {
+                                                @if (evento.etapaActualData.puedeContinuar){
+                                                    <button class="btn btn-ghost-warning" (click)="mostrarModalCrud(evento, 'AVZ')"><ng-icon name="lucideFastForward"/></button>
+                                                } @else {
+                                                    <div
+                                                        style="min-height: 42px;"
+                                                        placement="top"
+                                                        container="body"
+                                                        triggers="hover"
+                                                        popoverClass="popover-warning"
+                                                        ngbPopover="{{getRequisitosFaltantes(evento)}}"
+                                                        popoverTitle="Requisitos Faltantes"
+                                                        >
+                                                        <button
+                                                            style="min-height: 42px;"
+                                                            class="btn btn-ghost-warning"
+                                                            (click)="mostrarModalCrud(evento, 'AVZ')"
+                                                            disabled
+                                                        >
+                                                            <ng-icon name="lucideFastForward"/>
+                                                        </button>
+                                                    </div>
+                                                }    
+                                            }
+                                        }
+                                        @if (evento.etapaAnterior) {
+                                            @if (evento.etapaActualData.deAutoriza) {
+                                                <button class="btn btn-ghost-danger" (click)="mostrarModalCrud(evento, 'REC')"><ng-icon name="lucideCircleSlash"/></button>
+                                            } @else {
+                                                <button class="btn btn-ghost-danger" (click)="mostrarModalCrud(evento, 'RTO')"><ng-icon name="lucideRewind"/></button>
+                                            }
+                                        }
+                                        <button class="btn btn-ghost-danger" (click)="mostrarModalCrud(evento, 'RAS')"><ng-icon name="lucideRotateCcw"/></button>
                                     }
-                                    @if (evento.etapaAnterior) {
-                                        <button class="btn btn-ghost-danger" (click)="mostrarModalCrud(evento, 'RTO')"><ng-icon name="lucideRewind"/></button>
-                                    }
-                                    <button class="btn btn-ghost-danger" (click)="mostrarModalCrud(evento, 'RAS')"><ng-icon name="lucideRotateCcw"/></button>
                                 </td>
                             </tr>
                         </ng-template>

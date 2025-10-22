@@ -28,18 +28,9 @@ import { showError } from '@/app/utils/message-utils';
 import { PermisosService } from '@core/services/permisos';
 import { PermisoAccion } from '@/app/types/permisos';
 import { PermisoClave } from '@core/interfaces/rol';
+import { getEstadoDescCorto } from '@/app/constants/evento_estados';
+import { PadZeroPipe } from '@core/pipes/pad-zero.pipe';
 
-
-export type TimelineType = {
-  id: number
-  time?: string
-  title: string
-  description: string
-  name: string
-  variant?: string
-  avatar?: string
-  icon?: string
-}
 
 @Component({
   selector: 'app-evento',
@@ -56,6 +47,7 @@ export type TimelineType = {
     NgIcon,
     FormsModule,
     LoadingSpinnerComponent,
+    PadZeroPipe,
   ],
   providers: [
     DialogService,
@@ -70,11 +62,13 @@ export class Evento implements OnInit {
   private loadingService = inject(LoadingService);
   private dialogService = inject(DialogService);
   private messageService = inject(MessageService);
+  protected confirmationService = inject(ConfirmationService);
   protected permisosService = inject(PermisosService);
   ref!: DynamicDialogRef;
   private rutActiva = inject(ActivatedRoute);
   private cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
   private userStorageService = inject(UserStorageService);
+  getEstadoDescCorto = getEstadoDescCorto;
 
   usuarioActivo:UsuarioLogeado | null = this.userStorageService.getUsuario();
   permisoClave = PermisoClave.EVENTO_DOCUMENTO;
@@ -99,8 +93,6 @@ export class Evento implements OnInit {
   nuevoComentario: string = '';
 
   onActualizarRequisito(req:any, event: any) {
-    console.log('Valor cambiado:', event.target.value);
-    console.log('Valor cambiado:', req);
     // Aquí puedes ajustar el payload según lo que espera tu backend
     let payload:any = {
       requisitoId: req.requisito.id,
@@ -274,7 +266,7 @@ export class Evento implements OnInit {
     this.eventoService.getActividad(this.eventoId).subscribe(
       {
         next: (res:any) => {
-          // console.log(res)
+          console.log(res)
           this.vidaEvento = res;
           this.cdr.detectChanges();
         },
@@ -287,6 +279,22 @@ export class Evento implements OnInit {
 
   onEliminarAdjunto(event:any){
     console.log('Eliminar adjunto:', event);
+    this.confirmationService.confirm({
+      message: `¿Seguro que querés eliminar ${event.nameFile}?`,
+      header: 'Confirmar eliminación',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.eventoService.eliminarAdicional(this.eventoId, event.id).subscribe({
+          next: (res) => {
+            console.log('Adjunto eliminado:', res);
+            this.onReloadAdjuntos();
+          },
+          error: (err) => {
+            console.error('Error al eliminar adjunto:', err);
+          }
+        });
+      }
+    });
   }
 
   onUploadAdjunto() {
@@ -330,8 +338,9 @@ export class Evento implements OnInit {
   }
 
   getRequerimientoDisabled(req: any): boolean {
+    // console.log(this.evento.etapaActualData.id, req.etapa.id, this.evento.usuarioActual.id, this.usuarioActivo?.id);
     return (
-      this.evento.etapaActualData.id > req.etapa.id ||
+      this.evento.etapaActualData.id < req.etapa.id ||
       this.evento.usuarioActual.id !== this.usuarioActivo?.id
     );
   }

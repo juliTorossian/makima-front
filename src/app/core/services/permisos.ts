@@ -1,15 +1,24 @@
 import { Injectable } from '@angular/core';
-import { PermisoClave } from '@core/interfaces/rol';
+import { PermisoClave, permisosVacios } from '@core/interfaces/rol';
 import { PermisoAccion } from '@/app/types/permisos';
 
 @Injectable({ providedIn: 'root' })
 export class PermisosService {
     // Aquí deberías cargar los permisos del usuario desde el backend
     private static readonly STORAGE_KEY = 'permisos';
-    private permisos: Record<PermisoClave, number> = PermisosService.loadPermisos();
+    // private permisos: Record<PermisoClave, number> = PermisosService.loadPermisos();
+
+    clearPermisos() {
+        // this.permisos = permisosVacios;
+        sessionStorage.removeItem(PermisosService.STORAGE_KEY);
+        localStorage.removeItem(PermisosService.STORAGE_KEY);
+    }
 
     private static loadPermisos(): Record<PermisoClave, number> {
-        const raw = sessionStorage.getItem(PermisosService.STORAGE_KEY);
+        let raw = sessionStorage.getItem(PermisosService.STORAGE_KEY);
+        if (!raw) {
+            raw = localStorage.getItem(PermisosService.STORAGE_KEY);
+        }
         if (raw) {
             try {
                 return JSON.parse(raw);
@@ -17,42 +26,23 @@ export class PermisosService {
                 // Si hay error, retorna todos en 0
             }
         }
-        return {
-            ADM: 0,
-            EVT: 0,
-            CLI: 0,
-            USR: 0,
-            MOD: 0,
-            ENT: 0,
-            PRD: 0,
-            HOG: 0,
-            EVD: 0,
-            ETA: 0,
-            TEV: 0,
-            ROL: 0
-        };
+        return permisosVacios;
     }
 
-    setPermisos(permisos: Array<{ clave: PermisoClave; nivel: number }>) {
-        const base: Record<PermisoClave, number> = {
-            ADM: 0,
-            EVT: 0,
-            CLI: 0,
-            USR: 0,
-            MOD: 0,
-            ENT: 0,
-            PRD: 0,
-            HOG: 0,
-            EVD: 0,
-            ETA: 0,
-            TEV: 0,
-            ROL: 0
-        };
+    setPermisos(permisos: Array<{ clave: PermisoClave; nivel: number }>, recordar: boolean = false) {
+        this.clearPermisos();
+        const base: Record<PermisoClave, number> = { ...permisosVacios };
+        
         for (const permiso of permisos) {
             base[permiso.clave] = permiso.nivel;
         }
-        this.permisos = base;
-        sessionStorage.setItem(PermisosService.STORAGE_KEY, JSON.stringify(base));
+        // this.permisos = base;
+
+        if (recordar) {
+            localStorage.setItem(PermisosService.STORAGE_KEY, JSON.stringify(base));
+        } else {
+            sessionStorage.setItem(PermisosService.STORAGE_KEY, JSON.stringify(base));
+        }
     }
 
     can(clave: PermisoClave, accion: PermisoAccion): boolean {

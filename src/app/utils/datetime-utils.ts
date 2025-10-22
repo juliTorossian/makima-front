@@ -45,3 +45,15 @@ export function getFechaLocal(fecha: string | Date): Date {
   const d = new Date(fecha);
   return new Date(d.getFullYear(), d.getMonth(), d.getDate());
 }
+
+export function parseIsoAsLocal(iso?: string | Date | null): Date {
+  if (!iso) return new Date();
+  if (iso instanceof Date) return iso;
+  const s = String(iso).replace(/Z|([+-]\d{2}:\d{2})$/,'');
+  const [datePart, timePart='00:00:00.000'] = s.split('T');
+  const [y, m, d] = datePart.split('-').map(n => parseInt(n,10));
+  const [timeMain, msPart='0'] = timePart.split('.');
+  const [hh = '0', mm = '0', ss = '0'] = timeMain.split(':');
+  const ms = parseInt((msPart+'000').slice(0,3),10);
+  return new Date(y, (m||1) - 1, d || 1, parseInt(hh,10)||0, parseInt(mm,10)||0, parseInt(ss,10)||0, ms||0);
+}

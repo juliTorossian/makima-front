@@ -15,6 +15,12 @@ import { ToastModule } from 'primeng/toast';
 import { ShortcutDirective } from '@core/directive/shortcut';
 import { PermisoClave } from '@core/interfaces/rol';
 import { finalize } from 'rxjs';
+import { FiltroActivo } from '@/app/constants/filtros_activo';
+import { FiltroRadioGroupComponent } from '@app/components/filtro-check';
+import { BooleanLabelPipe } from '@core/pipes/boolean-label.pipe';
+import { CommonModule } from '@angular/common';
+import { ControlTrabajarCon } from '@app/components/trabajar-con/components/control-trabajar-con';
+import { getTimestamp } from '@/app/utils/time-utils';
 
 @Component({
   selector: 'app-entornos',
@@ -25,7 +31,10 @@ import { finalize } from 'rxjs';
     ToolbarModule,
     ConfirmDialogModule,
     ToastModule,
-    ShortcutDirective,
+    FiltroRadioGroupComponent,
+    BooleanLabelPipe,
+    CommonModule,
+    ControlTrabajarCon,
   ],
   providers: [
     DialogService,
@@ -53,11 +62,17 @@ export class Entornos extends TrabajarCon<Entorno> {
 
   protected loadItems(): void {
     this.loadingService.show();
-    this.entornoService.getAll().pipe(
+    this.entornoService.getAll(this.filtroActivo).pipe(
       finalize(() => this.loadingService.hide())
     ).subscribe({
       next: (res) => {
         this.entornos = res;
+        if (this.filtroActivo !== FiltroActivo.ALL){
+          this.entornos = this.entornos.filter((entorno) => {
+            let aux = this.filtroActivo === FiltroActivo.TRUE;
+            return entorno.activo === aux;
+          });
+        }
         this.cdr.detectChanges();
       },
       error: () => this.showError('Error al cargar los entornos.')
@@ -100,6 +115,49 @@ export class Entornos extends TrabajarCon<Entorno> {
     this.ref.onClose.subscribe((entornoCrud: Entorno) => {
       if (!entornoCrud) return;
       modo === 'M' ? this.editar(entornoCrud) : this.alta(entornoCrud);
+    });
+  }
+
+  descargarPlantilla() {
+    this.entornoService.descargarPlantilla().subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'plantilla_entornos.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    });
+  }
+  
+  exportarExcelImpl() {
+    this.entornoService.exportarExcel(this.filtroActivo).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `export_entornos_${getTimestamp()}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    });
+  }
+
+  procesarExcel(file:File): void {
+    const form = new FormData();
+    form.append('file', file);
+
+    this.loadingService.show();
+    this.entornoService.importarExcel(form).pipe(
+      finalize(() => {
+        this.loadingService.hide();
+      })
+    ).subscribe({
+      next: () => this.afterChange('Entornos importados correctamente.'),
+      error: (err) => this.showError(err?.error?.message || 'Error al importar entornos.')
     });
   }
 }

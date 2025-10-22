@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, inject, OnInit, ViewChild, ViewContainerRef, ComponentRef, AfterViewInit } from '@angular/core';
 import { TrabajarCon } from '@app/components/trabajar-con/trabajar-con';
-import { Evento, EventoCompleto } from '@core/interfaces/evento';
+import { CircularEvento, Evento, EventoCompleto } from '@core/interfaces/evento';
 import { EventoService } from '@core/services/evento';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -24,6 +24,15 @@ import { UserStorageService, UsuarioLogeado } from '@core/services/user-storage'
 import { PermisoClave } from '@core/interfaces/rol';
 import { finalize } from 'rxjs';
 import { PadZeroPipe } from '@core/pipes/pad-zero.pipe';
+import { ModalSel } from '../eventos-usuario/components/modal-sel/modal-sel';
+import { EventoAccionesService } from '@core/services/evento-acciones';
+import { PrioridadIconComponent } from '@app/components/priority-icon';
+import { TooltipModule } from 'primeng/tooltip';
+import { FiltroRadioGroupComponent } from '@app/components/filtro-check';
+import { FiltroActivo } from '@/app/constants/filtros_activo';
+import { ControlTrabajarCon } from '@app/components/trabajar-con/components/control-trabajar-con';
+import { getTimestamp } from '@/app/utils/time-utils';
+import { parseIsoAsLocal } from '@/app/utils/datetime-utils';
 
 @Component({
   selector: 'app-eventos',
@@ -34,7 +43,6 @@ import { PadZeroPipe } from '@core/pipes/pad-zero.pipe';
     ToolbarModule,
     ConfirmDialogModule,
     ToastModule,
-    ShortcutDirective,
     BadgeClickComponent,
     DatePipe,
     DrawerModule,
@@ -42,6 +50,10 @@ import { PadZeroPipe } from '@core/pipes/pad-zero.pipe';
     EventoDrawerComponent,
     UsuarioDrawerComponent,
     PadZeroPipe,
+    PrioridadIconComponent,
+    TooltipModule,
+    FiltroRadioGroupComponent,
+    ControlTrabajarCon,
   ],
   providers: [
     DialogService,
@@ -52,15 +64,15 @@ import { PadZeroPipe } from '@core/pipes/pad-zero.pipe';
   styleUrl: './eventos.scss'
 })
 export class Eventos extends TrabajarCon<Evento> {
-  // ...existing code...
   private eventoService = inject(EventoService);
   private dialogService = inject(DialogService);
   ref!: DynamicDialogRef;
   private userStorageService = inject(UserStorageService);
+  private eventoAccionesService = inject(EventoAccionesService);
 
   usuarioActivo: UsuarioLogeado | null = this.userStorageService.getUsuario();
 
-  eventos!: EventoCompleto[];
+  eventos: EventoCompleto[] = [];
 
   // Estado para el offcanvas
   showEventoDrawer = false;
@@ -70,6 +82,7 @@ export class Eventos extends TrabajarCon<Evento> {
   usuarioSeleccionadoId: string | null = null;
 
   override ngOnInit(): void {
+    this.filtroActivo = FiltroActivo.ALL;
     this.loadItems();
   }
 
@@ -84,12 +97,18 @@ export class Eventos extends TrabajarCon<Evento> {
 
   protected loadItems(): void {
     this.loadingService.show();
-    this.eventoService.getAllComplete().pipe(
+    this.eventoService.getAllComplete(this.filtroActivo).pipe(
       finalize(() => this.loadingService.hide())
     ).subscribe({
       next: (res) => {
-        // console.log(res)
-        this.eventos = res;
+        console.log(res)
+        this.eventos = res.map(e => ({
+          ...e,
+          fechaInicio: (e as any).fechaInicio ? parseIsoAsLocal((e as any).fechaInicio) : null,
+          fechaFinReal: (e as any).fechaFinReal ? parseIsoAsLocal((e as any).fechaFinReal) : null,
+          fechaFinEst: (e as any).fechaFinEst ? parseIsoAsLocal((e as any).fechaFinEst) : null,
+          fechaEntrega: (e as any).fechaEntrega ? parseIsoAsLocal((e as any).fechaEntrega) : null
+        })) as unknown as EventoCompleto[];
         this.cdr.detectChanges();
       },
       error: () => this.showError('Error al cargar los eventos.')
@@ -97,7 +116,7 @@ export class Eventos extends TrabajarCon<Evento> {
   }
 
   abrirEventoDrawer(evento: EventoCompleto) {
-    this.eventoSeleccionadoId = evento.id;
+    this.eventoSeleccionadoId = evento.id || null;
     this.showEventoDrawer = true;
     this.cdr.detectChanges();
   }
@@ -107,9 +126,9 @@ export class Eventos extends TrabajarCon<Evento> {
     this.eventoSeleccionadoId = null;
     this.cdr.detectChanges();
   }
-
-  abrirUsuarioDrawer(usuarioId: string) {
-    this.usuarioSeleccionadoId = usuarioId;
+  
+  abrirUsuarioDrawer(usuarioId: string | null | undefined) {
+    this.usuarioSeleccionadoId = usuarioId ?? null;
     this.showUsuarioDrawer = true;
     this.cdr.detectChanges();
   }
@@ -124,7 +143,7 @@ export class Eventos extends TrabajarCon<Evento> {
     delete evento.id
     this.eventoService.create(evento).subscribe({
       next: () => this.afterChange('Evento creado correctamente.'),
-      error: (err) => this.showError(err.error.message ||'Error al crear el evento.')
+      error: (err) => this.showError(err.error.message || 'Error al crear el evento.')
     });
   }
 
@@ -132,7 +151,7 @@ export class Eventos extends TrabajarCon<Evento> {
     let eventoCodigo = evento.id ?? '';
     this.eventoService.update(eventoCodigo, evento).subscribe({
       next: () => this.afterChange('Evento actualizado correctamente.'),
-      error: (err) => this.showError(err.error.message ||'Error al modificar el evento.')
+      error: (err) => this.showError(err.error.message || 'Error al modificar el evento.')
     });
   }
 
@@ -156,6 +175,7 @@ export class Eventos extends TrabajarCon<Evento> {
 
     this.ref.onClose.subscribe((result: any) => {
       if (!result) return;
+      this.loadingService.show();
       // Si es FormData, usar los métodos privados
       if (result instanceof FormData) {
         if (modo === 'M') {
@@ -163,12 +183,56 @@ export class Eventos extends TrabajarCon<Evento> {
           const id = evento?.id ?? '';
           this.editarFormData(id, result);
         } else {
+          console.log(result)
           this.altaFormData(result);
         }
       } else {
         // fallback por si alguna vez retorna un objeto plano
         modo === 'M' ? this.editar(result) : this.alta(result);
       }
+    });
+  }
+
+  descargarPlantilla() {
+    this.eventoService.descargarPlantilla().subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'plantilla_eventos.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    });
+  }
+  
+  exportarExcelImpl() {
+    this.eventoService.exportarExcel().subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `export_eventos_${getTimestamp()}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    });
+  }
+
+  procesarExcel(file:File): void {
+    const form = new FormData();
+    form.append('file', file);
+
+    this.loadingService.show();
+    this.eventoService.importarExcel(form).pipe(
+      finalize(() => {
+        this.loadingService.hide();
+      })
+    ).subscribe({
+      next: () => this.afterChange('Eventos importados correctamente.'),
+      error: (err) => this.showError(err?.error?.message || 'Error al importar eventos.')
     });
   }
 
@@ -186,4 +250,48 @@ export class Eventos extends TrabajarCon<Evento> {
       error: () => this.showError('Error al modificar el evento.')
     });
   }
+
+  mostrarModalCrudReasignar(evento: EventoCompleto) {
+
+    let header = "Reasignar Evento";
+    let mensaje = `Etapa: ${evento?.etapaActualData?.nombre ?? ''}`;
+    let rol = evento?.etapaActualData?.rolPreferido;
+    let reqComentario = false;
+
+    const data = {
+      reqComentario: reqComentario,
+      comentario: "",
+      mensaje: mensaje,
+    }
+
+    this.ref = this.dialogService.open(ModalSel, {
+      ...modalConfig,
+      header,
+      data
+    });
+
+    this.ref.onClose.subscribe((result: any) => {
+      if (!result) return;
+
+      console.log(result);
+      if (evento) {
+        const body: CircularEvento = {
+          eventoId: evento.id || '',
+          usuarioId: result.usuarioSeleccionado,
+          comentario: result.comentario
+        }
+
+        this.eventoAccionesService.reasignar(body).subscribe({
+          next: () => this.showSuccess('Evento reasignado correctamente.'),
+          error: (err: any) => this.showError(err.error.message || 'Error al reasignar el evento.'),
+          complete: () => {
+            this.loadItems();
+          },
+        });
+      }
+
+    });
+
+  }
+
 }

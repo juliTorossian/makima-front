@@ -22,4 +22,12 @@ export class EventoAccionesService {
     return this.http.post(`${this.URL_COMPLETA}/evento/reasignar`, body);
   }
 
+  autorizar(body:CircularEvento) {
+    return this.http.post(`${this.URL_COMPLETA}/evento/autorizar`, body);
+  }
+
+  rechazar(body:CircularEvento) {
+    return this.http.post(`${this.URL_COMPLETA}/evento/rechazar`, body);
+  }
+
 }

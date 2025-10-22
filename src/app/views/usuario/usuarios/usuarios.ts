@@ -17,6 +17,11 @@ import { SHORTCUTS } from 'src/app/constants/shortcut';
 import { ShortcutDirective } from '@core/directive/shortcut';
 import { PermisoClave } from '@core/interfaces/rol';
 import { finalize } from 'rxjs';
+import { FiltroActivo } from '@/app/constants/filtros_activo';
+import { FiltroRadioGroupComponent } from '@app/components/filtro-check';
+import { UsuarioDrawerComponent } from '../usuario-drawer/usuario-drawer';
+import { ControlTrabajarCon } from '@app/components/trabajar-con/components/control-trabajar-con';
+import { getTimestamp } from '@/app/utils/time-utils';
 
 @Component({
   selector: 'app-usuarios',
@@ -28,7 +33,9 @@ import { finalize } from 'rxjs';
     ToolbarModule,
     ConfirmDialogModule,
     ToastModule,
-    ShortcutDirective,
+    FiltroRadioGroupComponent,
+    UsuarioDrawerComponent,
+    ControlTrabajarCon,
   ],
   providers: [
     DialogService,
@@ -43,6 +50,10 @@ export class Usuarios extends TrabajarCon<Usuario> {
   private dialogService = inject(DialogService);
   ref!: DynamicDialogRef;
 
+  // Estado para el usuario drawer
+  showUsuarioDrawer = false;
+  usuarioSeleccionadoId: string | null = null;
+
   usuarios!:Usuario[];
 
  constructor() {
@@ -56,11 +67,17 @@ export class Usuarios extends TrabajarCon<Usuario> {
 
   protected loadItems(): void {
     this.loadingService.show();
-    this.usuarioService.getAll().pipe(
+    this.usuarioService.getAll(this.filtroActivo).pipe(
       finalize(() => this.loadingService.hide())
     ).subscribe({
       next: (res) => {
         this.usuarios = res;
+        if (this.filtroActivo !== FiltroActivo.ALL){
+          this.usuarios = this.usuarios.filter((usuario) => {
+            let aux = this.filtroActivo === FiltroActivo.TRUE;
+            return usuario.activo === aux;
+          });
+        }
         this.cdr.detectChanges();
       },
       error: () => this.showError('Error al cargar los usuarios.')
@@ -107,4 +124,60 @@ export class Usuarios extends TrabajarCon<Usuario> {
       modo === 'M' ? this.editar(usuarioCrud) : this.alta(usuarioCrud);
     });
   }
+
+  abrirUsuarioDrawer(usuarioId: string) {
+    this.usuarioSeleccionadoId = usuarioId;
+    this.showUsuarioDrawer = true;
+    this.cdr.detectChanges();
+  }
+
+  cerrarUsuarioDrawer() {
+    this.showUsuarioDrawer = false;
+    this.usuarioSeleccionadoId = null;
+    this.cdr.detectChanges();
+  }
+
+  descargarPlantilla() {
+    this.usuarioService.descargarPlantilla().subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'plantilla_usuarios.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    });
+  }
+  
+  exportarExcelImpl() {
+    this.usuarioService.exportarExcel(this.filtroActivo).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `export_usuarios_${getTimestamp()}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    });
+  }
+
+  procesarExcel(file:File): void {
+    const form = new FormData();
+    form.append('file', file);
+
+    this.loadingService.show();
+    this.usuarioService.importarExcel(form).pipe(
+      finalize(() => {
+        this.loadingService.hide();
+      })
+    ).subscribe({
+      next: () => this.afterChange('Usuarios importados correctamente.'),
+      error: (err) => this.showError(err?.error?.message || 'Error al importar usuarios.')
+    });
+  }
+  
 }

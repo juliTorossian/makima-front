@@ -1,0 +1,112 @@
+<p-toast></p-toast>
+<div class="container">
+  <form class="row g-3 needs-validation" [formGroup]="form" (ngSubmit)="accion($event)" novalidate>
+    <div class="col-md-6" hidden>
+      <label for="id" class="form-label">Id</label>
+      <input
+        id="id"
+        type="text"
+        formControlName="id"
+        class="form-control"
+        placeholder="id"
+      />
+      @if (get('id')?.invalid && get('id')?.touched) {
+        <div class="invalid-feedback">Debe ingresar un id.</div>
+      }
+    </div>
+
+    <div class="col-md-4">
+      <label for="sigla" class="form-label">Sigla</label>
+      <input
+        id="sigla"
+        type="text"
+        formControlName="sigla"
+        class="form-control"
+        placeholder="sigla"
+        required
+        (input)="onUppercaseInput($event, 'sigla')"
+      />
+      @if (get('sigla')?.invalid && get('sigla')?.touched) {
+        <div class="invalid-feedback">Debe ingresar un sigla válido.</div>
+      }
+    </div>
+
+    <div class="col-md-4">
+      <label for="nombre" class="form-label">Nombre</label>
+      <input
+        id="nombre"
+        type="text"
+        formControlName="nombre"
+        class="form-control"
+        placeholder="nombre"
+        required
+      />
+      @if (get('nombre')?.invalid && get('nombre')?.touched) {
+        <div class="invalid-feedback">Debe ingresar un nombre.</div>
+      }
+    </div>
+
+    <div class="col-md-4">
+      <label for="cliente" class="form-label">Cliente</label>
+      <div class="row">
+        <div class="col-md-10">
+          <input
+            id="cliente"
+            class="form-control mb-2"
+            type="text"
+            formControlName="cliente"
+            [ngbTypeahead]="searchCliente"
+            [inputFormatter]="formatterCliente"
+            [resultFormatter]="formatterCliente"
+            placeholder="Buscar cliente..."
+          />
+        </div>
+        <div class="col-md-2">
+          <button card-actions class="btn btn-icon btn-outline-info" 
+            (click)="modalSelCliente($event)"
+          >
+            <ng-icon name="lucideSearch" />
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+        <label for="activo" class="form-label">Activo</label>
+        <div class="mb-2">
+          <input id="activo" type="checkbox" formControlName="activo" class="btn-check" />
+          <label class="btn btn-outline-primary" for="activo">
+            @if (get('activo')?.value){
+            ACTIVO
+            } @else {
+            DESACTIVO
+            }
+          </label>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <label for="critico" class="form-label">Critico</label>
+        <div class="mb-2">
+            <input id="critico" type="checkbox" formControlName="critico" class="btn-check" />
+            <label class="btn" [ngClass]="get('critico')?.value ? 'btn-outline-danger' : 'btn-outline-primary'" for="critico">
+              @if (get('critico')?.value){
+              CRITICO
+              } @else {
+              NO CRITICO
+              }
+            </label>
+        </div>
+    </div>
+
+    <div class="col-12 mb-5">
+      <button class="btn btn-primary" type="submit">
+        @if (modo === 'A') {
+          Crear
+        } @else if (modo === 'M') {
+          Modificar
+        }
+      </button>
+    </div>
+  </form>
+</div>

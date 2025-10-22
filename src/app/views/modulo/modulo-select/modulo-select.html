@@ -1,0 +1,50 @@
+@if (loadingSelect) {
+    <app-loading-spinner></app-loading-spinner>
+}
+<div>
+    <p-table
+        #dt
+        [value]="modulos"
+        [rows]="10"
+        [paginator]="true"
+        [globalFilterFields]="['codigo', 'nombre', 'padreCodigo']"
+        [tableStyle]="{ 'min-width': '75rem' }"
+        [rowHover]="true"
+        dataKey="id"
+        currentPageReportTemplate="Mostrando desde {first} a {last} de {totalRecords} registros"
+        [showCurrentPageReport]="true"
+        size="small"
+    >
+        <ng-template pTemplate="caption">
+            <div class="flex align-items-center justify-content-between" style="display: flex;">
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText style="padding-top: 0.4rem !important;padding-bottom: 0.4rem !important;margin-left: 10px;" class="p-component p-element p-inputtext"  type="text" (input)="dt.filterGlobal(getEventValue($event), 'contains')" placeholder="Buscar..." />
+                </span>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="codigo">Codigo <p-sortIcon field="codigo" ></p-sortIcon><p-columnFilter type="text" field="codigo" display="menu" matchMode="contains" style="margin-left: 2px;"></p-columnFilter></th>
+                <th pSortableColumn="nombre">Nombre <p-sortIcon field="nombre"></p-sortIcon><p-columnFilter type="text" field="nombre" display="menu" matchMode="contains" style="margin-left: 2px;"></p-columnFilter></th>
+                <th pSortableColumn="padreCodigo">Padre <p-sortIcon field="padreCodigo"></p-sortIcon></th>
+                <th pSortableColumn="activo">Activo <p-sortIcon field="activo"></p-sortIcon></th>
+                <th></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-modulo>
+            <tr style="min-height: 55px;">
+                <td>{{ modulo.codigo }}</td>
+                <td>{{ modulo.nombre }}</td>
+                <td>{{ modulo.padreCodigo }}</td>
+                <td><span class="badge " style="min-width: 40%;" [ngClass]="modulo.activo ? 'text-bg-success' : 'text-bg-danger'">{{ modulo.activo | booleanLabel }}</span></td>
+                <td class="d-flex justify-content-end" style="min-height: 55px;">
+                    <button class="btn btn-ghost-warning" (click)="select(modulo)"><ng-icon name="lucideSearchCheck"/></button>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="summary">
+            <div class="flex align-items-center justify-content-between">En total hay {{ modulos ? modulos.length : 0 }} Modulos.</div>
+        </ng-template>
+    </p-table>
+</div>

@@ -1,3 +1,4 @@
+import { FiltroActivo } from '@/app/constants/filtros_activo';
 import { environment } from '@/environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
@@ -11,8 +12,8 @@ export class ProductoService {
   private http = inject(HttpClient);
   URL_COMPLETA = environment.BASE_URL;
 
-  getAll(): Observable<Producto[]> {
-    return this.http.get<Producto[]>(`${this.URL_COMPLETA}/producto`);
+  getAll(activo: FiltroActivo = FiltroActivo.TRUE): Observable<Producto[]> {
+    return this.http.get<Producto[]>(`${this.URL_COMPLETA}/producto?activo=${activo}`);
   }
 
   getById(id: number): Observable<Producto> {
@@ -29,6 +30,24 @@ export class ProductoService {
 
   delete(id:number): Observable<Producto> {
     return this.http.delete<Producto>(`${this.URL_COMPLETA}/producto/${id}`);
+  }
+
+  // importaciones
+
+  descargarPlantilla(options?: any): Observable<any> {
+    const defaultOptions = { responseType: 'blob' as 'json' };
+    const finalOptions = options ? { ...defaultOptions, ...options } : defaultOptions;
+    return this.http.get<any>(`${this.URL_COMPLETA}/producto/importacion/plantilla`, finalOptions);
+  }
+
+  exportarExcel(activo: FiltroActivo = FiltroActivo.TRUE, options?: any): Observable<any> {
+    const defaultOptions = { responseType: 'blob' as 'json' };
+    const finalOptions = options ? { ...defaultOptions, ...options } : defaultOptions;
+    return this.http.get<any>(`${this.URL_COMPLETA}/producto/importacion/export?activo=${activo}`, finalOptions);
+  }
+
+  importarProductos(formData:FormData): Observable<any> {
+    return this.http.post<any>(`${this.URL_COMPLETA}/producto/importacion/excel`, formData);
   }
 
 }

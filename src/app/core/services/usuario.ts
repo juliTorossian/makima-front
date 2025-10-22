@@ -2,7 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { UsuarioCompleto, Usuario as UsuarioInterface } from '@core/interfaces/usuario';
+import { Adicional, Preferencia, UsuarioCompleto, Usuario as UsuarioInterface } from '@core/interfaces/usuario';
+import { FiltroActivo } from '@/app/constants/filtros_activo';
 
 @Injectable({
   providedIn: 'root'
@@ -11,8 +12,8 @@ export class UsuarioService {
   private http = inject(HttpClient);
   URL_COMPLETA = environment.BASE_URL;
   
-  getAll() : Observable<UsuarioInterface[]>{
-    return this.http.get<UsuarioInterface[]>(`${this.URL_COMPLETA}/usuario`);
+  getAll(activo: FiltroActivo = FiltroActivo.TRUE) : Observable<UsuarioInterface[]>{
+    return this.http.get<UsuarioInterface[]>(`${this.URL_COMPLETA}/usuario?activo=${activo}`);
   }
 
   getByID(usuarioId:string) : Observable<UsuarioInterface>{
@@ -39,6 +40,24 @@ export class UsuarioService {
     return this.http.delete<UsuarioInterface>(`${this.URL_COMPLETA}/usuario/${usuarioId}`);
   }
 
+  // importaciones
+
+  descargarPlantilla(options?: any): Observable<any> {
+    const defaultOptions = { responseType: 'blob' as 'json' };
+    const finalOptions = options ? { ...defaultOptions, ...options } : defaultOptions;
+    return this.http.get<any>(`${this.URL_COMPLETA}/usuario/importacion/plantilla`, finalOptions);
+  }
+
+  exportarExcel(activo: FiltroActivo = FiltroActivo.TRUE, options?: any): Observable<any> {
+    const defaultOptions = { responseType: 'blob' as 'json' };
+    const finalOptions = options ? { ...defaultOptions, ...options } : defaultOptions;
+    return this.http.get<any>(`${this.URL_COMPLETA}/usuario/importacion/export?activo=${activo}`, finalOptions);
+  }
+
+  importarExcel(formData:FormData): Observable<any> {
+    return this.http.post<any>(`${this.URL_COMPLETA}/usuario/importacion/excel`, formData);
+  }
+
   cambiarPassword(usuarioId: string, contrasenaActual: string, nuevaContrasena: string): Observable<any> {
     return this.http.post<any>(`${this.URL_COMPLETA}/auth/cambiar-contrasena`, {
       usuarioId,
@@ -47,4 +66,33 @@ export class UsuarioService {
     });
   }
   
+  // PREFERENCIAS
+
+  setPreferencias(usuarioId:string, preferencias: Preferencia[]) : Observable<Preferencia[]>{
+    return this.http.post<Preferencia[]>(`${this.URL_COMPLETA}/usuario/${usuarioId}/preferencias`, preferencias);
+  }
+
+  getPreferencias(usuarioId:string) : Observable<Preferencia[]>{
+    return this.http.get<Preferencia[]>(`${this.URL_COMPLETA}/usuario/${usuarioId}/preferencias`);
+  }
+
+  // adicionales
+
+  getAdicionales(usuarioId:string) : Observable<Adicional[]>{
+    return this.http.get<Adicional[]>(`${this.URL_COMPLETA}/usuario/${usuarioId}/adicionales`);
+  }
+
+  getAdicional(usuarioId:string, clave:string) : Observable<Adicional>{
+    return this.http.get<Adicional>(`${this.URL_COMPLETA}/usuario/${usuarioId}/adicional/${clave}`);
+  }
+
+  actualizarAdicional(usuarioId:string, clave:string, valor:string) : Observable<any>{
+    return this.http.post<any>(`${this.URL_COMPLETA}/usuario/${usuarioId}/adicional`, { usuarioId, clave, valor });
+  }
+
+  deleteAdicional(usuarioId:string, clave:string) : Observable<any>{
+    return this.http.delete<any>(`${this.URL_COMPLETA}/usuario/${usuarioId}/adicional/${clave}`);
+  }
+  
+
 }

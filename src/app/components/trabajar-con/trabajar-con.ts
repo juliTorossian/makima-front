@@ -1,3 +1,4 @@
+import { FiltroActivo, FiltroActivoOptions, FiltroCerradoOptions } from '@/app/constants/filtros_activo';
 import { SHORTCUTS } from '@/app/constants/shortcut';
 import { PermisoAccion } from '@/app/types/permisos';
 import { Component, inject } from '@angular/core';
@@ -20,6 +21,11 @@ export abstract class TrabajarCon<T> {
   protected loadingService = inject(LoadingService);
   protected permisos: PermisoAccion[] = [];
   readonly SHORTCUTS = SHORTCUTS;
+  readonly FiltroActivo = FiltroActivo;
+  FiltroActivoOptions = FiltroActivoOptions;
+  FiltroCerradoOptions = FiltroCerradoOptions;
+
+  filtroActivo: FiltroActivo = FiltroActivo.TRUE;
 
   constructor(
     protected cdr: ChangeDetectorRef,
@@ -35,6 +41,31 @@ export abstract class TrabajarCon<T> {
   abstract alta(item: T): void;
   abstract editar(item: T): void;
   abstract eliminarDirecto(item: T): void;
+
+  exportarExcel(): void {
+    this.exportarExcelImpl();
+  }
+
+  importarExcel(event:any): void {
+    console.log(event);
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    input.value = ''; // permitir re-subida del mismo archivo
+    this.procesarExcel(file);
+  }
+
+  getPlantilla(): void {
+    this.descargarPlantilla();
+  }
+
+
+
+  // métodos que deben implementar las pantallas concretas
+  protected abstract procesarExcel(file: File): void;
+  protected abstract descargarPlantilla(): void;
+  protected abstract exportarExcelImpl(): void;
+  // ------------------------------------------------------------------
 
   delete(item: T, label: string = 'el registro'): void {
     this.confirmationService.confirm({
@@ -79,6 +110,12 @@ export abstract class TrabajarCon<T> {
   getEventValue($event:any) :string {
     return $event.target.value;
   } 
+  
+  filtroCambio(event:any) {
+    const selectedValue = event as FiltroActivo;
+    this.filtroActivo = selectedValue;
+    this.loadItems();
+  }
 }
 
 

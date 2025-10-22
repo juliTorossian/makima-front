@@ -1,7 +1,7 @@
 import { environment } from "@/environments/environment";
 import { HttpClient } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
-import { DashboardEventosPorEtapa } from "@core/interfaces/dashboard";
+import { DashboardEventosPorCliente, DashboardEventosPorEtapa, DashboardEventosPorTipo } from "@core/interfaces/dashboard";
 import { Observable } from "rxjs";
 
 @Injectable({
@@ -13,5 +13,13 @@ export class DashboardService {
 
   getEventosPorEtapa(): Observable<DashboardEventosPorEtapa> {
     return this.http.get<DashboardEventosPorEtapa>(`${this.URL_COMPLETA}/dashboard/eventos-por-etapa`);
+  }
+
+  getEventosPorTipo(): Observable<DashboardEventosPorTipo> {
+    return this.http.get<DashboardEventosPorTipo>(`${this.URL_COMPLETA}/dashboard/eventos-por-tipo`);
+  }
+
+  getEventosPorCliente(): Observable<DashboardEventosPorCliente> {
+    return this.http.get<DashboardEventosPorCliente>(`${this.URL_COMPLETA}/dashboard/eventos-por-cliente`);
   }
 }

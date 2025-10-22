@@ -1,4 +1,7 @@
 <p-toast></p-toast>
+@if (loading) {
+  <app-loading-spinner></app-loading-spinner>
+}
 <div class="container">
   <form class="row g-3 needs-validation" [formGroup]="form" (ngSubmit)="accion($event)" novalidate>
     <!-- Campos de TipoEvento -->
@@ -37,23 +40,48 @@
 
             <div class="col-md-4">
               <!-- <label>Evento</label> -->
-              <select class="form-control" formControlName="eventoId">
-                <option [ngValue]="null">-- Seleccionar --</option>
-                @for (e of eventos; track e.id) {
-                  <!-- ngValue preserva el tipo (number si e.id es number) -->
-                  <option [ngValue]="e.id">{{ e.titulo }}</option>
-                }
-              </select>
+              <div class="row">
+                <div class="col-10">
+                  <select class="form-control" formControlName="eventoId">
+                    <option [ngValue]="null">-- Seleccionar --</option>
+                    @for (e of eventos; track e.id) {
+                      <!-- ngValue preserva el tipo (number si e.id es number) -->
+                      <option [ngValue]="e.id">{{ e.titulo }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="col-2">
+                  <button card-actions class="btn btn-icon btn-outline-info" 
+                    (click)="modalSelEvento(hora, $event)"
+                  >
+                    <ng-icon name="lucideSearch" />
+                  </button>
+                </div>
+              </div>
             </div>
 
             <div class="col-md-2">
               <!-- <label>Secuencia</label> -->
-              <input type="time" class="form-control" formControlName="inicio" />
+              <input type="time" class="form-control" 
+                formControlName="inicio" 
+                [class.is-invalid]="hora.errors?.['overlap']" />
+              @if (hora.errors?.['overlap']) {
+                <div class="invalid-feedback">
+                  Horario superpuesto
+                </div>
+              }
             </div>
 
             <div class="col-md-2">
               <!-- <label>Secuencia</label> -->
-              <input type="time" class="form-control" formControlName="fin" />
+              <input type="time" class="form-control" 
+                formControlName="fin" 
+                [class.is-invalid]="hora.errors?.['overlap']" />
+              @if (hora.errors?.['overlap']) {
+                <div class="invalid-feedback">
+                  Horario superpuesto
+                </div>
+              }
             </div>
 
             <div class="col-md-3">

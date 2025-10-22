@@ -1,7 +1,8 @@
+import { modalConfig } from '@/app/types/modals';
 import { formatTime } from '@/app/utils/datetime-utils';
-import { Component, inject } from '@angular/core';
-import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CrudFormModal } from '@app/components/index';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
+import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { CrudFormModal, LoadingSpinnerComponent } from '@app/components/index';
 import { Evento } from '@core/interfaces/evento';
 import { Hora, RegistroHora } from '@core/interfaces/registro-hora';
 import { EventoService } from '@core/services/evento';
@@ -10,13 +11,17 @@ import { UserStorageService, UsuarioLogeado } from '@core/services/user-storage'
 import { NgIcon } from '@ng-icons/core';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import { EventoSelect } from '../../evento/evento-select/evento-select';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { FiltroActivo } from '@/app/constants/filtros_activo';
 
 @Component({
   selector: 'app-hora-crud',
   imports: [
     ReactiveFormsModule,
     ToastModule,
-    NgIcon
+    NgIcon,
+    LoadingSpinnerComponent,
   ],
   providers: [
     MessageService,
@@ -25,31 +30,45 @@ import { ToastModule } from 'primeng/toast';
   styleUrl: './hora-crud.scss'
 })
 export class HoraCrud extends CrudFormModal<RegistroHora> {
+  protected modalSel = inject(DynamicDialogRef);
   private eventoService = inject(EventoService)
   private userStorageService = inject(UserStorageService);
+  private dialogService = inject(DialogService);
+  private cdr = inject(ChangeDetectorRef);
 
-  usuarioActivo:UsuarioLogeado | null = this.userStorageService.getUsuario();
+  usuarioActivo: UsuarioLogeado | null = this.userStorageService.getUsuario();
 
   eventos!: Evento[];
   eventosFiltrados!: Evento[];
 
+  loading: boolean = false;
+  private dataLoadedCount = 0;
+  private totalDataToLoad = 1;
+
   override ngOnInit(): void {
     super.ngOnInit();
 
-    this.eventoService.getAll().subscribe({
+    if (this.modo === 'M') {
+      this.loading = true;
+      // this.loadingService.show();
+    }
+
+    this.eventoService.getAll(FiltroActivo.FALSE).subscribe({
       next: (res: any) => {
         this.eventos = res
+        this.checkAndSetupEditMode();
       },
       error: () => this.showError('Error', 'Error al cargar los eventos.')
     })
   }
 
   protected buildForm(): FormGroup {
+    const today = new Date().toISOString().slice(0, 10);
     return new FormGroup({
       id: new FormControl('',),
-      fecha: new FormControl(new Date(), [Validators.required]),
+      fecha: new FormControl(today, [Validators.required]),
       usuarioId: new FormControl(this.usuarioActivo?.id, [Validators.required]),
-      horas: new FormArray([])
+      horas: new FormArray([], this.noOverlapValidator.bind(this))
     });
   }
 
@@ -103,11 +122,12 @@ export class HoraCrud extends CrudFormModal<RegistroHora> {
 
   accion(event: Event) {
     event.preventDefault();
+    console.log(event)
     this.submit();
   }
 
   private createHoraForm(hora?: Partial<Hora>): FormGroup {
-    return new FormGroup({
+    const horaForm = new FormGroup({
       // obligamos a number (o null)
       id: new FormControl<number | null>(
         hora?.id != null ? Number(hora.id) : null,
@@ -131,6 +151,16 @@ export class HoraCrud extends CrudFormModal<RegistroHora> {
         hora?.detalle != null ? String(hora.detalle) : null,
       ),
     });
+
+    // Agregar validación cuando cambian los valores de tiempo
+    horaForm.get('inicio')?.valueChanges.subscribe(() => {
+      this.horasFormArray.updateValueAndValidity();
+    });
+    horaForm.get('fin')?.valueChanges.subscribe(() => {
+      this.horasFormArray.updateValueAndValidity();
+    });
+
+    return horaForm;
   }
 
   addHora() {
@@ -139,6 +169,94 @@ export class HoraCrud extends CrudFormModal<RegistroHora> {
 
   removeHora(index: number) {
     this.horasFormArray.removeAt(index);
+    this.horasFormArray.updateValueAndValidity();
+  }
+
+  // Validador personalizado para evitar superposición de horarios
+  private noOverlapValidator(control: AbstractControl): ValidationErrors | null {
+    const horasArray = control as FormArray;
+    
+    if (!horasArray || horasArray.length <= 1) {
+      return null;
+    }
+
+    const horarios = horasArray.controls
+      .map((horaControl, index) => ({
+        index,
+        inicio: horaControl.get('inicio')?.value,
+        fin: horaControl.get('fin')?.value
+      }))
+      .filter(h => h.inicio && h.fin && h.inicio <= h.fin);
+
+    // Verificar superposiciones
+    for (let i = 0; i < horarios.length; i++) {
+      for (let j = i + 1; j < horarios.length; j++) {
+        const horario1 = horarios[i];
+        const horario2 = horarios[j];
+
+        // Convertir a minutos para facilitar comparación
+        const inicio1 = this.timeToMinutes(horario1.inicio);
+        const fin1 = this.timeToMinutes(horario1.fin);
+        const inicio2 = this.timeToMinutes(horario2.inicio);
+        const fin2 = this.timeToMinutes(horario2.fin);
+
+        // Verificar si hay superposición (excluyendo los extremos)
+        if ((inicio1 < fin2 && fin1 > inicio2)) {
+          // Marcar error en ambos controles
+          horasArray.at(horario1.index).setErrors({ overlap: true });
+          horasArray.at(horario2.index).setErrors({ overlap: true });
+          return { overlap: true };
+        }
+      }
+    }
+
+    // Limpiar errores de superposición si no hay conflictos
+    horasArray.controls.forEach(control => {
+      const errors = control.errors;
+      if (errors && errors['overlap']) {
+        delete errors['overlap'];
+        control.setErrors(Object.keys(errors).length > 0 ? errors : null);
+      }
+    });
+
+    return null;
+  }
+
+  private timeToMinutes(time: string): number {
+    const [hours, minutes] = time.split(':').map(Number);
+    return hours * 60 + minutes;
+  }
+
+  modalSelEvento(hora:any, event: Event) {
+    event.preventDefault();
+    this.modalSel = this.dialogService.open(EventoSelect, {
+      ...modalConfig,
+      header: "Seleccionar Evento",
+      data: {
+        filtroEvento: FiltroActivo.FALSE
+      }
+    });
+
+    this.modalSel.onClose.subscribe((result: any) => {
+      if (!result) return;
+      hora.patchValue({
+        eventoId: result.id
+      })
+    });
+  }
+  
+  private checkAndSetupEditMode() {
+    this.dataLoadedCount++;
+    if (this.dataLoadedCount === this.totalDataToLoad) {
+      if (this.modo === 'M') {
+        this.setupEditMode();
+        // Usar setTimeout para evitar el error NG0100
+        setTimeout(() => {
+          this.loading = false;
+          this.cdr.detectChanges();
+        });
+      }
+    }
   }
 
 }
