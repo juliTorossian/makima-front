@@ -6,10 +6,10 @@ import { PermisoAccion } from '@/app/types/permisos';
 export class PermisosService {
     // Aquí deberías cargar los permisos del usuario desde el backend
     private static readonly STORAGE_KEY = 'permisos';
-    private permisos: Record<PermisoClave, number> = PermisosService.loadPermisos();
+    // private permisos: Record<PermisoClave, number> = PermisosService.loadPermisos();
 
     clearPermisos() {
-        this.permisos = permisosVacios;
+        // this.permisos = permisosVacios;
         sessionStorage.removeItem(PermisosService.STORAGE_KEY);
         localStorage.removeItem(PermisosService.STORAGE_KEY);
     }
@@ -31,12 +31,13 @@ export class PermisosService {
 
     setPermisos(permisos: Array<{ clave: PermisoClave; nivel: number }>, recordar: boolean = false) {
         this.clearPermisos();
-        const base: Record<PermisoClave, number> = permisosVacios;
+        const base: Record<PermisoClave, number> = { ...permisosVacios };
         
         for (const permiso of permisos) {
             base[permiso.clave] = permiso.nivel;
         }
-        this.permisos = base;
+        // this.permisos = base;
+
         if (recordar) {
             localStorage.setItem(PermisosService.STORAGE_KEY, JSON.stringify(base));
         } else {

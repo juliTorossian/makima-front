@@ -61,7 +61,7 @@ export class EventosPorTipo implements OnInit {
     ngOnInit(): void {
         this.dashboardService.getEventosPorTipo().subscribe({
             next: (res) => {
-                console.log(res)
+                // console.log(res)
                 this.tipos = res.tipos.map((t) => t.tipoCodigo)
                 this.ticketsPorTipo = res.tipos.map((t) => t.cantidad)
                 this.cdr.markForCheck();

@@ -61,7 +61,7 @@ export class EventosPorCliente implements OnInit {
     ngOnInit(): void {
         this.dashboardService.getEventosPorCliente().subscribe({
             next: (res) => {
-                console.log(res)
+                // console.log(res)
                 this.clientes = res.clientes.map((c) => c.clienteNombre)
                 this.ticketsPorCliente = res.clientes.map((c) => c.cantidad)
                 this.cdr.markForCheck();

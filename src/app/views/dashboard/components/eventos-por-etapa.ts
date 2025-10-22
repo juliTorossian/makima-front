@@ -61,7 +61,7 @@ export class EventosPorEtapa implements OnInit {
     ngOnInit(): void {
         this.dashboardService.getEventosPorEtapa().subscribe({
             next: (res) => {
-                console.log(res)
+                // console.log(res)
                 this.etapas = res.etapas.map((e) => e.etapaNombre)
                 this.ticketsPorEtapa = res.etapas.map((e) => e.cantidad)
                 this.cdr.markForCheck();
