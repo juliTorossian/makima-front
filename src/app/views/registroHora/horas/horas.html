@@ -56,7 +56,7 @@
                                 <td>{{ registroGeneral.nombre }} {{ registroGeneral.apellido }}</td>
                                 <td hidden>{{ registroGeneral.apellido }}</td>
                                 <td>{{ registroGeneral.usuario }}</td>
-                                <td>{{ registroGeneral.totalMes }} hs.</td>
+                                <td>{{ registroGeneral.totalMes | number:'.0-2'}} hs.</td>
                             </tr>
                         </ng-template>
                         <ng-template #expandedrow let-registrosHora>
@@ -82,7 +82,7 @@
                                                     </td>
                                                     <td hidden>{{ registro.id }}</td>
                                                     <td>{{ getFechaLocal(registro.fecha) | date:'dd MMMM yy'}}</td>
-                                                    <td>{{ registro.horasTotales }} hs.</td>
+                                                    <td>{{ registro.horasTotales | number:'.0-2' }} hs.</td>
                                                 </tr>
                                             </ng-template>
                                             <ng-template #expandedrow let-horas>
@@ -109,7 +109,7 @@
                                                                         <td>{{ hora.evento.tipoCodigo }}-{{hora.evento.numero}} | {{hora.evento.titulo}}</td>
                                                                         <!-- <td>{{ hora.total | totalComoNumero}}</td> -->
                                                                         <td>{{ hora.detalle }}</td>
-                                                                        <td>{{ hora.diferencia }} hs.</td>
+                                                                        <td>{{ hora.diferencia | number:'.0-2' }} hs.</td>
                                                                     </tr>
                                                                 </ng-template>
                                                             </p-table>

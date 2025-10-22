@@ -9,7 +9,7 @@
                         <ng-template pTemplate="left">
                         </ng-template>
                         <ng-template pTemplate="right">
-                            @if (can('A')) {
+                            @if (true) {
                                 <button class="btn btn-ghost-success btn-lg" (click)="mostrarModalCrud(null, 'A')" [appShortcut]="SHORTCUTS.NUEVO" (appShortcutTrigger)="mostrarModalCrud(null, 'A')"><ng-icon name="lucideCirclePlus"/></button>
                             }
                         </ng-template>
@@ -57,14 +57,14 @@
                                     <p-button type="button" pRipple [pRowToggler]="registro" [text]="true" severity="secondary" [rounded]="true" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" />
                                 </td>
                                 <td hidden>{{ registro.id }}</td>
-                                <td>{{ getFechaLocal(registro.fecha) | date:'dd MMMM yy'}}</td>
+                                <td>{{ registro.fecha | date:'dd MMMM yy'}}</td>
                                 <td>{{ registro.usuario.usuario }}</td>
-                                <td>{{ registro.horasTotales }} hs.</td>
+                                <td>{{ registro.horasTotales | number:'.0-2' }} hs.</td>
                                 <td class="d-flex justify-content-end"  style="min-height: 55px;">
-                                    @if (can('M')) {
+                                    @if (true) {
                                         <button class="btn btn-ghost-warning" (click)="mostrarModalCrud(registro, 'M')"><ng-icon name="lucidePencil"/></button>
                                     }
-                                    @if (can('B')) {
+                                    @if (true) {
                                         <button class="btn btn-ghost-danger" (click)="delete(registro)"><ng-icon name="lucideTrash2"/></button>
                                     }
                                 </td>
@@ -94,7 +94,7 @@
                                                     <td>{{ hora.evento.tipoCodigo }}-{{hora.evento.numero}} | {{hora.evento.titulo}}</td>
                                                     <!-- <td>{{ hora.total | totalComoNumero}}</td> -->
                                                     <td>{{ hora.detalle }}</td>
-                                                    <td>{{ hora.diferencia }} hs.</td>
+                                                    <td>{{ hora.diferencia | number:'.0-2' }} hs.</td>
                                                 </tr>
                                             </ng-template>
                                         </p-table>

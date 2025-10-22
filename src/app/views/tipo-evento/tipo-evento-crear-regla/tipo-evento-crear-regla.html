@@ -1,0 +1,95 @@
+<p-toast></p-toast>
+<div class="container">
+  <p-table
+    [value]="reglasPrioridad"
+    dataKey="id"
+    editMode="row"
+    [tableStyle]="{'min-width': '50rem'}"
+  >
+    <ng-template #header>
+      <tr>
+        <th style="width:22%">Contexto</th>
+        <th style="width:22%">Operador</th>
+        <th style="width:22%">Valor</th>
+        <th style="width:22%">Peso</th>
+        <th style="width:12%"></th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-regla let-editing="editing" let-ri="rowIndex">
+      <tr [pEditableRow]="regla">
+        <td>
+          <p-cellEditor>
+            <ng-template #input>
+              <p-select
+                [options]="prioridadContexto"
+                appendTo="body"
+                [(ngModel)]="regla.contexto"
+                [style]="{'width':'100%'}"
+              />
+            </ng-template>
+            <ng-template #output>
+              {{regla.contexto}}
+            </ng-template>
+          </p-cellEditor>
+        </td>
+        <td>
+          <p-cellEditor>
+            <ng-template #input>
+              <p-select
+                [options]="prioridadOperadores"
+                appendTo="body"
+                [(ngModel)]="regla.operador"
+                [style]="{'width':'100%'}"
+              />
+            </ng-template>
+            <ng-template #output>
+              {{regla.operador}}
+            </ng-template>
+          </p-cellEditor>
+        </td>
+        <td>
+          <p-cellEditor>
+            <ng-template #input>
+              <input pInputText type="text" [(ngModel)]="regla.valor" />
+            </ng-template>
+            <ng-template #output>
+              {{regla.valor}}
+            </ng-template>
+          </p-cellEditor>
+        </td>
+        <td>
+          <p-cellEditor>
+            <ng-template #input>
+              <input pInputText type="number" [(ngModel)]="regla.peso" min="1"/>
+            </ng-template>
+            <ng-template #output>
+              {{regla.peso}}
+            </ng-template>
+          </p-cellEditor>
+        </td>
+        <td>
+          <div class="flex items-center justify-center gap-2">
+            @if (!editing) {
+              <button pButton pRipple type="button" pInitEditableRow icon="pi pi-pencil"
+                            (click)="onRowEditInit(regla)" text rounded severity="secondary"></button>
+              <button pButton pRipple type="button" pInitEditableRow icon="pi pi-trash"
+                            (click)="onRowDelete(regla)" text rounded severity="danger"></button>
+            }
+            @if (editing) {
+              <button pButton pRipple type="button" pSaveEditableRow icon="pi pi-check"
+                (click)="onRowEditSave(regla)" text rounded severity="secondary"></button>
+              <button pButton pRipple type="button" pCancelEditableRow icon="pi pi-times"
+                (click)="onRowEditCancel(regla, ri)" text rounded severity="secondary"></button>
+            }
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <div class="mt-3 d-flex justify-content-end">
+    <div class="d-flex gap-2">
+      <button class="btn btn-success" (click)="addReglaPrioridad()"><ng-icon class="mr-3" name="lucidePlus"/>Agregar Regla</button>
+      <button class="btn btn-danger" (click)="cerrarModal()"><ng-icon class="mr-3" name="lucideCircleX"/>Cerrar</button>
+    </div>
+  </div>
+</div>

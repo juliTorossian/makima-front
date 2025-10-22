@@ -17,6 +17,11 @@ import { PermisoClave } from '@core/interfaces/rol';
 import { finalize } from 'rxjs';
 import { BooleanLabelPipe } from '@core/pipes/boolean-label.pipe';
 import { CommonModule } from '@angular/common';
+import { TipoEventoPrioridadReglas } from '../tipo-evento-crear-regla/tipo-evento-crear-regla';
+import { PrioridadService } from '@core/services/prioridad-regla';
+import { PrioridadRegla } from '@core/interfaces/prioridad-reglas';
+import { ControlTrabajarCon } from '@app/components/trabajar-con/components/control-trabajar-con';
+import { getTimestamp } from '@/app/utils/time-utils';
 
 @Component({
   selector: 'app-tipo-evento',
@@ -27,9 +32,9 @@ import { CommonModule } from '@angular/common';
     ToolbarModule,
     ConfirmDialogModule,
     ToastModule,
-    ShortcutDirective,
     BooleanLabelPipe,
-    CommonModule
+    CommonModule,
+    ControlTrabajarCon,
 ],
   providers: [
     DialogService,
@@ -41,8 +46,10 @@ import { CommonModule } from '@angular/common';
 })
 export class TiposEvento extends TrabajarCon<TipoEvento> {
   private tipoEventoService = inject(TipoEventoService);
+  private prioridadService = inject(PrioridadService);
   private dialogService = inject(DialogService);
   ref!: DynamicDialogRef;
+  refPrioridadRegla!: DynamicDialogRef;
 
   tiposEvento!:TipoEvento[];
 
@@ -104,6 +111,60 @@ export class TiposEvento extends TrabajarCon<TipoEvento> {
     this.ref.onClose.subscribe((tipoEventoCrud: TipoEvento) => {
       if (!tipoEventoCrud) return;
       modo === 'M' ? this.editar(tipoEventoCrud) : this.alta(tipoEventoCrud);
+    });
+  }
+
+  mostrarModalPrioridadReglas(tipoEvento: TipoEvento | null) {
+    const data = { tipoEventoCodigo: tipoEvento?.codigo };
+    const header = 'Reglas de Prioridad';
+
+    this.refPrioridadRegla = this.dialogService.open(TipoEventoPrioridadReglas, {
+      ...modalConfig,
+      header,
+      data
+    });
+  }
+
+  descargarPlantilla() {
+    this.tipoEventoService.descargarPlantilla().subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'plantilla_tipos_evento.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    });
+  }
+
+  exportarExcelImpl() {
+    this.tipoEventoService.exportarExcel(this.filtroActivo).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `export_tipos_evento_${getTimestamp()}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    });
+  }
+
+  procesarExcel(file: File): void {
+    const form = new FormData();
+    form.append('file', file);
+
+    this.loadingService.show();
+    this.tipoEventoService.importarExcel(form).pipe(
+      finalize(() => {
+        this.loadingService.hide();
+      })
+    ).subscribe({
+      next: () => this.afterChange('Tipos de Evento importados correctamente.'),
+      error: (err) => this.showError(err?.error?.message || 'Error al importar Tipos de Evento.')
     });
   }
 }

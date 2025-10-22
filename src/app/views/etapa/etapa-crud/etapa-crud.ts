@@ -55,6 +55,8 @@ export class EtapaCrud extends CrudFormModal<Etapa> implements OnInit{
         nombre: new FormControl('', [Validators.required]),
         rolPreferido: new FormControl(null),
         activo: new FormControl(true, [Validators.required]),
+        deAutoriza: new FormControl(false),
+        deArchivo: new FormControl(false),
         requisitos: new FormArray([])
       });
   }
@@ -68,7 +70,9 @@ export class EtapaCrud extends CrudFormModal<Etapa> implements OnInit{
         id: data.id,
         nombre: data.nombre,
         rolPreferido: (data as any)['rolPreferido'] != null ? String((data as any)['rolPreferido']) : (data.rolPreferido != null ? String(data.rolPreferido) : ''),
-        activo: data.activo
+        activo: data.activo,
+        deAutoriza: data.deAutoriza,
+        deArchivo: data.deArchivo
       });
       // Limpiar requisitos existentes
       const requisitosArray = this.requisitosFormArray;
@@ -111,6 +115,8 @@ export class EtapaCrud extends CrudFormModal<Etapa> implements OnInit{
         nombre: this.get('nombre')?.value,
         rolPreferido: this.get('rolPreferido')?.value,
         activo: this.get('activo')?.value,
+        deAutoriza: this.get('deAutoriza')?.value,
+        deArchivo: this.get('deArchivo')?.value,
         requisitos: this.requisitosFormArray.value
       };
   }

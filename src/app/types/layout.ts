@@ -15,6 +15,7 @@ export type LayoutSkinType =
   | 'pastel'
   | 'caffieine'
   | 'redshift'
+  | 'gaci'
 
 export type LayoutThemeType = 'light' | 'dark' | 'system'
 

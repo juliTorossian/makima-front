@@ -58,6 +58,10 @@ export class Chartjs implements OnInit, OnDestroy, AfterViewInit {
   }
 
   defaultOptions = (): ChartConfiguration['options'] => ({
+    animation: {
+      duration: 800,
+      easing: 'easeOutQuart',
+    },
     responsive: true,
     maintainAspectRatio: false,
     layout: {
@@ -147,5 +151,16 @@ export class Chartjs implements OnInit, OnDestroy, AfterViewInit {
 
     this.options = userConfig
     setTimeout(() => this.chart?.chart?.resize(), 200)
+    // If the chart already exists, update it so changes animate
+    try {
+      this.chart?.update()
+    } catch (e) {
+      // ignore errors during early lifecycle
+    }
+  }
+
+  // Public helper: force re-read of options and update chart (useful when data changes)
+  public refresh() {
+    this.setChartOptions()
   }
 }

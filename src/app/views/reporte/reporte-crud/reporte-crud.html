@@ -1,0 +1,52 @@
+<p-toast></p-toast>
+<div class="container">
+  <form class="row g-3 needs-validation" [formGroup]="form" (ngSubmit)="accion($event)" novalidate>
+    <div class="col-md-6">
+      <label for="tipo" class="form-label">Tipo de Reporte</label>
+      <select id="tipo" class="form-select" formControlName="tipo" required>
+        <option value="" disabled selected>Seleccione tipo</option>
+        @for (tipo of reporteTipos; track tipo) {
+          <option [value]="tipo">
+            {{ getReporteTipoDescripcion(tipo) }}
+          </option>
+        }
+      </select>
+      @if (get('tipo')?.invalid && get('tipo')?.touched) {
+        <div class="invalid-feedback">Debe seleccionar un tipo de reporte.</div>
+      }
+    </div>
+
+    <div class="col-md-6">
+      <label for="parametros" class="form-label">Parámetros</label>
+      <input
+        id="parametros"
+        type="text"
+        formControlName="parametros"
+        class="form-control"
+        placeholder="Parámetros (opcional)"
+      />
+    </div>
+
+    <div class="col-md-6">
+      <div class="form-check">
+        <input
+          id="envMailFin"
+          type="checkbox"
+          formControlName="envMailFin"
+          class="form-check-input"
+        >
+        <label class="form-check-label" for="envMailFin">Enviar por mail al finalizar</label>
+      </div>
+    </div>
+
+    <div class="col-12 mb-5">
+      <button class="btn btn-primary" type="submit">
+        @if (modo === 'A') {
+          Solicitar Reporte
+        } @else if (modo === 'M') {
+          Modificar
+        }
+      </button>
+    </div>
+  </form>
+</div>

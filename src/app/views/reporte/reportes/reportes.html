@@ -1,0 +1,110 @@
+<p-confirmDialog></p-confirmDialog>
+<p-toast></p-toast>
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-12 mt-3">
+            <app-ui-card title="Reportes">
+                <div card-body>
+                    <p-toolbar>
+                        <ng-template pTemplate="left">
+                        </ng-template>
+                        <ng-template pTemplate="right">
+                            @if (can('A')) {
+                                <button class="btn btn-ghost-success btn-md" (click)="mostrarModalCrud(null, 'A')" [appShortcut]="SHORTCUTS.NUEVO" (appShortcutTrigger)="mostrarModalCrud(null, 'A')">Solicitar Reporte</button>
+                            }
+                        </ng-template>
+                    </p-toolbar>
+                    <p-table
+                        #dt
+                        [value]="reportes"
+                        [rows]="10"
+                        [paginator]="true"
+                        [globalFilterFields]="['codigo', 'nombre', 'activo']"
+                        [tableStyle]="{ 'min-width': '75rem' }"
+                        [rowHover]="true"
+                        dataKey="id"
+                        currentPageReportTemplate="Mostrando desde {first} a {last} de {totalRecords} registros"
+                        [showCurrentPageReport]="true"
+                        size="small"
+                    >
+                        <ng-template pTemplate="caption">
+                            <div class="flex align-items-center justify-content-between" style="display: flex;">
+                                <span class="p-input-icon-left">
+                                    <i class="pi pi-search"></i>
+                                    <input pInputText style="padding-top: 0.4rem !important;padding-bottom: 0.4rem !important;margin-left: 10px;" class="p-component p-element p-inputtext"  type="text" (input)="dt.filterGlobal(getEventValue($event), 'contains')" placeholder="Buscar..." />
+                                </span>
+                            </div>
+                        </ng-template>
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <!-- <th style="width: 4rem">
+                                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                                </th> -->
+                                <th pSortableColumn="tipo">Tipo <p-sortIcon field="tipo" ></p-sortIcon><p-columnFilter type="text" field="tipo" display="menu" matchMode="contains" style="margin-left: 2px;"></p-columnFilter></th>
+                                <th pSortableColumn="parametros">Parametros <p-sortIcon field="parametros"></p-sortIcon><p-columnFilter type="text" field="parametros" display="menu" matchMode="contains" style="margin-left: 2px;"></p-columnFilter></th>
+                                <th pSortableColumn="usuario">Usuario <p-sortIcon field="usuario" ></p-sortIcon><p-columnFilter type="text" field="usuario" display="menu" matchMode="contains" style="margin-left: 2px;"></p-columnFilter></th>
+                                <th pSortableColumn="solicitadoEn">Solicitado En <p-sortIcon field="solicitadoEn" ></p-sortIcon><p-columnFilter type="text" field="solicitadoEn" display="menu" matchMode="contains" style="margin-left: 2px;"></p-columnFilter></th>
+                                <th pSortableColumn="generadoEn">Generado En <p-sortIcon field="generadoEn" ></p-sortIcon><p-columnFilter type="text" field="generadoEn" display="menu" matchMode="contains" style="margin-left: 2px;"></p-columnFilter></th>
+                                <th pSortableColumn="estado">Estado <p-sortIcon field="estado" ></p-sortIcon><p-columnFilter type="text" field="estado" display="menu" matchMode="contains" style="margin-left: 2px;"></p-columnFilter></th>
+                                <th pSortableColumn="errorDescripcion">Error <p-sortIcon field="errorDescripcion" ></p-sortIcon><p-columnFilter type="text" field="errorDescripcion" display="menu" matchMode="contains" style="margin-left: 2px;"></p-columnFilter></th>
+                                <th></th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-reporte>
+                            <tr>
+                                <!-- <td>
+                                    <p-tableCheckbox [value]="reporte"></p-tableCheckbox>
+                                </td> -->
+                                <td>{{ reporte.tipo }}</td>
+                                <td>{{ reporte.parametros | json }}</td>
+                                <td>
+                                    <app-badge-click 
+                                        [backgroundColor]="reporte.usuario.color"
+                                        (click)="abrirUsuarioDrawer(reporte.usuario.id)"
+                                        style="cursor:pointer"
+                                    >
+                                        {{ reporte.usuario.usuario }}
+                                    </app-badge-click>
+                                </td>
+                                <td>{{ reporte.solicitadoEn | date: 'short' }}</td>
+                                <td>{{ reporte.generadoEn | date: 'short' }}</td>
+                                <td><app-status-badge [status]="reporte.estado" /></td>
+                                <td>{{ reporte.errorDescripcion }}</td>
+                                <td class="d-flex justify-content-end">
+                                    @if (can('M')) {
+                                        <button class="btn btn-ghost-success" (click)="descargarReporte(reporte)" [disabled]="!reporte.archivoUrl"><ng-icon name="lucideFileDown"/></button>
+                                    }
+                                </td>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="summary">
+                            <div class="flex align-items-center justify-content-between">En total hay {{ reportes ? reportes.length : 0 }} Reportes.</div>
+                        </ng-template>
+                    </p-table>
+
+                </div>
+            </app-ui-card>
+
+        </div>
+    </div>
+</div>
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <app-ui-card title="" [withTitle]="false">
+                <div card-body>
+                    <span class="d-flex align-items-center">
+                        <ng-icon name="lucideInfo" style="width: 18px; height: 18px;margin-right: 10px; color: var(--ins-blue);"/> Los reportes se eliminan cada 60 dias
+                    </span>
+                </div>
+            </app-ui-card>
+        </div>
+    </div>
+</div>
+
+<!-- Drawer para mostrar el detalle del usuario -->
+<app-usuario-drawer
+    [visible]="showUsuarioDrawer"
+    [usuarioId]="usuarioSeleccionadoId"
+    (closed)="cerrarUsuarioDrawer()"
+></app-usuario-drawer>

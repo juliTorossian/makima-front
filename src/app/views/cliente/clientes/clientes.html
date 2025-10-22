@@ -7,10 +7,21 @@
                 <div card-body>
                     <p-toolbar styleClass="mb-4 gap-2">
                         <ng-template pTemplate="left">
+                            <app-filtro-radio-group
+                                [options]="FiltroActivoOptions"
+                                [checkedValue]="filtroActivo"
+                                (filtroCambio)="filtroCambio($event)"
+                                [notLabel]="true"
+                            ></app-filtro-radio-group>
                         </ng-template>
                         <ng-template pTemplate="right">
                             @if (can('A')) {
-                                <button class="btn btn-ghost-success btn-lg" (click)="mostrarModalCrud(null, 'A')" [appShortcut]="SHORTCUTS.NUEVO" (appShortcutTrigger)="mostrarModalCrud(null, 'A')"><ng-icon name="lucideCirclePlus"/></button>
+                                <app-control-trabajar-con
+                                    (nuevo)="mostrarModalCrud(null, 'A')"
+                                    (plantilla)="getPlantilla()"
+                                    (exportarExcel)="exportarExcel()"
+                                    (importar)="importarExcel($event)">
+                                ></app-control-trabajar-con>
                             }
                         </ng-template>
                     </p-toolbar>
@@ -55,7 +66,7 @@
                                 <td hidden>{{ cliente.id }}</td>
                                 <td>{{ cliente.sigla }}</td>
                                 <td>{{ cliente.nombre }}</td>
-                                <td>{{ cliente.activo }}</td>
+                                <td><span class="badge " style="min-width: 40%;" [ngClass]="cliente.activo ? 'text-bg-success' : 'text-bg-danger'">{{ cliente.activo | booleanLabel }}</span></td>
                                 <td class="d-flex justify-content-end">
                                     @if (can('M')) {
                                         <button class="btn btn-ghost-warning" (click)="mostrarModalCrud(cliente, 'M')"><ng-icon name="lucidePencil"/></button>

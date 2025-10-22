@@ -6,12 +6,16 @@ export enum ACCIONES {
     RETROCEDIO = 'RETROCEDIO',
     ASIGNO = 'ASIGNO',
     REASIGNO = 'REASIGNO',
+    AUTORIZO = 'AUTORIZO',
+    RECHAZO = 'RECHAZO',
     COMENTARIO = 'COMENTARIO',
     ADJUNTO = 'ADJUNTO',
+    ELIMINO_ADJUNTO = 'ELIMINO_ADJUNTO',
     ELIMINO = 'ELIMINO',
     ADD_REQUISITO = 'ADD_REQUISITO',
     REMOVE_REQUISITO = 'REMOVE_REQUISITO',
     MOD_REQUISITO = 'MOD_REQUISITO',
+    COMPLETADO = 'COMPLETADO',
 }
 
 export function getTitleAccion(actividad: VidaEvento): string {
@@ -25,18 +29,26 @@ export function getTitleAccion(actividad: VidaEvento): string {
             return `El usuario ${actividad.usuario?.usuario} comentó en el evento.`;
         case ACCIONES.ADJUNTO:
             return `El usuario ${actividad.usuario?.usuario} adjuntó un archivo al evento.`;
+        case ACCIONES.ELIMINO_ADJUNTO:
+            return `El usuario ${actividad.usuario?.usuario} eliminó un archivo del evento.`;
         case ACCIONES.AVANZO:
             return `El usuario ${actividad.usuario?.usuario} avanzó el evento.`;
         case ACCIONES.RETROCEDIO:
             return `El usuario ${actividad.usuario?.usuario} retrocedió el evento.`;
         case ACCIONES.REASIGNO:
             return `El usuario ${actividad.usuario?.usuario} reasignó el evento.`;
+        case ACCIONES.AUTORIZO:
+            return `El usuario ${actividad.usuario?.usuario} autorizó el evento.`;
+        case ACCIONES.RECHAZO:
+            return `El usuario ${actividad.usuario?.usuario} rechazó el evento.`;
         case ACCIONES.ADD_REQUISITO:
             return `El usuario ${actividad.usuario?.usuario} completó un requisito al evento.`;
         case ACCIONES.REMOVE_REQUISITO:
             return `El usuario ${actividad.usuario?.usuario} eliminó un requisito del evento.`;
         case ACCIONES.MOD_REQUISITO:
             return `El usuario ${actividad.usuario?.usuario} modificó un requisito del evento.`;
+        case ACCIONES.COMPLETADO:
+            return `El usuario ${actividad.usuario?.usuario} completó el evento.`;
         default:
             return `El usuario ${actividad.usuario?.usuario} realizó una acción desconocida.`;
     }
@@ -53,10 +65,18 @@ export function getIconNameAccion(accion:string): string {
             return 'tablerMessage';
         case ACCIONES.ADJUNTO:
             return 'tablerPaperclip';
+        case ACCIONES.ELIMINO_ADJUNTO:
+            return 'tablerTrash';
         case ACCIONES.AVANZO:
             return 'tablerArrowRight';
         case ACCIONES.RETROCEDIO:
             return 'tablerArrowLeft';
+        case ACCIONES.AUTORIZO:
+            return 'lucideShieldCheck';
+        case ACCIONES.RECHAZO:
+            return 'lucideShieldX';
+        case ACCIONES.ASIGNO:
+            return 'lucideArrowDownToLine';
         case ACCIONES.REASIGNO:
             return 'tablerUserBolt';
         case ACCIONES.ADD_REQUISITO:
@@ -65,16 +85,21 @@ export function getIconNameAccion(accion:string): string {
             return 'lucideBadgeMinus';
         case ACCIONES.MOD_REQUISITO:
             return 'lucideBadgeAlert';
+        case ACCIONES.COMPLETADO:
+            return 'tablerCheck';
         default:
             return 'tablerCircle';
     }
 }
 
 export function getDescripcionAccion(actividad:VidaEvento): string {
-    if (actividad.accion === 'COMENTARIO' && actividad.adicion) {
+    if (actividad.accion === ACCIONES.COMENTARIO && actividad.adicion) {
       return actividad.adicion.comentario || '';
     }
-    if (actividad.accion === 'ADJUNTO' && actividad.adicion) {
+    if (actividad.accion === ACCIONES.ADJUNTO && actividad.adicion) {
+      return actividad.adicion.nameFile || '';
+    }
+    if (actividad.accion === ACCIONES.ELIMINO_ADJUNTO && actividad.adicion) {
       return actividad.adicion.nameFile || '';
     }
     return '';

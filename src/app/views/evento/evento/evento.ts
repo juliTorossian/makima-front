@@ -28,18 +28,9 @@ import { showError } from '@/app/utils/message-utils';
 import { PermisosService } from '@core/services/permisos';
 import { PermisoAccion } from '@/app/types/permisos';
 import { PermisoClave } from '@core/interfaces/rol';
+import { getEstadoDescCorto } from '@/app/constants/evento_estados';
+import { PadZeroPipe } from '@core/pipes/pad-zero.pipe';
 
-
-export type TimelineType = {
-  id: number
-  time?: string
-  title: string
-  description: string
-  name: string
-  variant?: string
-  avatar?: string
-  icon?: string
-}
 
 @Component({
   selector: 'app-evento',
@@ -56,6 +47,7 @@ export type TimelineType = {
     NgIcon,
     FormsModule,
     LoadingSpinnerComponent,
+    PadZeroPipe,
   ],
   providers: [
     DialogService,
@@ -70,11 +62,13 @@ export class Evento implements OnInit {
   private loadingService = inject(LoadingService);
   private dialogService = inject(DialogService);
   private messageService = inject(MessageService);
+  protected confirmationService = inject(ConfirmationService);
   protected permisosService = inject(PermisosService);
   ref!: DynamicDialogRef;
   private rutActiva = inject(ActivatedRoute);
   private cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
   private userStorageService = inject(UserStorageService);
+  getEstadoDescCorto = getEstadoDescCorto;
 
   usuarioActivo:UsuarioLogeado | null = this.userStorageService.getUsuario();
   permisoClave = PermisoClave.EVENTO_DOCUMENTO;
@@ -82,6 +76,10 @@ export class Evento implements OnInit {
   private eventoService = inject(EventoService);
   evento!: EventoCompleto;
   cargandoEvento: boolean = false;
+
+  // estado para observar/seguir el evento
+  esObservador: boolean = false;
+  togglingObservador: boolean = false;
 
   eventoId!:string;
 
@@ -95,8 +93,6 @@ export class Evento implements OnInit {
   nuevoComentario: string = '';
 
   onActualizarRequisito(req:any, event: any) {
-    console.log('Valor cambiado:', event.target.value);
-    console.log('Valor cambiado:', req);
     // Aquí puedes ajustar el payload según lo que espera tu backend
     let payload:any = {
       requisitoId: req.requisito.id,
@@ -173,7 +169,7 @@ export class Evento implements OnInit {
     } else {
       this.eventoId = this.rutActiva.snapshot.params['id'];
     }
-    console.log(this.eventoId)
+    // console.log(this.eventoId)
 
     this.getEvento();
     this.onReloadAdjuntos();
@@ -190,6 +186,13 @@ export class Evento implements OnInit {
       {
         next: (res:any) => {
           this.evento = res;
+          const usuarioId = this.usuarioActivo?.id;
+          const observadores = this.evento.observadores;
+          if (usuarioId && Array.isArray(observadores)) {
+            this.esObservador = observadores.some((o: any) => o.usuarioId === usuarioId);
+          } else {
+            this.esObservador = false;
+          }
           this.cdr.detectChanges();
         },
         error: (err:any) => {
@@ -197,6 +200,24 @@ export class Evento implements OnInit {
         }
       }
     );
+  }
+
+  onToggleObservador() {
+    if (!this.usuarioActivo) return;
+    this.togglingObservador = true;
+    this.eventoService.toggleObservador(this.eventoId, this.usuarioActivo.id).pipe(finalize(()=> this.togglingObservador = false)).subscribe({
+      next: (res:any) => {
+        // alternar estado local
+        this.esObservador = !this.esObservador;
+        // recargar actividad/opciones si es necesario
+        this.getActividadEvento();
+        this.messageService.add({severity: 'success', summary: 'Éxito', detail: this.esObservador ? 'Ahora eres observador del evento' : 'Ya no eres observador del evento'});
+      },
+      error: (err:any) => {
+        console.error('Error toggle observador:', err);
+        this.messageService.add({severity: 'error', summary: 'Error', detail: err?.error?.message || 'No se pudo alternar observador'});
+      }
+    });
   }
 
   onReloadAdjuntos() {
@@ -223,7 +244,7 @@ export class Evento implements OnInit {
     this.eventoService.getRequisitos(this.eventoId).subscribe(
       {
         next: (res:any) => {
-          console.log(res)
+          // console.log(res)
           // Inicializar cumplimiento si es null
           this.requisitos = res.map((req:any) => {
             if (!req.cumplimiento) {
@@ -245,7 +266,7 @@ export class Evento implements OnInit {
     this.eventoService.getActividad(this.eventoId).subscribe(
       {
         next: (res:any) => {
-          // console.log(res)
+          console.log(res)
           this.vidaEvento = res;
           this.cdr.detectChanges();
         },
@@ -258,6 +279,22 @@ export class Evento implements OnInit {
 
   onEliminarAdjunto(event:any){
     console.log('Eliminar adjunto:', event);
+    this.confirmationService.confirm({
+      message: `¿Seguro que querés eliminar ${event.nameFile}?`,
+      header: 'Confirmar eliminación',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.eventoService.eliminarAdicional(this.eventoId, event.id).subscribe({
+          next: (res) => {
+            console.log('Adjunto eliminado:', res);
+            this.onReloadAdjuntos();
+          },
+          error: (err) => {
+            console.error('Error al eliminar adjunto:', err);
+          }
+        });
+      }
+    });
   }
 
   onUploadAdjunto() {
@@ -301,8 +338,9 @@ export class Evento implements OnInit {
   }
 
   getRequerimientoDisabled(req: any): boolean {
+    // console.log(this.evento.etapaActualData.id, req.etapa.id, this.evento.usuarioActual.id, this.usuarioActivo?.id);
     return (
-      this.evento.etapaActualData.id > req.etapa.id ||
+      this.evento.etapaActualData.id < req.etapa.id ||
       this.evento.usuarioActual.id !== this.usuarioActivo?.id
     );
   }

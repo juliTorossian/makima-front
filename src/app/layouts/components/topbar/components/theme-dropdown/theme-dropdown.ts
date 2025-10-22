@@ -18,7 +18,8 @@ const material = 'assets/images/themes/material.svg'
 const flat = 'assets/images/themes/flat.svg'
 const pastel = 'assets/images/themes/pastel.svg'
 const caffieine = 'assets/images/themes/caffieine.svg'
-const redshift = 'assets/images/themes/redshift.svg'
+// const redshift = 'assets/images/themes/redshift.svg'
+const gaci = 'assets/images/themes/redshift.svg'
 
 type SkinOptionType = {
   name: LayoutSkinType
@@ -48,7 +49,7 @@ export class ThemeDropdown {
     { name: 'flat', img: flat },
     { name: 'pastel', img: pastel },
     { name: 'caffieine', img: caffieine },
-    { name: 'redshift', img: redshift },
+    { name: 'gaci', img: gaci },
   ]
   get selectedSkin(): LayoutSkinType {
     return this.layoutStore.skin

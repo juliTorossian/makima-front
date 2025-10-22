@@ -84,7 +84,14 @@ export class ItemAdjuntoComponent {
   }
 
   getFecha(): string {
-    const fecha = this.adjunto?.auditorias[0].fecha ? new Date(this.adjunto.auditorias[0].fecha).toLocaleDateString() : '';
+    console.log(this.adjunto);
+    console.log(this.adjunto.auditorias[0]);
+    console.log(this.adjunto.auditorias[0].fecha);
+    let fecha = '';
+    if (this.adjunto?.auditorias[0].fecha) {
+      fecha = new Date(this.adjunto.auditorias[0].fecha).toLocaleDateString();
+    }
+    console.log(fecha);
     return fecha;
   }
 

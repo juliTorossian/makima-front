@@ -1,63 +1,37 @@
+import { EstadosEvento } from "@/app/constants/evento_estados";
 import { Etapa_requisito, Etapa } from "./etapa";
 
 // Evento completo con datos enriquecidos
-export interface EventoCompleto {
-  id: string;
-  tipoCodigo: string;
-  numero: number;
-  titulo: string;
-  cerrado: boolean;
-  etapaActual: number;
-  clienteId: number;
-  productoId: number;
-  usuarioAltaId: string;
-  estimacion: number;
-  moduloCodigo: string;
-  activo: boolean;
-  prioridad: number;
-  createdAt: string;
-  updatedAt: string;
-  deletedAt: string | null;
-  cliente: ClienteEvento;
-  modulo: ModuloEvento;
-  producto: ProductoEvento;
-  tipo: TipoEvento;
-  usuarioAlta: UsuarioEvento;
-  usuarioActual: UsuarioEvento;
-  _count: EventoCount;
-  etapaActualData: EventoEtapa;
-  etapaSiguiente: EventoEtapa | null;
-  etapaAnterior: EventoEtapa | null;
-}
+// export interface EventoCompleto {
+//   id: string;
+//   tipoCodigo: string;
+//   numero: number;
+//   titulo: string;
+//   cerrado: boolean;
+//   etapaActual: number;
+//   clienteId: number;
+//   productoId: number;
+//   usuarioAltaId: string;
+//   estimacion: number;
+//   moduloCodigo: string;
+//   activo: boolean;
+//   prioridad: number;
+//   createdAt: string;
+//   updatedAt: string;
+//   deletedAt: string | null;
+//   cliente: ClienteEvento;
+//   modulo: ModuloEvento;
+//   producto: ProductoEvento;
+//   tipo: TipoEvento;
+//   usuarioAlta: UsuarioEvento;
+//   usuarioActual: UsuarioEvento;
+//   _count: EventoCount;
+//   etapaActualData: EventoEtapa;
+//   etapaSiguiente: EventoEtapa | null;
+//   etapaAnterior: EventoEtapa | null;
+//   observadores?: UsuarioEvento[];
+// }
 
-export interface ClienteEvento {
-  id: number;
-  sigla: string;
-  nombre: string;
-  activo: boolean;
-}
-
-export interface ModuloEvento {
-  codigo: string;
-  nombre: string;
-  padreCodigo: string | null;
-  activo: boolean;
-}
-
-export interface ProductoEvento {
-  id: number;
-  sigla: string;
-  nombre: string;
-  entornoCodigo: string;
-  activo: boolean;
-}
-
-export interface TipoEvento {
-  codigo: string;
-  descripcion: string;
-  activo: boolean;
-  color: string;
-}
 
 export interface UsuarioEvento {
   id: string;
@@ -67,30 +41,21 @@ export interface UsuarioEvento {
   color: string;
 }
 // Evento completo con datos enriquecidos
-export interface EventoCompleto {
-  id: string;
-  tipoCodigo: string;
-  numero: number;
-  titulo: string;
-  cerrado: boolean;
-  etapaActual: number;
-  clienteId: number;
-  productoId: number;
-  usuarioAltaId: string;
-  estimacion: number;
-  moduloCodigo: string;
-  activo: boolean;
-  prioridad: number;
-  createdAt: string;
-  updatedAt: string;
-  deletedAt: string | null;
-  cliente: EventoCliente;
-  modulo: EventoModulo;
-  producto: EventoProducto;
+export interface EventoCompleto extends Evento {
   tipo: EventoTipo;
+  cliente: EventoCliente;
+  producto: EventoProducto;
   usuarioAlta: EventoUsuario;
   usuarioActual: EventoUsuario;
-  _count: EventoCount;
+  modulo: EventoModulo;
+  proyecto: EventoProyecto;
+
+  registrosHora: RegistroHora[];
+  auditorias: VidaEvento[];
+  eventosAdicion: EventoAdicion[];
+  requisitos: Evento_requisito[];
+  observadores: UsuarioEvento[];
+
   etapaActualData: EventoEtapa;
   etapaSiguiente: EventoEtapa | null;
   etapaAnterior: EventoEtapa | null;
@@ -102,6 +67,17 @@ export interface EventoCliente {
   sigla: string;
   nombre: string;
   activo: boolean;
+  critico: boolean
+}
+
+export interface EventoProyecto {
+  id: number;
+  sigla: string;
+  nombre: string;
+  activo: boolean;
+  critico: boolean;
+  clienteId?: number;
+  cliente?: EventoCliente;
 }
 
 /** Módulo enriquecido para EventoCompleto */
@@ -119,6 +95,7 @@ export interface EventoProducto {
   nombre: string;
   entornoCodigo: string;
   activo: boolean;
+  critico: boolean
 }
 
 /** Tipo enriquecido para EventoCompleto */
@@ -146,35 +123,58 @@ export interface EventoCount {
 }
 
 /** Etapa enriquecida para EventoCompleto */
+export interface RequisitoFaltante {
+  id: number;
+  tipo: string;
+  codigo: string;
+  descripcion: string;
+}
+
 export interface EventoEtapa {
   id: number;
   nombre: string;
   rolPreferido: string;
   activo: boolean;
+  deArchivo?: boolean;
+  deAutoriza?: boolean;
+  puedeContinuar?: boolean;
+  etapaFinal?: boolean;
+  requisitosFaltantes?: RequisitoFaltante[];
 }
 
 // Evento base
 export interface Evento {
-  id?: string;
+  id?: string | null;
   tipoCodigo: string;
   numero: number;
   titulo: string;
-  cerrado?: boolean;
+  cerrado: boolean;
+  estado?:EstadosEvento;
   etapaActual: number;
-  clienteId: number;
-  productoId: number;
   usuarioAltaId: string;
+  usuarioActualId?: string;
+  descripcion?: string;
+  facEventoCerr: boolean;
   estimacion?: number;
+  clienteId: number;
+  proyectoId: number;
+  productoId: number;
   moduloCodigo: string;
-  prioridad?: number;
-  activo?: boolean;
-  comentario?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-  deletedAt?: Date;
-  registrosHora?: RegistroHora[];
-  auditorias?: VidaEvento[];
-  eventosAdicion?: EventoAdicion[];
+
+  prioridadUsu: number;
+  prioridadCal?: number;
+  prioridadFin?: number;
+
+  fechaInicio?: string;
+  fechaFinEst?: string;
+  fechaFinReal?: string;
+  fechaEntrega?: string;
+
+  createdAt?: string;
+  updatedAt?: string;
+  deletedAt?: string;
+
+  comentario?:string
 }
 
 /** Registro de horas asociadas a un evento */
@@ -210,7 +210,7 @@ export interface EventoAdicion {
 /** Comentario circular entre usuarios y eventos */
 export interface CircularEvento {
   eventoId: string;
-  usuarioId: string;
+  usuarioId?: string;
   comentario: string;
 }
 
@@ -239,3 +239,36 @@ export interface Evento_requisito_completo {
   cumplido: boolean;
   cumplimiento: Evento_requisito;
 } 
+
+
+export const eventoFromEventoCompleto = (evento: EventoCompleto): Evento => {
+  return {
+    id: evento.id,
+    tipoCodigo: evento.tipoCodigo,
+    numero: evento.numero,
+    titulo: evento.titulo,
+    cerrado: evento.cerrado,
+    // estado: evento.estado,
+    etapaActual: evento.etapaActual,
+    usuarioAltaId: evento.usuarioAltaId,
+    usuarioActualId: evento.usuarioActualId,
+    descripcion: evento.descripcion,
+    facEventoCerr: evento.facEventoCerr,
+    estimacion: evento.estimacion,
+    clienteId: evento.clienteId,
+    proyectoId: evento.proyectoId,
+    productoId: evento.productoId,
+    moduloCodigo: evento.moduloCodigo,
+    prioridadUsu: evento.prioridadUsu,
+    prioridadCal: evento.prioridadCal,
+    // prioridadFin: evento.prioridadFin,
+    fechaInicio: evento.fechaInicio,
+    fechaFinEst: evento.fechaFinEst,
+    fechaFinReal: evento.fechaFinReal,
+    fechaEntrega: evento.fechaEntrega,
+    // createdAt: evento.createdAt,
+    // updatedAt: evento.updatedAt,
+    // deletedAt: evento.deletedAt,
+    comentario: evento.comentario
+  }
+}

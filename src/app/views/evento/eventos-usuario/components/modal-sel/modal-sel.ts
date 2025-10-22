@@ -1,7 +1,10 @@
+import { createTypeaheadFormatter, createTypeaheadSearch } from '@/app/utils/typeahead-utils';
 import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Usuario } from '@core/interfaces/usuario';
 import { UsuarioService } from '@core/services/usuario';
+import { NgbTypeaheadModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgIcon } from '@ng-icons/core';
 import { MessageService } from 'primeng/api';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ToastModule } from 'primeng/toast';
@@ -12,12 +15,14 @@ import { tap } from 'rxjs';
   imports: [
     FormsModule,
     ToastModule,
+    NgIcon,
+    NgbTypeaheadModule,
   ],
   providers: [
     MessageService,
   ],
   templateUrl: './modal-sel.html',
-  styleUrl: './modal-sel.scss'
+  styleUrls: ['./modal-sel.scss']
 })
 export class ModalSel implements OnInit{
   private ref = inject(DynamicDialogRef);
@@ -27,59 +32,94 @@ export class ModalSel implements OnInit{
 
   private cdr = inject(ChangeDetectorRef);
 
-  usuarios! :Usuario[];
-  usuario! :Usuario;
+  usuarios: Usuario[] = [];
+  usuario!:Usuario;
 
   reqComentario: boolean = false;
-  comentario!: string;
+  comentario: string = '';
 
-  mensaje!: string;
+  mensaje: string = '';
+  modo: string = '';
 
-  ngOnInit(): void { 
-    console.log(this.config.data);
-    this.reqComentario = this.config.data.reqComentario;
-    this.comentario = this.config.data.comentario;
-    this.mensaje = this.config.data.mensaje;
-    if (this.config.data.rol) {
-      this.usuarioService.getByRol(this.config.data.rol).pipe(
-        tap((res: any) => console.log(res))
+  etapaActual: string = '';
+  proximaEtapa: string = '';
+
+  ngOnInit(): void {
+    // lectura segura de config
+    const data = this.config?.data ?? {};
+    this.reqComentario = !!data.reqComentario;
+    this.comentario = data.comentario ?? '';
+    this.mensaje = data.mensaje ?? '';
+    this.modo = data.modo ?? '';
+    this.etapaActual = data.etapaActual ?? '';
+    this.proximaEtapa = data.proximaEtapa ?? '';
+
+    console.log('ModalSel data', data);
+
+    const rol = data.rol;
+    if (rol) {
+      this.usuarioService.getByRol(rol).pipe(
+        tap((res: any) => console.log('getByRol', res))
       ).subscribe({
         next: (res: any) => {
-          this.usuarios = res;
-          this.cdr.detectChanges();
+          this.usuarios = res || [];
+          // si no hay resultados para el rol, cargar todos
+          if (!this.usuarios.length) {
+            this.cargarTodos();
+          } else {
+            this.cdr.detectChanges();
+          }
+        },
+        error: () => {
+          this.cargarTodos();
         }
       });
-    }
-
-    if (!(this.config.data.rol) || this.usuarios.length === 0) {
-      this.usuarioService.getAll().pipe(
-        tap((res: any) => console.log(res))
-      ).subscribe({
-        next: (res: any) => {
-          this.usuarios = res;
-          this.cdr.detectChanges();
-        }
-      });
+    } else {
+      this.cargarTodos();
     }
   }
 
-  seleccionar($event:any){
-    if (this.usuario){
-      if ((this.reqComentario) && !(this.comentario)) {
-      }else{
-
-        let res = {
-          usuarioSeleccionado: this.usuario,
-          comentario: this.comentario
-        }
-
-        this.ref.close(res);
+  private cargarTodos(){
+    this.usuarioService.getAll().pipe(
+      tap((res: any) => console.log('getAll', res))
+    ).subscribe({
+      next: (res: any) => {
+        this.usuarios = res || [];
+        this.searchUsuario = createTypeaheadSearch(this.usuarios, u => `${u.usuario} | ${u.nombre} ${u.apellido}`);
+        // this.checkAndSetupEditMode();
       }
+    });
+  }
+
+  seleccionar($event:any){
+    // validar usuario cuando corresponde
+    if (this.modo !== 'REC' && (this.usuario === null || this.usuario === undefined)) {
+      return;
     }
+
+    if (this.reqComentario && !this.comentario) {
+      return;
+    }
+
+    this.cerrar({
+      usuarioSeleccionado: this.usuario.id,
+      comentario: this.comentario,
+    });
+  }
+
+  cerrar(res:any){
+    this.ref.close(res);
   }
   
   get mensajeHtml(): string {
     return this.mensaje ? this.mensaje.replace(/\n/g, '<br>') : '';
   }
-}
 
+  searchUsuario = createTypeaheadSearch<Usuario>(
+    this.usuarios,
+    item => `${item.usuario} | ${item.nombre} ${item.apellido}`,
+  );
+  formatterUsuario = createTypeaheadFormatter<Usuario>(
+    item => `${item.usuario} | ${item.nombre} ${item.apellido}`,
+  );
+}

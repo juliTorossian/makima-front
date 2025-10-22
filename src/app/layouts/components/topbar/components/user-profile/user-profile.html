@@ -5,7 +5,7 @@
       class="topbar-link dropdown-toggle drop-arrow-none px-2"
     >
       <img
-        src="./assets/images/users/User-2.png"
+        [src]="getFotoPerfil()"
         width="32"
         class="rounded-circle d-flex"
         alt="user-image"
@@ -22,14 +22,25 @@
         <div class="dropdown-divider"></div>
         } @if (!item.isHeader && !item.isDivider) {
           @if (item.url) {
-            <a [routerLink]="item.url" class="dropdown-item" [class]="item.class">
-              <ng-icon
-                [name]="item.icon"
-                size="17"
-                class="align-middle d-inline-flex align-items-center me-2"
-              />
-              <span class="align-middle" [innerHTML]="item.label"></span>
-            </a>
+            @if (item.newTab) {
+              <a [href]="item.url" target="_blank" class="dropdown-item" [class]="item.class">
+                <ng-icon
+                  [name]="item.icon"
+                  size="17"
+                  class="align-middle d-inline-flex align-items-center me-2"
+                />
+                <span class="align-middle" [innerHTML]="item.label"></span>
+              </a>
+            } @else {
+              <a [routerLink]="item.url" class="dropdown-item" [class]="item.class">
+                <ng-icon
+                  [name]="item.icon"
+                  size="17"
+                  class="align-middle d-inline-flex align-items-center me-2"
+                />
+                <span class="align-middle" [innerHTML]="item.label"></span>
+              </a>
+            }
           } @if (item.event) {
             <a (click)="handleEvent(item.event)" class="dropdown-item" [class]="item.class">
               <ng-icon

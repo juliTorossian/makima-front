@@ -9,6 +9,7 @@ export type UserDropdownItemType = {
   label?: string
   icon?: string
   url?: string
+  newTab?: boolean
   isDivider?: boolean
   isHeader?: boolean
   class?: string
@@ -32,6 +33,21 @@ export const userDropdownItems: UserDropdownItemType[] = [
     isDivider: true,
   },
   {
+    label: 'Sol. de licencia',
+    icon: 'lucideBrush',
+    url: 'https://docs.google.com/a/gaci.com.ar/forms/d/e/1FAIpQLSdbSw6Cs9pj3WF1g5ly8xwnM01Ag3_PaWrpMqFUwCMyHh0wMQ/viewform',
+    newTab: true,
+  },
+  {
+    label: 'Sugerencias',
+    icon: 'lucideTicket',
+    url: 'https://discord.com/channels/1366451551064821782/1429920790274637984',
+    newTab: true,
+  },
+  {
+    isDivider: true,
+  },
+  {
     label: 'Cerrar Sesion',
     icon: 'tablerLogout2',
     event: 'logout',
@@ -45,19 +61,18 @@ export const menuItems: MenuItemType[] = [
   { label: '', isTitle: true },
   {
     label: 'Eventos',
-    icon: 'lucideCalendarRange',
+    icon: 'lucideCalendar',
     url: '/evento/eventos/usuario'
   },
   {
     label: 'Horas',
-    icon: 'lucideClock',
+    icon: 'lucideClockPlus',
     url: '/hora/horas/usuario'
   },
-
   { label: 'Maestros', isTitle: true },
   {
     label: 'Eventos',
-    icon: 'lucideCalendarRange',
+    icon: 'lucideCalendarSearch',
     url: '/evento/eventos',
     permisoClave: PermisoClave.EVENTO
   },
@@ -72,6 +87,12 @@ export const menuItems: MenuItemType[] = [
     icon: 'lucideIdCard',
     url: '/cliente/clientes',
     permisoClave: PermisoClave.CLIENTE
+  },
+  {
+    label: 'Proyectos',
+    icon: 'lucideTarget',
+    url: '/proyecto/proyectos',
+    permisoClave: PermisoClave.PROYECTO
   },
   {
     label: 'Modulos',
@@ -109,6 +130,13 @@ export const menuItems: MenuItemType[] = [
       { label: 'Usuarios', url: '/usuario/usuarios', permisoClave: PermisoClave.USUARIO },
       { label: 'Roles', url: '/rol/roles', permisoClave: PermisoClave.ROL },
     ],
+  },
+  { label: '', isTitle: true },
+  {
+    label: 'Reportes',
+    icon: 'tablerReport',
+    url: '/reporte/reportes',
+    permisoClave: PermisoClave.REPORTE
   },
 
 ]

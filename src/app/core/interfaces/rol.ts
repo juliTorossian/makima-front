@@ -38,7 +38,9 @@ interface Nivel {
 export enum PermisoClave {
   ADMIN = 'ADM',
   EVENTO = 'EVT',
+  EVENTO_TIPO_FAC = 'ETF',
   CLIENTE = 'CLI',
+  PROYECTO = 'PRO',
   USUARIO = 'USR',
   MODULO = 'MOD',
   ENTORNO = 'ENT',
@@ -47,8 +49,27 @@ export enum PermisoClave {
   EVENTO_DOCUMENTO = 'EVD',
   ETAPA = 'ETA',
   TIPO_EVENTO = 'TEV',
-  ROL = 'ROL'
+  ROL = 'ROL',
+  REPORTE = 'REP',
 }
+
+export const permisosVacios = {
+  [PermisoClave.ADMIN]: 0,
+  [PermisoClave.EVENTO]: 0,
+  [PermisoClave.EVENTO_TIPO_FAC]: 0,
+  [PermisoClave.CLIENTE]: 0,
+  [PermisoClave.PROYECTO]: 0,
+  [PermisoClave.USUARIO]: 0,
+  [PermisoClave.MODULO]: 0,
+  [PermisoClave.ENTORNO]: 0,
+  [PermisoClave.PRODUCTO]: 0,
+  [PermisoClave.HORAS_GENERALES]: 0,
+  [PermisoClave.EVENTO_DOCUMENTO]: 0,
+  [PermisoClave.ETAPA]: 0,
+  [PermisoClave.TIPO_EVENTO]: 0,
+  [PermisoClave.ROL]: 0,
+  [PermisoClave.REPORTE]: 0
+};
 
 const LEER = "Leer";
 const ESCRIBIR = "Escribir";
@@ -65,6 +86,12 @@ export const permisosData: PermisoConfig[] = [
     acciones: { Lee: { activo: true, label: LEER }, Mod: { activo: true, label: LEER_Y_ESCRIBIR }, Eli: { activo: true, label: TODO } }
   },
   {
+    clave: PermisoClave.EVENTO_TIPO_FAC,
+    descripcion: 'Eventos tipo de facturacion',
+    nivel: 0,
+    acciones: { Lee: { activo: false, label: '' }, Mod: { activo: true, label: ESCRIBIR }, Eli: { activo: false, label: '' } }
+  },
+  {
     clave: PermisoClave.EVENTO_DOCUMENTO,
     descripcion: 'Documentos de eventos',
     nivel: 0,
@@ -73,6 +100,12 @@ export const permisosData: PermisoConfig[] = [
   {
     clave: PermisoClave.CLIENTE,
     descripcion: 'Clientes',
+    nivel: 0,
+    acciones: { Lee: { activo: true, label: LEER }, Mod: { activo: true, label: LEER_Y_ESCRIBIR }, Eli: { activo: true, label: TODO } }
+  },
+  {
+    clave: PermisoClave.PROYECTO,
+    descripcion: 'Proyectos',
     nivel: 0,
     acciones: { Lee: { activo: true, label: LEER }, Mod: { activo: true, label: LEER_Y_ESCRIBIR }, Eli: { activo: true, label: TODO } }
   },
@@ -121,6 +154,12 @@ export const permisosData: PermisoConfig[] = [
   {
     clave: PermisoClave.USUARIO,
     descripcion: 'Usuarios',
+    nivel: 0,
+    acciones: { Lee: { activo: true, label: LEER }, Mod: { activo: true, label: LEER_Y_ESCRIBIR }, Eli: { activo: true, label: TODO } }
+  },
+  {
+    clave: PermisoClave.REPORTE,
+    descripcion: 'Reportes',
     nivel: 0,
     acciones: { Lee: { activo: true, label: LEER }, Mod: { activo: true, label: LEER_Y_ESCRIBIR }, Eli: { activo: true, label: TODO } }
   },
