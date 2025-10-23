@@ -30,4 +30,18 @@ export class EventoAccionesService {
     return this.http.post(`${this.URL_COMPLETA}/evento/rechazar`, body);
   }
 
+  //
+
+  tomar(eventoId:string) {
+    return this.http.post(`${this.URL_COMPLETA}/evento/${eventoId}/tomar`, { });
+  }
+  
+  liberar(eventoId:string, detalle?:string) {
+    return this.http.post(`${this.URL_COMPLETA}/evento/${eventoId}/liberar`, { detalle });
+  }
+
+  obtenerEventoEnTrabajo(usuarioId: string) {
+    return this.http.get(`${this.URL_COMPLETA}/evento/trabajando/usuario`);
+  }
+
 }

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core'
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core'
 import { RouterOutlet } from '@angular/router'
 import { SidenavComponent } from '@layouts/components/sidenav/sidenav.component'
 import { Topbar } from '@layouts/components/topbar/topbar'
@@ -8,6 +8,7 @@ import { LayoutStoreService } from '@core/services/layout-store.service'
 import { DialogModule } from 'primeng/dialog'
 import { SHORTCUTS } from '@/app/constants/shortcut'
 import { ShortcutTable } from "@layouts/components/shortcut-table/shortcut-table";
+import { EventoCronometroComponent } from '@app/components/evento-cronometro';
 
 @Component({
   selector: 'app-vertical-layout',
@@ -15,12 +16,19 @@ import { ShortcutTable } from "@layouts/components/shortcut-table/shortcut-table
     RouterOutlet,
     SidenavComponent,
     Topbar,
-    ShortcutTable
+    ShortcutTable,
+    EventoCronometroComponent
 ],
   templateUrl: './vertical-layout.html',
-  styles: ``,
+  styles: `
+    .content-page {
+      position: relative;
+    }
+  `,
 })
 export class VerticalLayout implements OnInit, OnDestroy {
+  @ViewChild(EventoCronometroComponent) cronometroComponent!: EventoCronometroComponent;
+  
   constructor(public layout: LayoutStoreService) {}
   resizeSubscription!: Subscription
 

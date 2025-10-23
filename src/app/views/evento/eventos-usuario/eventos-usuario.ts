@@ -17,6 +17,7 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { ModalSel } from './components/modal-sel/modal-sel';
 import { modalConfig } from '@/app/types/modals';
 import { EventoAccionesService } from '@core/services/evento-acciones';
+import { EventoTrabajoService } from '@core/services/evento-trabajo.service';
 
 import { DrawerModule } from 'primeng/drawer';
 import { EventoDrawerComponent } from '../evento-drawer/evento-drawer';
@@ -27,6 +28,7 @@ import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TooltipModule } from 'primeng/tooltip';
 import { parseIsoAsLocal } from '@/app/utils/datetime-utils';
 import { PrioridadIconComponent } from '@app/components/priority-icon';
+import { EventoCronometroComponent } from '@app/components/evento-cronometro';
 
 @Component({
   selector: 'app-eventos-usuario',
@@ -71,11 +73,13 @@ export class EventosUsuario extends TrabajarCon<Evento> {
   private dialogService = inject(DialogService);
   ref!: DynamicDialogRef;
   private userStorageService = inject(UserStorageService);
+  private eventoTrabajoService = inject(EventoTrabajoService);
   @ViewChild('dt') table!: Table;
 
-  // Estado para el offcanvas
+  // Agregar de vuelta estado del evento drawer para uso en la tabla
   showEventoDrawer = false;
   eventoSeleccionadoId: string | null = null;
+
   // Estado para el usuario drawer
   showUsuarioDrawer = false;
   usuarioSeleccionadoId: string | null = null;
@@ -83,10 +87,26 @@ export class EventosUsuario extends TrabajarCon<Evento> {
   usuarioActivo: UsuarioLogeado | null = this.userStorageService.getUsuario();
 
   eventos: EventoCompleto[] = [];
+  
+  // Simplificar las propiedades del evento en trabajo
+  eventoEnTrabajo: EventoCompleto | null = null;
+  tiempoInicioTrabajo: Date | null = null;
 
   override ngOnInit(): void {
     setTimeout(() => {
+      this.verificarEventoEnTrabajo();
       this.loadItems();
+    });
+
+    // Suscribirse a cambios en el evento en trabajo
+    this.eventoTrabajoService.eventoEnTrabajo$.subscribe(evento => {
+      this.eventoEnTrabajo = evento;
+      this.cdr.detectChanges();
+    });
+
+    this.eventoTrabajoService.tiempoInicio$.subscribe(tiempo => {
+      this.tiempoInicioTrabajo = tiempo;
+      this.cdr.detectChanges();
     });
   }
 
@@ -113,7 +133,7 @@ export class EventosUsuario extends TrabajarCon<Evento> {
             fechaEntrega: (e as any).fechaEntrega ? parseIsoAsLocal((e as any).fechaEntrega) : null
           })) as unknown as EventoCompleto[];
           if (this.table) {
-            this.table.reset(); // Esto fuerza el refresco de la grilla
+            this.table.reset();
           }
           this.cdr.detectChanges();
           this.loadingService.hide();
@@ -192,65 +212,81 @@ export class EventosUsuario extends TrabajarCon<Evento> {
           usuarioId: result.usuarioSeleccionado,
           comentario: result.comentario
         }
+        
+        // Verificar si el evento a procesar es el mismo que está en trabajo
+        const eventoEnTrabajoId = this.eventoEnTrabajo?.id;
+        const eventoActualId = evento.id;
+        const debeLiberar = eventoEnTrabajoId === eventoActualId && (modo === 'AVZ' || modo === 'RTO' || modo === 'RAS');
+        
         this.loadingService.show();
 
-        if (modo === 'AVZ') {
-          this.eventoAccionesService.avanzar(body).subscribe({
-            next: () => this.showSuccess('Evento avanzado correctamente.'),
-            error: (err: any) => { this.showError(err.error.message || 'Error al avanzar el evento.') },
-            complete: () => {
-              this.loadItems();
+        // Si debe liberar, primero liberar el evento
+        if (debeLiberar) {
+          this.eventoAccionesService.liberar(eventoEnTrabajoId || '', 'Liberado automáticamente por acción de usuario').subscribe({
+            next: () => {
+              // Limpiar el evento en trabajo
+              this.eventoTrabajoService.limpiarEvento();
+              this.showSuccess('Evento liberado automáticamente.');
+              
+              // Continuar con la acción original
+              this.ejecutarAccionEvento(modo, body);
             },
+            error: (err: any) => {
+              this.showError(err.error.message || 'Error al liberar el evento automáticamente.');
+              this.loadingService.hide();
+            }
           });
-        } else if (modo === 'RTO') {
-          this.eventoAccionesService.retroceder(body).subscribe({
-            next: () => this.showSuccess('Evento retrocedido correctamente.'),
-            error: (err: any) => this.showError(err.error.message || 'Error al retroceder el evento.'),
-            complete: () => {
-              this.loadItems();
-            },
-          });
-        } else if (modo === 'RAS') {
-          this.eventoAccionesService.reasignar(body).subscribe({
-            next: () => this.showSuccess('Evento reasignado correctamente.'),
-            error: (err: any) => this.showError(err.error.message || 'Error al reasignar el evento.'),
-            complete: () => {
-              this.loadItems();
-            },
-          });
-        } else if (modo === 'AUT') {
-          this.eventoAccionesService.autorizar(body).subscribe({
-            next: () => this.showSuccess('Evento autorizado correctamente.'),
-            error: (err: any) => this.showError(err.error.message || 'Error al autorizar el evento.'),
-            complete: () => {
-              this.loadItems();
-            },
-          });
-        } else if (modo === 'REC') {
-          this.eventoAccionesService.rechazar(body).subscribe({
-            next: () => this.showSuccess('Evento rechazado correctamente.'),
-            error: (err: any) => this.showError(err.error.message || 'Error al rechazar el evento.'),
-            complete: () => {
-              this.loadItems();
-            },
-          });
+        } else {
+          // Ejecutar la acción directamente
+          this.ejecutarAccionEvento(modo, body);
         }
       }
     });
 
   }
 
-  abrirEventoDrawer(evento: EventoCompleto) {
-    this.eventoSeleccionadoId = evento.id || null;
-    this.showEventoDrawer = true;
-    this.cdr.detectChanges();
-  }
-
-  cerrarEventoDrawer() {
-    this.showEventoDrawer = false;
-    this.eventoSeleccionadoId = null;
-    this.loadItems();
-    this.cdr.detectChanges();
+  private ejecutarAccionEvento(modo: 'AVZ' | 'RTO' | 'RAS' | 'AUT' | 'REC', body: CircularEvento): void {
+    if (modo === 'AVZ') {
+      this.eventoAccionesService.avanzar(body).subscribe({
+        next: () => this.showSuccess('Evento avanzado correctamente.'),
+        error: (err: any) => { this.showError(err.error.message || 'Error al avanzar el evento.') },
+        complete: () => {
+          this.loadItems();
+        },
+      });
+    } else if (modo === 'RTO') {
+      this.eventoAccionesService.retroceder(body).subscribe({
+        next: () => this.showSuccess('Evento retrocedido correctamente.'),
+        error: (err: any) => this.showError(err.error.message || 'Error al retroceder el evento.'),
+        complete: () => {
+          this.loadItems();
+        },
+      });
+    } else if (modo === 'RAS') {
+      this.eventoAccionesService.reasignar(body).subscribe({
+        next: () => this.showSuccess('Evento reasignado correctamente.'),
+        error: (err: any) => this.showError(err.error.message || 'Error al reasignar el evento.'),
+        complete: () => {
+          this.loadItems();
+        },
+      });
+    } else if (modo === 'AUT') {
+      this.eventoAccionesService.autorizar(body).subscribe({
+        next: () => this.showSuccess('Evento autorizado correctamente.'),
+        error: (err: any) => this.showError(err.error.message || 'Error al autorizar el evento.'),
+        complete: () => {
+          this.loadItems();
+        },
+      });
+    } else if (modo === 'REC') {
+      this.eventoAccionesService.rechazar(body).subscribe({
+        next: () => this.showSuccess('Evento rechazado correctamente.'),
+        error: (err: any) => this.showError(err.error.message || 'Error al rechazar el evento.'),
+        complete: () => {
+          this.loadItems();
+        },
+      });
+    }
   }
 
   abrirUsuarioDrawer(usuarioId: string | null | undefined) {
@@ -274,6 +310,87 @@ export class EventosUsuario extends TrabajarCon<Evento> {
     });
     // console.log(req);
     return req;
+  }
+
+  // Nuevos métodos para manejar eventos en trabajo
+  tomarEvento(evento: EventoCompleto): void {
+    if (this.eventoEnTrabajo) {
+      this.showError('Ya tienes un evento en trabajo. Libera el evento actual antes de tomar otro.');
+      return;
+    }
+
+    this.loadingService.show();
+    this.eventoAccionesService.tomar(evento.id || '').subscribe({
+      next: () => {
+        const tiempoInicio = new Date();
+        
+        // Actualizar a través del servicio
+        this.eventoTrabajoService.setEventoEnTrabajo(evento, tiempoInicio);
+        
+        this.showSuccess(`Evento ${evento.tipo.codigo}-${evento.numero?.toString().padStart(3, '0')} tomado.`);
+        this.loadItems();
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        this.showError(err.error.message || 'Error al tomar el evento.');
+      },
+      complete: () => {
+        this.loadingService.hide();
+      }
+    });
+  }
+
+  onEventoLiberado(): void {
+    // Ya no es necesario limpiar aquí porque el servicio lo maneja
+    this.loadItems(); // Solo recargar la lista
+  }
+
+  private verificarEventoEnTrabajo(): void {
+    // Solo verificar para el estado local, el servicio maneja la verificación global
+    this.eventoAccionesService.obtenerEventoEnTrabajo(this.usuarioActivo?.id ?? '').subscribe({
+      next: (evento: any) => {
+        if (evento && evento.registroTiempo) {
+          const fechaInicio = new Date(evento.registroTiempo.inicio);
+          const ahora = new Date();
+          
+          const tiempoInicio = new Date(
+            ahora.getFullYear(),
+            ahora.getMonth(),
+            ahora.getDate(),
+            fechaInicio.getHours(),
+            fechaInicio.getMinutes(),
+            fechaInicio.getSeconds()
+          );
+          
+          if (tiempoInicio.getTime() > ahora.getTime()) {
+            tiempoInicio.setDate(tiempoInicio.getDate() - 1);
+          }
+          
+          // Actualizar a través del servicio
+          this.eventoTrabajoService.setEventoEnTrabajo(evento, tiempoInicio);
+        }
+      },
+      error: () => {
+        // Si no hay evento en trabajo o hay error, no hacer nada
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+  }
+
+  // Agregar de vuelta métodos del evento drawer para uso en la tabla
+  abrirEventoDrawer(evento: EventoCompleto) {
+    this.eventoSeleccionadoId = evento.id || null;
+    this.showEventoDrawer = true;
+    this.cdr.detectChanges();
+  }
+
+  cerrarEventoDrawer() {
+    this.showEventoDrawer = false;
+    this.eventoSeleccionadoId = null;
+    this.loadItems();
+    this.cdr.detectChanges();
   }
 
 }
