@@ -1,4 +1,4 @@
-import { ACCIONES } from '@/app/constants/actividad_acciones';
+import { ACCIONES, ACCIONES_NO_MOSTRAR } from '@/app/constants/actividad_acciones';
 import { Component, Input } from '@angular/core';
 import { VidaEvento } from '@core/interfaces/evento';
 import { NgIcon } from '@ng-icons/core';
@@ -16,9 +16,8 @@ export class ItemActividadComponent {
   @Input() actividad!: VidaEvento;
   @Input() last: boolean = false;
   ACCIONES = ACCIONES;
-  // ACCIONES_NO_MOSTRAR = [ACCIONES.CREO, ACCIONES.ASIGNO];?
-  ACCIONES_NO_MOSTRAR: string[] = [ACCIONES.CREO, ACCIONES.ASIGNO];
-  
+  ACCIONES_NO_MOSTRAR = ACCIONES_NO_MOSTRAR;
+
   getIconNameAccion() { return getIconNameAccion(this.actividad.accion) }
   getTitleAccion() { return getTitleAccion(this.actividad) }
   getDescripcionAccion() { return getDescripcionAccion(this.actividad) }

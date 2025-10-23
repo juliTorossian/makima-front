@@ -2,6 +2,8 @@
 <p-toast></p-toast>
 <div class="container-fluid">
     <div class="row justify-content-center">
+        <!-- Remover la sección del cronómetro ya que ahora es global -->
+        
         <div class="col-12 mt-3">
             <app-ui-card title="Eventos Usuario">
                 <div card-body>
@@ -37,9 +39,9 @@
                         </ng-template>
                         <ng-template pTemplate="header">
                             <tr style="min-height: 55px;">
-                                <!-- <th style="width: 4rem">
-                                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
-                                </th> -->
+                                <th style="width: 4rem">
+                                    <!-- <p-tableHeaderCheckbox></p-tableHeaderCheckbox> -->
+                                </th>
                                 <th pSortableColumn="id" hidden>Id</th>
                                 <th pSortableColumn="tipo.codigo" hidden>Tipo</th>
                                 <th pSortableColumn="numero" hidden>Numero</th>
@@ -93,7 +95,29 @@
                             </tr>
                         </ng-template>
                         <ng-template pTemplate="body" let-evento>
-                            <tr style="min-height: 55px">
+                            <tr style="min-height: 55px" [class.table-success]="eventoEnTrabajo?.id === evento.id">
+                                <td>
+                                    <!-- Botón para tomar evento - MOVIDO AL PRINCIPIO -->
+                                    @if (!eventoEnTrabajo || eventoEnTrabajo.id !== evento.id) {
+                                        <button 
+                                            class="btn btn-ghost-success me-1" 
+                                            (click)="tomarEvento(evento)"
+                                            [disabled]="!!eventoEnTrabajo"
+                                            title="Tomar evento"
+                                        >
+                                            <ng-icon name="lucidePlay"/>
+                                        </button>
+                                    }
+                                    <!-- } @else {
+                                        <button 
+                                            class="btn btn-ghost-danger me-1" 
+                                            (click)="liberarEvento()"
+                                            title="Liberar evento"
+                                        >
+                                            <ng-icon name="lucideSquare"/>
+                                        </button>
+                                    } -->
+                                </td>
                                 <td hidden>{{ evento?.id }}</td>
                                 <td hidden>{{ evento?.tipo?.id }}</td>
                                 <td hidden>{{ evento?.numero }}</td>
@@ -126,7 +150,7 @@
                                 <td> {{ evento?.fechaFin ? (evento.fechaFin | date : "shortDate") : "" }} </td>
                                 <td hidden>{{ evento?.usuarioAlta?.usuario }}</td>
                                 <td class="d-flex justify-content-end" style="min-height: 55px;">
-                                    @if (!evento.cerrado && !evento.tipo.propio) {
+                                    @if (!evento.cerrado && !evento.tipo.propio) { 
                                         @if (evento.etapaSiguiente) {
                                             @if (evento.etapaActualData.deAutoriza) {
                                                 <button class="btn btn-ghost-warning" (click)="mostrarModalCrud(evento, 'AUT')"><ng-icon name="lucideCircleCheckBig"/></button>
