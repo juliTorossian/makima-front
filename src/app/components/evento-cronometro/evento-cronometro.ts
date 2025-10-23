@@ -39,10 +39,10 @@ import { EventoTrabajoService } from '@core/services/evento-trabajo.service';
   template: `
     <p-toast></p-toast>
     @if (eventoEnTrabajo) {
-      <div class="evento-banner" [class.minimized]="isMinimized">
+      <div class="evento-banner">
         <div class="banner-content">
           <!-- Contenido completo para desktop -->
-          @if (!isMinimized && !isMobile) {
+          @if (!isMobile) {
             <div class="d-flex align-items-center justify-content-between w-100">
               <div class="d-flex align-items-center gap-3">
                 <div class="d-flex align-items-center gap-2">
@@ -73,9 +73,6 @@ import { EventoTrabajoService } from '@core/services/evento-trabajo.service';
                   [model]="menuItems"
                   styleClass="p-button-outlined">
                 </p-splitButton>
-                <button class="btn btn-sm btn-outline-secondary" (click)="toggleMinimize()" title="Minimizar">
-                  <ng-icon name="lucideMinus"></ng-icon>
-                </button>
               </div>
             </div>
           }
@@ -105,38 +102,6 @@ import { EventoTrabajoService } from '@core/services/evento-trabajo.service';
                   [model]="menuItems"
                   styleClass="p-button-outlined mobile-split-button">
                 </p-splitButton>
-              </div>
-            </div>
-          }
-
-          <!-- Contenido minimizado para desktop -->
-          @if (!isMobile && isMinimized) {
-            <div class="d-flex align-items-center justify-content-between w-100">
-              <div class="d-flex align-items-center gap-2">
-                <ng-icon name="lucideTimer" class="text-warning"></ng-icon>
-                <app-badge-click 
-                  [backgroundColor]="eventoEnTrabajo.tipo.color"
-                  (click)="abrirEventoDrawer()"
-                  style="cursor:pointer"
-                  class="small"
-                >
-                  {{ eventoEnTrabajo.tipo.codigo }}-{{eventoEnTrabajo.numero | padZero:3}}
-                </app-badge-click>
-                <span class="fw-bold text-warning font-monospace">{{ tiempoTranscurrido }}</span>
-              </div>
-              <div class="d-flex align-items-center gap-2">
-                <p-splitButton 
-                  icon="pi pi-stop"
-                  severity="danger"
-                  size="small"
-                  [disabled]="loading"
-                  (onClick)="liberarEvento()"
-                  [model]="menuItems"
-                  styleClass="p-button-outlined">
-                </p-splitButton>
-                <button class="btn btn-sm btn-outline-secondary" (click)="toggleMinimize()" title="Expandir">
-                  <ng-icon name="lucidePlus"></ng-icon>
-                </button>
               </div>
             </div>
           }
@@ -202,17 +167,8 @@ import { EventoTrabajoService } from '@core/services/evento-trabajo.service';
       z-index: 100;
     }
 
-    .evento-banner.minimized {
-      padding: 8px 20px;
-    }
-
     .banner-content {
       max-width: 100%;
-    }
-
-    .small {
-      font-size: 0.8rem !important;
-      padding: 0.25rem 0.5rem !important;
     }
 
     .mobile-badge {
@@ -280,7 +236,6 @@ export class EventoCronometroComponent implements OnInit, OnDestroy {
   cronometroInterval: any = null;
   tiempoTranscurrido: string = '00:00:00';
   loading: boolean = false;
-  isMinimized: boolean = false;
 
   // Estado para el drawer
   showEventoDrawer = false;
@@ -297,19 +252,7 @@ export class EventoCronometroComponent implements OnInit, OnDestroy {
     return window.innerWidth <= 768;
   }
 
-  toggleMinimize(): void {
-    this.isMinimized = !this.isMinimized;
-    // Guardar preferencia en localStorage
-    localStorage.setItem('evento-banner-minimized', this.isMinimized.toString());
-  }
-
   ngOnInit(): void {
-    // Recuperar preferencia de minimizado
-    const minimizedPref = localStorage.getItem('evento-banner-minimized');
-    if (minimizedPref) {
-      this.isMinimized = minimizedPref === 'true';
-    }
-
     // Suscribirse a cambios en el evento en trabajo
     this.eventoTrabajoService.eventoEnTrabajo$.subscribe(evento => {
       this.eventoEnTrabajo = evento;
