@@ -59,7 +59,10 @@ export interface EventoCompleto extends Evento {
   etapaActualData: EventoEtapa;
   etapaSiguiente: EventoEtapa | null;
   etapaAnterior: EventoEtapa | null;
+
+  registroTiempo?: RegistroHora;
 }
+
 
 /** Cliente enriquecido para EventoCompleto */
 export interface EventoCliente {
