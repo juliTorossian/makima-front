@@ -159,6 +159,7 @@ export class EventosUsuario extends TrabajarCon<Evento> {
       modo: modo,
       etapaActual: '',
       proximaEtapa: '',
+      rol: '',
     };
 
     switch (modo) {
@@ -167,30 +168,30 @@ export class EventosUsuario extends TrabajarCon<Evento> {
         // data.reqComentario = evento?.etapaSiguiente?.requiereComentario || false;
         data.etapaActual = evento?.etapaActualData?.nombre ?? '';
         data.proximaEtapa = evento?.etapaSiguiente?.nombre ?? '';
-        // rol = evento?.etapaSiguiente?.rolPreferido;
+        data.rol = evento?.etapaSiguiente?.rolPreferido ?? '';
         break;
       case 'RTO':
         header = "Retroceder Evento";
         data.etapaActual = evento?.etapaActualData?.nombre ?? '';
         data.proximaEtapa = evento?.etapaSiguiente?.nombre ?? '';
-        // data.rol = evento?.etapaAnterior?.rolPreferido;
+        data.rol = evento?.etapaAnterior?.rolPreferido ?? '';
         break;
       case 'RAS':
         header = "Reasignar Evento";
         data.etapaActual = evento?.etapaActualData?.nombre ?? '';
-        // data.rol = evento?.etapaActualData?.rolPreferido;
+        data.rol = evento?.etapaActualData?.rolPreferido ?? '';
         break;
       case 'AUT':
         header = "Autorizar Evento";
         data.etapaActual = evento?.etapaActualData?.nombre ?? '';
         data.proximaEtapa = evento?.etapaSiguiente?.nombre ?? '';
-        // data.rol = evento?.etapaActualData?.rolPreferido;
+        data.rol = evento?.etapaActualData?.rolPreferido ?? '';
         break;
       case 'REC':
         header = "Rechazar Evento";
         data.etapaActual = evento?.etapaActualData?.nombre ?? '';
         data.proximaEtapa = evento?.etapaAnterior?.nombre ?? '';
-        // rol = evento?.etapaActualData?.rolPreferido;
+        data.rol = evento?.etapaActualData?.rolPreferido ?? '';
         break;
     }
 
