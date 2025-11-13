@@ -19,3 +19,15 @@
   color: lightgray;
   font-weight: 500;
 }
+
+.dropzone .dropzone.dz-wrapper .dz-message,
+.dropzone .dropzone.dz-wrapper .dz-message .dz-message {
+  padding: 0 !important;
+  height: inherit !important;
+}
+dropzone>.dropzone.dz-wrapper .dz-message .dz-text {
+  transform: translateY(-69%) !important;
+}
+.dropzone {
+  min-height: inherit !important;
+}

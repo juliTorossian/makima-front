@@ -1,13 +1,25 @@
-import { Component } from '@angular/core'
-import { appName, credits, currentYear } from '@/app/constants'
+import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { AppVersion, VersionService } from '@core/services/version';
 
 @Component({
   selector: 'app-footer',
-  imports: [],
   templateUrl: './footer.html',
+  styleUrls: ['./footer.scss'],
+  imports: [
+    CommonModule
+  ]
 })
-export class Footer {
-  currentYear = currentYear
-  appName = appName
-  credits = credits
+export class Footer implements OnInit {
+  versionInfo?: AppVersion;
+  isProdBuild = false;
+
+  constructor(private versionService: VersionService) {}
+
+  ngOnInit() {
+    this.versionService.getVersion().subscribe(data => {
+      this.versionInfo = data;
+      this.isProdBuild = ['main'].includes(data.branch);
+    });
+  }
 }

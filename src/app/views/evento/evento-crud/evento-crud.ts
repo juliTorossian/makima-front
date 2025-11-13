@@ -35,6 +35,7 @@ import { getPrioridadDesc } from '@/app/constants/prioridad';
 import { LoadingService } from '@core/services/loading.service';
 import { LoadingSpinnerComponent } from '@app/components/index';
 import { FiltroActivo } from '@/app/constants/filtros_activo';
+import { map } from 'rxjs';
 
 
 @Component({
@@ -82,6 +83,7 @@ export class EventoCrud extends CrudFormModal<Evento> {
   clientes!: Cliente[];
   productos!: Producto[];
   proyectos!: Proyecto[];
+  proyectosCompletos!: Proyecto[]; // Todos los proyectos sin filtrar
 
   loading: boolean = false;
 
@@ -112,17 +114,61 @@ export class EventoCrud extends CrudFormModal<Evento> {
   );
   modalSelModulo(event: Event) {
     event.preventDefault();
+    event.stopPropagation();
+    
     this.selModulo = this.dialogService.open(ModuloSelect, {
       ...modalConfig,
-      header: "Seleccionar Modulo"
+      header: "Seleccionar Modulo",
+      focusOnShow: false
     });
 
     this.selModulo.onClose.subscribe((result: any) => {
-      if (!result) return;
-      this.form.patchValue({
-        modulo: result
-      });
+      if (result) {
+        this.form.patchValue({
+          modulo: result
+        });
+      }
+      // Prevenir el comportamiento por defecto y mantener foco
+      setTimeout(() => {
+        const moduloInput = document.getElementById('modulo') as HTMLInputElement;
+        if (moduloInput) {
+          moduloInput.focus();
+          moduloInput.select();
+        }
+      }, 200);
     });
+  }
+
+  limpiarCliente(event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.form.patchValue({ cliente: null });
+    const proyectoCtrl = this.form.get('proyecto');
+    if (proyectoCtrl?.hasError('sinProyectos')) {
+      proyectoCtrl.setErrors(null);
+    }
+  }
+
+  limpiarProyecto(event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.form.patchValue({ proyecto: null });
+    const proyectoCtrl = this.form.get('proyecto');
+    if (proyectoCtrl?.hasError('sinProyectos')) {
+      proyectoCtrl.setErrors(null);
+    }
+  }
+
+  limpiarProducto(event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.form.patchValue({ producto: null });
+  }
+
+  limpiarModulo(event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.form.patchValue({ modulo: null });
   }
 
   searchCliente = createTypeaheadSearch<Cliente>(
@@ -134,16 +180,28 @@ export class EventoCrud extends CrudFormModal<Evento> {
   );
   modalSelCliente(event: Event) {
     event.preventDefault();
+    event.stopPropagation();
+    
     this.selCliente = this.dialogService.open(ClienteSelect, {
       ...modalConfig,
-      header: "Seleccionar Cliente"
+      header: "Seleccionar Cliente",
+      focusOnShow: false
     });
 
     this.selCliente.onClose.subscribe((result: any) => {
-      if (!result) return;
-      this.form.patchValue({
-        cliente: result
-      });
+      if (result) {
+        this.form.patchValue({
+          cliente: result
+        });
+      }
+      // Prevenir el comportamiento por defecto y mantener foco
+      setTimeout(() => {
+        const clienteInput = document.getElementById('cliente') as HTMLInputElement;
+        if (clienteInput) {
+          clienteInput.focus();
+          clienteInput.select();
+        }
+      }, 200);
     });
   }
 
@@ -156,20 +214,32 @@ export class EventoCrud extends CrudFormModal<Evento> {
   );
   modalSelProyecto(event: Event) {
     event.preventDefault();
+    event.stopPropagation();
+    
     const clienteId = this.form.get('cliente')?.value?.id ?? null;
     this.selProyecto = this.dialogService.open(ProyectoSelect, {
       ...modalConfig,
       header: "Seleccionar Proyecto",
+      focusOnShow: false,
       data: {
         clienteId: clienteId
       }
     });
 
     this.selProyecto.onClose.subscribe((result: any) => {
-      if (!result) return;
-      this.form.patchValue({
-        proyecto: result
-      });
+      if (result) {
+        this.form.patchValue({
+          proyecto: result
+        });
+      }
+      // Prevenir el comportamiento por defecto y mantener foco
+      setTimeout(() => {
+        const proyectoInput = document.getElementById('proyecto') as HTMLInputElement;
+        if (proyectoInput) {
+          proyectoInput.focus();
+          proyectoInput.select();
+        }
+      }, 200);
     });
   }
 
@@ -182,16 +252,28 @@ export class EventoCrud extends CrudFormModal<Evento> {
   );
   modalSelProducto(event: Event) {
     event.preventDefault();
+    event.stopPropagation();
+    
     this.selProducto = this.dialogService.open(ProductoSelect, {
       ...modalConfig,
-      header: "Seleccionar Producto"
+      header: "Seleccionar Producto",
+      focusOnShow: false
     });
 
     this.selProducto.onClose.subscribe((result: any) => {
-      if (!result) return;
-      this.form.patchValue({
-        producto: result
-      });
+      if (result) {
+        this.form.patchValue({
+          producto: result
+        });
+      }
+      // Prevenir el comportamiento por defecto y mantener foco
+      setTimeout(() => {
+        const productoInput = document.getElementById('producto') as HTMLInputElement;
+        if (productoInput) {
+          productoInput.focus();
+          productoInput.select();
+        }
+      }, 200);
     });
   }
 
@@ -224,11 +306,18 @@ export class EventoCrud extends CrudFormModal<Evento> {
       }
     });
 
-    this.tipoEventoService.getAll().subscribe({
+    this.tipoEventoService.getAll().pipe(
+      map((tipos: TipoEvento[]) => tipos.map(te => ({
+        ...te,
+        label: `${te.codigo} - ${te.descripcion}`
+      })))
+    ).subscribe({
       next: (res: any) => {
         this.tiposEvento = res;
         this.searchTipoEvento = createTypeaheadSearch(this.tiposEvento, te => `${te.codigo} - ${te.descripcion}`);
         this.checkAndSetupEditMode();
+        // Forzar detección de cambios después de cargar
+        this.cdr.detectChanges();
       }
     });
 
@@ -256,14 +345,60 @@ export class EventoCrud extends CrudFormModal<Evento> {
       this.applyTipoPropioValidators(te);
     });
 
-    // Suscribirse a cambios en cliente para recargar proyectos filtrados
+    // Suscribirse a cambios en cliente para filtrar proyectos localmente
     this.form.get('cliente')?.valueChanges.subscribe((cliente: Cliente | null) => {
-      // Solo recargar proyectos si es un objeto Cliente válido, no un string
+      // Solo filtrar proyectos si es un objeto Cliente válido, no un string
       if (cliente && typeof cliente === 'object' && cliente.id) {
         const clienteId = cliente.id;
-        this.getProyectos(clienteId);
-        // Limpiar el proyecto seleccionado cuando cambia el cliente
-        this.form.patchValue({ proyecto: null }, { emitEvent: false });
+        
+        // Asegurarse de que proyectosCompletos esté inicializado
+        if (!this.proyectosCompletos || this.proyectosCompletos.length === 0) {
+          return;
+        }
+        
+        // Filtrar localmente los proyectos que incluyen este cliente
+        const proyectosFiltrados = this.proyectosCompletos.filter(p => 
+          p.clienteIds && Array.isArray(p.clienteIds) && p.clienteIds.includes(clienteId)
+        );
+        
+        // Usar setTimeout para evitar NG0100
+        setTimeout(() => {
+          // Actualizar la lista de proyectos y el typeahead search
+          this.proyectos = proyectosFiltrados;
+          this.searchProyecto = createTypeaheadSearch(
+            this.proyectos, 
+            p => `${p.sigla} - ${p.nombre}`
+          );
+          
+          // Limpiar el proyecto seleccionado cuando cambia el cliente
+          this.form.patchValue({ proyecto: null }, { emitEvent: false });
+          
+          // Validar si hay proyectos disponibles
+          const proyectoCtrl = this.form.get('proyecto');
+          if (proyectosFiltrados.length === 0) {
+            proyectoCtrl?.setErrors({ sinProyectos: true });
+            this.showWarn(
+              'Formulario incompleto',
+              `El cliente seleccionado no tiene proyectos asociados. Por favor seleccione otro cliente o cree un proyecto para este cliente.`
+            );
+          } else {
+            if (proyectoCtrl?.hasError('sinProyectos')) {
+              proyectoCtrl.setErrors(null);
+            }
+          }
+          
+          this.cdr.detectChanges();
+        }, 0);
+      } else if (!cliente) {
+        // Si se limpia el cliente, restaurar todos los proyectos
+        setTimeout(() => {
+          this.proyectos = this.proyectosCompletos || [];
+          this.searchProyecto = createTypeaheadSearch(
+            this.proyectos, 
+            p => `${p.sigla} - ${p.nombre}`
+          );
+          this.cdr.detectChanges();
+        }, 0);
       }
     });
 
@@ -276,10 +411,24 @@ export class EventoCrud extends CrudFormModal<Evento> {
     });
   }
 
-  getProyectos(clienteId: number | null = null) {
-    this.proyectoService.getAll(FiltroActivo.TRUE, clienteId).subscribe({
+  getProyectos() {
+    // Cargar todos los proyectos activos una sola vez
+    this.proyectoService.getAll(FiltroActivo.TRUE).subscribe({
       next: (res: any) => {
-        this.proyectos = res;
+        // Transformar la estructura si viene con la relación 'clientes' en lugar de 'clienteIds'
+        const proyectosTransformados = res.map((p: any) => {
+          if (!p.clienteIds && p.clientes && Array.isArray(p.clientes)) {
+            // Extraer los clienteId desde el array de relaciones
+            return {
+              ...p,
+              clienteIds: p.clientes.map((c: any) => c.clienteId)
+            };
+          }
+          return p;
+        });
+        
+        this.proyectosCompletos = proyectosTransformados;
+        this.proyectos = proyectosTransformados;
         this.searchProyecto = createTypeaheadSearch(this.proyectos, p => `${p.sigla} - ${p.nombre}`);
         this.checkAndSetupEditMode();
       }
@@ -306,11 +455,36 @@ export class EventoCrud extends CrudFormModal<Evento> {
     });
   }
 
+  private validateClienteProyectoRelation(): boolean {
+    const clienteCtrl = this.form.get('cliente');
+    const proyectoCtrl = this.form.get('proyecto');
+    
+    const cliente = clienteCtrl?.value;
+    const proyecto = proyectoCtrl?.value;
+
+    // Si no hay cliente válido seleccionado
+    if (!cliente || typeof cliente !== 'object' || !cliente.id) {
+      return false;
+    }
+
+    // Verificar si el cliente tiene proyectos asociados (relación muchos a muchos)
+    const proyectosDelCliente = this.proyectosCompletos?.filter(p => 
+      p.clienteIds && Array.isArray(p.clienteIds) && p.clienteIds.includes(cliente.id)
+    ) || [];
+    
+    return proyectosDelCliente.length > 0;
+  }
+
+  onProyectoBlur(): void {
+    const proyectoCtrl = this.form.get('proyecto');
+    proyectoCtrl?.markAsTouched();
+  }
+
   protected populateForm(data: Evento): void {
     // Buscar los objetos completos para los typeahead
     const tipoEventoObj = this.tiposEvento?.find(te => te.codigo === data.tipoCodigo) || null;
     const clienteObj = this.clientes?.find(c => c.id === data.clienteId) || null;
-    const proyectoObj = this.proyectos?.find(p => p.id === data.proyectoId) || null;
+    const proyectoObj = this.proyectosCompletos?.find(p => p.id === data.proyectoId) || null;
     const productoObj = this.productos?.find(p => p.id === data.productoId) || null;
     const moduloObj = this.modulos?.find(m => m.codigo === data.moduloCodigo) || null;
 
@@ -404,7 +578,64 @@ export class EventoCrud extends CrudFormModal<Evento> {
 
   accion(event: Event) {
     event.preventDefault();
+    
+    // Marcar todos los controles como touched para mostrar errores
+    Object.keys(this.form.controls).forEach(key => {
+      this.form.get(key)?.markAsTouched();
+    });
+
+    // Si el formulario es inválido, mostrar mensaje con campos faltantes
+    if (this.form.invalid) {
+      const camposFaltantes = this.getCamposFaltantes();
+      if (camposFaltantes.length > 0) {
+        this.showError(
+          'Formulario incompleto',
+          `Por favor complete los siguientes campos: ${camposFaltantes.join(', ')}`
+        );
+      }
+      return;
+    }
+
     this.submit();
+  }
+
+  private getCamposFaltantes(): string[] {
+    const campos: { [key: string]: string } = {
+      tipoEvento: 'Tipo de evento',
+      titulo: 'Título',
+      cliente: 'Cliente',
+      proyecto: 'Proyecto',
+      producto: 'Producto',
+      modulo: 'Módulo',
+      prioridadUsu: 'Prioridad',
+      comentario: 'Comentario'
+    };
+
+    const faltantes: string[] = [];
+    
+    Object.keys(campos).forEach(key => {
+      const control = this.form.get(key);
+      if (control?.invalid && control?.errors?.['required']) {
+        faltantes.push(campos[key]);
+      }
+    });
+
+    // Validar relación cliente-proyecto al enviar
+    const proyectoCtrl = this.form.get('proyecto');
+    if (proyectoCtrl?.errors?.['sinProyectos']) {
+      // Ya tiene el error, no agregarlo a la lista
+    } else if (!proyectoCtrl?.errors?.['required'] && !this.validateClienteProyectoRelation()) {
+      const tipoEventoCtrl = this.form.get('tipoEvento');
+      const tipoEvento = tipoEventoCtrl?.value;
+      const esPropio = !!tipoEvento?.propio;
+      
+      if (!esPropio) {
+        proyectoCtrl?.setErrors({ sinProyectos: true });
+        proyectoCtrl?.markAsTouched();
+      }
+    }
+
+    return faltantes;
   }
 
   can(accion: PermisoAccion): boolean {
@@ -457,11 +688,18 @@ export class EventoCrud extends CrudFormModal<Evento> {
       return;
     }
 
-    // Si hay cliente y proyecto válidos, validar que coincidan
-    if (proyecto.clienteId !== cliente.id) {
+    // Si hay cliente y proyecto válidos, validar que coincidan (relación muchos a muchos)
+    const clienteId = cliente.id;
+    const proyectoClienteIds = proyecto.clienteIds;
+    
+    if (!proyectoClienteIds || !Array.isArray(proyectoClienteIds) || !proyectoClienteIds.includes(clienteId)) {
       this.showError('Error', 'El proyecto seleccionado no pertenece al cliente seleccionado.');
       this.form.patchValue({ proyecto: null }, { emitEvent: false });
     }
   }
 
+  get tipoNumero(): string {
+    const str = String(this.form.get('numero')?.value);
+    return this.form.get('tipoEvento')?.value?.codigo +"-" + str.padStart(3, '0');
+  }
 }

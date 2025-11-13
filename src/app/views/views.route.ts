@@ -13,8 +13,6 @@ export const VIEWS_ROUTES: Routes = [
     path: '',
     loadChildren: () =>
       import('./usuario/usuario.route').then((mod) => mod.USUARIOS_ROUTES),
-    data: { permisoClave: PermisoClave.USUARIO },
-    canActivate: [PermisoVerGuard]
   },
   {
     path: '',

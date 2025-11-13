@@ -7,12 +7,26 @@
                 <div card-body>
                     <p-toolbar>
                         <ng-template pTemplate="left">
-                            <app-filtro-radio-group
-                                [options]="FiltroActivoOptions"
-                                [checkedValue]="filtroActivo"
-                                (filtroCambio)="filtroCambio($event)"
-                                [notLabel]="true"
-                            ></app-filtro-radio-group>
+                            <div class="flex align-items-center gap-3">
+                                <app-filtro-radio-group
+                                    [options]="FiltroActivoOptions"
+                                    [checkedValue]="filtroActivo"
+                                    (filtroCambio)="filtroCambio($event)"
+                                    [notLabel]="true"
+                                ></app-filtro-radio-group>
+                                
+                                <p-select
+                                    [options]="roles"
+                                    [(ngModel)]="rolSeleccionado"
+                                    optionLabel="descripcion"
+                                    optionValue="codigo"
+                                    placeholder="Todos los roles"
+                                    [showClear]="true"
+                                    (onChange)="filtrarPorRol()"
+                                    [style]="{'min-width': '200px', 'height': '37.5px', 'margin-left': '12px'}"
+                                    
+                                ></p-select>
+                            </div>
                         </ng-template>
                         <ng-template pTemplate="right">
                             @if (can('A')) {

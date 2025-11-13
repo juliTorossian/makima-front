@@ -39,13 +39,13 @@
                         </ng-template>
                         <ng-template pTemplate="header">
                             <tr style="min-height: 55px;">
-                                <th style="width: 4rem">
+                                <th style="width: 4rem" pFrozenColumn>
                                     <!-- <p-tableHeaderCheckbox></p-tableHeaderCheckbox> -->
                                 </th>
                                 <th pSortableColumn="id" hidden>Id</th>
                                 <th pSortableColumn="tipo.codigo" hidden>Tipo</th>
                                 <th pSortableColumn="numero" hidden>Numero</th>
-                                <th pSortableColumn="tipo.codigo" style="min-width: 110px;">
+                                <th pSortableColumn="tipo.codigo" style="min-width: 110px;" pFrozenColumn>
                                     <div class="flex align-items-center" style="justify-content: space-around;">
                                         Evento
                                         <p-columnFilter type="text" field="tipo.codigo" display="menu" matchMode="contains" style="margin-left: 2px;"></p-columnFilter>
@@ -96,7 +96,7 @@
                         </ng-template>
                         <ng-template pTemplate="body" let-evento>
                             <tr style="min-height: 55px" [class.table-success]="eventoEnTrabajo?.id === evento.id">
-                                <td>
+                                <td pFrozenColumn>
                                     <!-- Botón para tomar evento - MOVIDO AL PRINCIPIO -->
                                     @if (!eventoEnTrabajo || eventoEnTrabajo.id !== evento.id) {
                                         <button 
@@ -104,6 +104,7 @@
                                             (click)="tomarEvento(evento)"
                                             [disabled]="!!eventoEnTrabajo"
                                             title="Tomar evento"
+                                            placement="top" ngbTooltip="Tomar evento"
                                         >
                                             <ng-icon name="lucidePlay"/>
                                         </button>
@@ -121,7 +122,7 @@
                                 <td hidden>{{ evento?.id }}</td>
                                 <td hidden>{{ evento?.tipo?.id }}</td>
                                 <td hidden>{{ evento?.numero }}</td>
-                                <td>
+                                <td pFrozenColumn>
                                     <app-badge-click 
                                         [backgroundColor]="evento.tipo.color"
                                         (click)="abrirEventoDrawer(evento)"
@@ -141,7 +142,11 @@
                                 </div>
                                 </td>
                                 <td>
-                                <app-badge-click style="cursor: pointer" (click)="abrirUsuarioDrawer(evento?.usuarioActual?.id)" >
+                                <app-badge-click
+                                    [backgroundColor]="evento.usuarioActual?.color"
+                                    style="cursor: pointer"
+                                    (click)="abrirUsuarioDrawer(evento?.usuarioActual?.id)"
+                                >
                                     {{ evento?.usuarioActual?.usuario }}
                                 </app-badge-click>
                                 </td>
@@ -153,10 +158,10 @@
                                     @if (!evento.cerrado && !evento.tipo.propio) { 
                                         @if (evento.etapaSiguiente) {
                                             @if (evento.etapaActualData.deAutoriza) {
-                                                <button class="btn btn-ghost-warning" (click)="mostrarModalCrud(evento, 'AUT')"><ng-icon name="lucideCircleCheckBig"/></button>
+                                                <button class="btn btn-ghost-warning" placement="top" ngbTooltip="Autorizar" (click)="mostrarModalCrud(evento, 'AUT')"><ng-icon name="lucideCircleCheckBig"/></button>
                                             } @else {
                                                 @if (evento.etapaActualData.puedeContinuar){
-                                                    <button class="btn btn-ghost-warning" (click)="mostrarModalCrud(evento, 'AVZ')"><ng-icon name="lucideFastForward"/></button>
+                                                    <button class="btn btn-ghost-warning" placement="top" ngbTooltip="Avanzar" (click)="mostrarModalCrud(evento, 'AVZ')"><ng-icon name="lucideFastForward"/></button>
                                                 } @else {
                                                     <div
                                                         style="min-height: 42px;"
@@ -181,12 +186,12 @@
                                         }
                                         @if (evento.etapaAnterior) {
                                             @if (evento.etapaActualData.deAutoriza) {
-                                                <button class="btn btn-ghost-danger" (click)="mostrarModalCrud(evento, 'REC')"><ng-icon name="lucideCircleSlash"/></button>
+                                                <button class="btn btn-ghost-danger" placement="top" ngbTooltip="Rechazar" (click)="mostrarModalCrud(evento, 'REC')"><ng-icon name="lucideCircleSlash"/></button>
                                             } @else {
-                                                <button class="btn btn-ghost-danger" (click)="mostrarModalCrud(evento, 'RTO')"><ng-icon name="lucideRewind"/></button>
+                                                <button class="btn btn-ghost-danger" placement="top" ngbTooltip="Retroceder" (click)="mostrarModalCrud(evento, 'RTO')"><ng-icon name="lucideRewind"/></button>
                                             }
                                         }
-                                        <button class="btn btn-ghost-danger" (click)="mostrarModalCrud(evento, 'RAS')"><ng-icon name="lucideRotateCcw"/></button>
+                                        <button class="btn btn-ghost-danger" placement="top" ngbTooltip="Reasignar" (click)="mostrarModalCrud(evento, 'RAS')"><ng-icon name="lucideRotateCcw"/></button>
                                     }
                                 </td>
                             </tr>

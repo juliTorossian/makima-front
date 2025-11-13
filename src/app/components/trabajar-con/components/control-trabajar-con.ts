@@ -2,6 +2,8 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgIcon } from '@ng-icons/core';
+import { ShortcutDirective } from '@core/directive/shortcut';
+import { SHORTCUTS } from '@/app/constants/shortcut';
 
 @Component({
   selector: 'app-control-trabajar-con',
@@ -9,12 +11,19 @@ import { NgIcon } from '@ng-icons/core';
   imports: [
     NgIcon,
     CommonModule,
-    NgbDropdownModule
+    NgbDropdownModule,
+    ShortcutDirective,
   ],
   template: `
     <div class="btn-group" ngbDropdown>
       <input #fileInput type="file" accept=".xlsx,.xls" hidden (change)="onFileChange($event)" />
-      <button class="btn btn-soft-primary btn-md" (click)="onNuevo()" [attr.title]="tituloNuevo">
+      <button
+        class="btn btn-soft-primary btn-md"
+        (click)="onNuevo()"
+        [attr.title]="tituloNuevo"
+        [appShortcut]="SHORTCUTS.NUEVO"
+        (appShortcutTrigger)="onNuevo()"
+      >
         <ng-icon name="lucideCirclePlus"></ng-icon>
       </button>
       <button type="button" class="btn btn-soft-primary dropdown-toggle-split drop-arrow-none btn-md" ngbDropdownToggle>
@@ -32,6 +41,8 @@ import { NgIcon } from '@ng-icons/core';
   `
 })
 export class ControlTrabajarCon {
+  readonly SHORTCUTS = SHORTCUTS;
+
   @Input() tituloNuevo = 'Nuevo';
   @Output() nuevo = new EventEmitter<void>();
   @Output() plantilla = new EventEmitter<void>();

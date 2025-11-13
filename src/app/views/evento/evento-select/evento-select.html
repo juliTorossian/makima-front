@@ -25,6 +25,8 @@
         </ng-template>
         <ng-template pTemplate="header">
             <tr>
+                <th style="width: 4rem">
+                </th>
                 <th pSortableColumn="id" hidden>Id</th>
                 <th pSortableColumn="tipo.codigo" hidden>Tipo</th>
                 <th pSortableColumn="numero" hidden>Numero</th>
@@ -58,14 +60,13 @@
                         <p-columnFilter type="text" field="modulo.nombre" display="menu" matchMode="contains" style="margin-left: 2px;"></p-columnFilter>
                     </div>
                 </th>
-                <th></th>
             </tr>
         </ng-template>
         <ng-template pTemplate="body" let-evento>
             <tr style="min-height: 55px;">
-                <!-- <td>
-                    <p-tableCheckbox [value]="evento"></p-tableCheckbox>
-                </td> -->
+                <td class="d-flex justify-content-end" style="min-height: 55px;">
+                    <button class="btn btn-ghost-warning" (click)="select(evento)"><ng-icon name="lucideSearchCheck"/></button>
+                </td>
                 <td hidden>{{ evento.id }}</td>
                 <td hidden>{{ evento.tipo.id }}</td>
                 <td hidden>{{ evento.numero }}</td>
@@ -82,9 +83,6 @@
                 <td>{{ evento?.cliente ? evento.cliente?.sigla + " - " + evento.cliente?.nombre : "-" }} </td>
                 <td>{{ evento?.producto ? evento.producto.sigla + " - " + evento.producto.nombre + " | " + evento.producto.entornoCodigo : "-" }}</td>
                 <td>{{ evento?.modulo ? evento.modulo.codigo + " - " + evento.modulo.nombre : "-" }}</td>
-                <td class="d-flex justify-content-end" style="min-height: 55px;">
-                    <button class="btn btn-ghost-warning" (click)="select(evento)"><ng-icon name="lucideSearchCheck"/></button>
-                </td>
             </tr>
         </ng-template>
         <ng-template pTemplate="summary">

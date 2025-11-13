@@ -7,6 +7,7 @@ import { NgbTypeaheadModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgIcon } from '@ng-icons/core';
 import { MessageService } from 'primeng/api';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { SelectModule } from 'primeng/select';
 import { ToastModule } from 'primeng/toast';
 import { tap } from 'rxjs';
 
@@ -17,6 +18,7 @@ import { tap } from 'rxjs';
     ToastModule,
     NgIcon,
     NgbTypeaheadModule,
+    SelectModule,
   ],
   providers: [
     MessageService,
@@ -31,6 +33,7 @@ export class ModalSel implements OnInit{
   private usuarioService = inject(UsuarioService);
 
   private cdr = inject(ChangeDetectorRef);
+  private messageService = inject(MessageService);
 
   usuarios: Usuario[] = [];
   usuario!:Usuario;
@@ -40,6 +43,7 @@ export class ModalSel implements OnInit{
 
   mensaje: string = '';
   modo: string = '';
+  rol: string = '';
 
   etapaActual: string = '';
   proximaEtapa: string = '';
@@ -54,12 +58,10 @@ export class ModalSel implements OnInit{
     this.etapaActual = data.etapaActual ?? '';
     this.proximaEtapa = data.proximaEtapa ?? '';
 
-    console.log('ModalSel data', data);
-
-    const rol = data.rol;
-    if (rol) {
-      this.usuarioService.getByRol(rol).pipe(
-        tap((res: any) => console.log('getByRol', res))
+    this.rol = data.rol;
+    if (this.rol) {
+      this.usuarioService.getByRol(this.rol).pipe(
+        // tap((res: any) => console.log('getByRol', res))
       ).subscribe({
         next: (res: any) => {
           this.usuarios = res || [];
@@ -67,6 +69,8 @@ export class ModalSel implements OnInit{
           if (!this.usuarios.length) {
             this.cargarTodos();
           } else {
+            this.usuarios = res || [];
+            this.searchUsuario = createTypeaheadSearch(this.usuarios, u => `${u.usuario} | ${u.nombre} ${u.apellido}`);
             this.cdr.detectChanges();
           }
         },
@@ -80,8 +84,9 @@ export class ModalSel implements OnInit{
   }
 
   private cargarTodos(){
-    this.usuarioService.getAll().pipe(
-      tap((res: any) => console.log('getAll', res))
+    // console.log(this.rol)
+    this.usuarioService.getByRol(this.rol).pipe(
+      // tap((res: any) => console.log('getAll', res))
     ).subscribe({
       next: (res: any) => {
         this.usuarios = res || [];
@@ -101,8 +106,32 @@ export class ModalSel implements OnInit{
       return;
     }
 
+    // Si hay un rol exigido, comprobar que el usuario lo tenga; si no, impedir la asignación.
+    // if (this.rol) {
+    //   const rolesUsuario = this.usuario?.roles ?? [];
+    //   const roles = rolesUsuario.map(r => r.rolCodigo);
+    //   let hasRole = false;
+    //   if (Array.isArray(roles)) {
+    //     hasRole = roles.includes(this.rol);
+    //   } else if (roles && typeof roles === 'object') {
+    //     // soporte para objeto { rolName: true } o similar
+    //     hasRole = this.rol in roles || Object.values(roles).includes(this.rol);
+    //   }
+
+    //   if (!hasRole) {
+    //     this.messageService.add({
+    //       severity: 'warn',
+    //       summary: 'Rol no permitido',
+    //       detail: 'El usuario no tiene el rol requerido y no puede ser asignado.'
+    //     });
+    //     return;
+    //   }
+    // }
+
+    // console.log('Usuario seleccionado:', this.usuario);
+
     this.cerrar({
-      usuarioSeleccionado: this.usuario.id,
+      usuarioSeleccionado: (this.usuario) ? this.usuario.id : '',
       comentario: this.comentario,
     });
   }
