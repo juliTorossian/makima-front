@@ -2,13 +2,13 @@ import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core'
 import { RouterOutlet } from '@angular/router'
 import { SidenavComponent } from '@layouts/components/sidenav/sidenav.component'
 import { Topbar } from '@layouts/components/topbar/topbar'
-import { Footer } from '@layouts/components/footer/footer'
 import { debounceTime, fromEvent, Subscription } from 'rxjs'
 import { LayoutStoreService } from '@core/services/layout-store.service'
 import { DialogModule } from 'primeng/dialog'
 import { SHORTCUTS } from '@/app/constants/shortcut'
 import { ShortcutTable } from "@layouts/components/shortcut-table/shortcut-table";
 import { EventoCronometroComponent } from '@app/components/evento-cronometro';
+import { Footer } from '@layouts/components/footer/footer'
 
 @Component({
   selector: 'app-vertical-layout',
@@ -17,7 +17,8 @@ import { EventoCronometroComponent } from '@app/components/evento-cronometro';
     SidenavComponent,
     Topbar,
     ShortcutTable,
-    EventoCronometroComponent
+    EventoCronometroComponent,
+    Footer,
 ],
   templateUrl: './vertical-layout.html',
   styles: `

@@ -47,28 +47,29 @@
     </div>
 
     <div class="col-md-4">
-      <label for="cliente" class="form-label">Cliente</label>
-      <div class="row">
-        <div class="col-md-10">
-          <input
-            id="cliente"
-            class="form-control mb-2"
-            type="text"
-            formControlName="cliente"
-            [ngbTypeahead]="searchCliente"
-            [inputFormatter]="formatterCliente"
-            [resultFormatter]="formatterCliente"
-            placeholder="Buscar cliente..."
-          />
-        </div>
-        <div class="col-md-2">
-          <button card-actions class="btn btn-icon btn-outline-info" 
-            (click)="modalSelCliente($event)"
-          >
-            <ng-icon name="lucideSearch" />
-          </button>
-        </div>
-      </div>
+      <label for="clienteIds" class="form-label">Clientes</label>
+      <p-multiSelect
+        id="clienteIds"
+        formControlName="clienteIds"
+        [options]="clientes"
+        optionLabel="nombre"
+        optionValue="id"
+        placeholder="Seleccionar clientes"
+        display="chip"
+        [filter]="true"
+        filterPlaceholder="Buscar cliente..."
+        styleClass="w-100"
+        appendTo="body"
+      >
+        <ng-template let-cliente pTemplate="item">
+          <div class="flex align-items-center gap-2">
+            <span><strong>{{ cliente.sigla }}</strong> - {{ cliente.nombre }}</span>
+          </div>
+        </ng-template>
+      </p-multiSelect>
+      @if (get('clienteIds')?.invalid && get('clienteIds')?.touched) {
+        <div class="invalid-feedback d-block">Debe seleccionar al menos un cliente.</div>
+      }
     </div>
 
     <div class="col-md-4">

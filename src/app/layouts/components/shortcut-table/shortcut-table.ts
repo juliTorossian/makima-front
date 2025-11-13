@@ -25,7 +25,8 @@ export class ShortcutTable implements OnInit {
         combo: definicion.combo,
         descripcion: definicion.descripcion
       }));
-    });
+      this.cdr.detectChanges();
+    }, 0);
   }
   
   mostarInfoShortcut(){

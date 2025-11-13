@@ -79,8 +79,8 @@ export interface EventoProyecto {
   nombre: string;
   activo: boolean;
   critico: boolean;
-  clienteId?: number;
-  cliente?: EventoCliente;
+  clienteIds?: number[];
+  clientes?: EventoCliente[];
 }
 
 /** Módulo enriquecido para EventoCompleto */

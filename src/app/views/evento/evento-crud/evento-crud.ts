@@ -83,6 +83,7 @@ export class EventoCrud extends CrudFormModal<Evento> {
   clientes!: Cliente[];
   productos!: Producto[];
   proyectos!: Proyecto[];
+  proyectosCompletos!: Proyecto[]; // Todos los proyectos sin filtrar
 
   loading: boolean = false;
 
@@ -315,6 +316,8 @@ export class EventoCrud extends CrudFormModal<Evento> {
         this.tiposEvento = res;
         this.searchTipoEvento = createTypeaheadSearch(this.tiposEvento, te => `${te.codigo} - ${te.descripcion}`);
         this.checkAndSetupEditMode();
+        // Forzar detección de cambios después de cargar
+        this.cdr.detectChanges();
       }
     });
 
@@ -342,19 +345,60 @@ export class EventoCrud extends CrudFormModal<Evento> {
       this.applyTipoPropioValidators(te);
     });
 
-    // Suscribirse a cambios en cliente para recargar proyectos filtrados
+    // Suscribirse a cambios en cliente para filtrar proyectos localmente
     this.form.get('cliente')?.valueChanges.subscribe((cliente: Cliente | null) => {
-      // Solo recargar proyectos si es un objeto Cliente válido, no un string
+      // Solo filtrar proyectos si es un objeto Cliente válido, no un string
       if (cliente && typeof cliente === 'object' && cliente.id) {
         const clienteId = cliente.id;
-        this.getProyectos(clienteId);
-        // Limpiar el proyecto seleccionado cuando cambia el cliente
-        this.form.patchValue({ proyecto: null }, { emitEvent: false });
-        // Limpiar error de sinProyectos si existe
-        const proyectoCtrl = this.form.get('proyecto');
-        if (proyectoCtrl?.hasError('sinProyectos')) {
-          proyectoCtrl.setErrors(null);
+        
+        // Asegurarse de que proyectosCompletos esté inicializado
+        if (!this.proyectosCompletos || this.proyectosCompletos.length === 0) {
+          return;
         }
+        
+        // Filtrar localmente los proyectos que incluyen este cliente
+        const proyectosFiltrados = this.proyectosCompletos.filter(p => 
+          p.clienteIds && Array.isArray(p.clienteIds) && p.clienteIds.includes(clienteId)
+        );
+        
+        // Usar setTimeout para evitar NG0100
+        setTimeout(() => {
+          // Actualizar la lista de proyectos y el typeahead search
+          this.proyectos = proyectosFiltrados;
+          this.searchProyecto = createTypeaheadSearch(
+            this.proyectos, 
+            p => `${p.sigla} - ${p.nombre}`
+          );
+          
+          // Limpiar el proyecto seleccionado cuando cambia el cliente
+          this.form.patchValue({ proyecto: null }, { emitEvent: false });
+          
+          // Validar si hay proyectos disponibles
+          const proyectoCtrl = this.form.get('proyecto');
+          if (proyectosFiltrados.length === 0) {
+            proyectoCtrl?.setErrors({ sinProyectos: true });
+            this.showWarn(
+              'Formulario incompleto',
+              `El cliente seleccionado no tiene proyectos asociados. Por favor seleccione otro cliente o cree un proyecto para este cliente.`
+            );
+          } else {
+            if (proyectoCtrl?.hasError('sinProyectos')) {
+              proyectoCtrl.setErrors(null);
+            }
+          }
+          
+          this.cdr.detectChanges();
+        }, 0);
+      } else if (!cliente) {
+        // Si se limpia el cliente, restaurar todos los proyectos
+        setTimeout(() => {
+          this.proyectos = this.proyectosCompletos || [];
+          this.searchProyecto = createTypeaheadSearch(
+            this.proyectos, 
+            p => `${p.sigla} - ${p.nombre}`
+          );
+          this.cdr.detectChanges();
+        }, 0);
       }
     });
 
@@ -367,31 +411,26 @@ export class EventoCrud extends CrudFormModal<Evento> {
     });
   }
 
-  getProyectos(clienteId: number | null = null) {
-    this.proyectoService.getAll(FiltroActivo.TRUE, clienteId).subscribe({
+  getProyectos() {
+    // Cargar todos los proyectos activos una sola vez
+    this.proyectoService.getAll(FiltroActivo.TRUE).subscribe({
       next: (res: any) => {
-        this.proyectos = res;
+        // Transformar la estructura si viene con la relación 'clientes' en lugar de 'clienteIds'
+        const proyectosTransformados = res.map((p: any) => {
+          if (!p.clienteIds && p.clientes && Array.isArray(p.clientes)) {
+            // Extraer los clienteId desde el array de relaciones
+            return {
+              ...p,
+              clienteIds: p.clientes.map((c: any) => c.clienteId)
+            };
+          }
+          return p;
+        });
+        
+        this.proyectosCompletos = proyectosTransformados;
+        this.proyectos = proyectosTransformados;
         this.searchProyecto = createTypeaheadSearch(this.proyectos, p => `${p.sigla} - ${p.nombre}`);
         this.checkAndSetupEditMode();
-        
-        // Validar si el cliente seleccionado tiene proyectos (solo si hay un clienteId)
-        if (clienteId !== null) {
-          const proyectoCtrl = this.form.get('proyecto');
-          
-          if (this.proyectos.length === 0) {
-            proyectoCtrl?.setErrors({ sinProyectos: true });
-            
-            this.showWarn(
-              'Formulario incompleto',
-              `El cliente seleccionado no tiene proyectos asociados. Por favor seleccione otro cliente o cree un proyecto para este cliente.`
-            );
-          } else {
-            // Si tiene proyectos, limpiar el error
-            if (proyectoCtrl?.hasError('sinProyectos')) {
-              proyectoCtrl.setErrors(null);
-            }
-          }
-        }
       }
     });
   }
@@ -428,8 +467,10 @@ export class EventoCrud extends CrudFormModal<Evento> {
       return false;
     }
 
-    // Verificar si el cliente tiene proyectos asociados
-    const proyectosDelCliente = this.proyectos.filter(p => p.clienteId === cliente.id);
+    // Verificar si el cliente tiene proyectos asociados (relación muchos a muchos)
+    const proyectosDelCliente = this.proyectosCompletos?.filter(p => 
+      p.clienteIds && Array.isArray(p.clienteIds) && p.clienteIds.includes(cliente.id)
+    ) || [];
     
     return proyectosDelCliente.length > 0;
   }
@@ -443,7 +484,7 @@ export class EventoCrud extends CrudFormModal<Evento> {
     // Buscar los objetos completos para los typeahead
     const tipoEventoObj = this.tiposEvento?.find(te => te.codigo === data.tipoCodigo) || null;
     const clienteObj = this.clientes?.find(c => c.id === data.clienteId) || null;
-    const proyectoObj = this.proyectos?.find(p => p.id === data.proyectoId) || null;
+    const proyectoObj = this.proyectosCompletos?.find(p => p.id === data.proyectoId) || null;
     const productoObj = this.productos?.find(p => p.id === data.productoId) || null;
     const moduloObj = this.modulos?.find(m => m.codigo === data.moduloCodigo) || null;
 
@@ -647,8 +688,11 @@ export class EventoCrud extends CrudFormModal<Evento> {
       return;
     }
 
-    // Si hay cliente y proyecto válidos, validar que coincidan
-    if (proyecto.clienteId !== cliente.id) {
+    // Si hay cliente y proyecto válidos, validar que coincidan (relación muchos a muchos)
+    const clienteId = cliente.id;
+    const proyectoClienteIds = proyecto.clienteIds;
+    
+    if (!proyectoClienteIds || !Array.isArray(proyectoClienteIds) || !proyectoClienteIds.includes(clienteId)) {
       this.showError('Error', 'El proyecto seleccionado no pertenece al cliente seleccionado.');
       this.form.patchValue({ proyecto: null }, { emitEvent: false });
     }
