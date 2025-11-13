@@ -7,6 +7,7 @@ import { NgbTypeaheadModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgIcon } from '@ng-icons/core';
 import { MessageService } from 'primeng/api';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { SelectModule } from 'primeng/select';
 import { ToastModule } from 'primeng/toast';
 import { tap } from 'rxjs';
 
@@ -17,6 +18,7 @@ import { tap } from 'rxjs';
     ToastModule,
     NgIcon,
     NgbTypeaheadModule,
+    SelectModule,
   ],
   providers: [
     MessageService,
@@ -56,13 +58,10 @@ export class ModalSel implements OnInit{
     this.etapaActual = data.etapaActual ?? '';
     this.proximaEtapa = data.proximaEtapa ?? '';
 
-    console.log('ModalSel data', data);
-
     this.rol = data.rol;
-    console.log(this.rol)
     if (this.rol) {
       this.usuarioService.getByRol(this.rol).pipe(
-        tap((res: any) => console.log('getByRol', res))
+        // tap((res: any) => console.log('getByRol', res))
       ).subscribe({
         next: (res: any) => {
           this.usuarios = res || [];
@@ -85,9 +84,9 @@ export class ModalSel implements OnInit{
   }
 
   private cargarTodos(){
-    console.log(this.rol)
+    // console.log(this.rol)
     this.usuarioService.getByRol(this.rol).pipe(
-      tap((res: any) => console.log('getAll', res))
+      // tap((res: any) => console.log('getAll', res))
     ).subscribe({
       next: (res: any) => {
         this.usuarios = res || [];
@@ -129,8 +128,10 @@ export class ModalSel implements OnInit{
     //   }
     // }
 
+    // console.log('Usuario seleccionado:', this.usuario);
+
     this.cerrar({
-      usuarioSeleccionado: this.usuario.id,
+      usuarioSeleccionado: (this.usuario) ? this.usuario.id : '',
       comentario: this.comentario,
     });
   }

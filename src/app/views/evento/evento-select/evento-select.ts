@@ -72,13 +72,12 @@ export class EventoSelect extends SelectBase<Evento> {
         this.eventoService.getAllComplete(this.filtroEvento).pipe(
             finalize(() => {
                 this.loadingSelect = false
-                
+                this.cdr.detectChanges();
             })
         ).subscribe({
             next: (res: EventoCompleto[]) => {
                 // console.log(res);
                 this.eventos = res;
-                this.cdr.detectChanges();
             },
             error: () => {
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron cargar los eventos' });

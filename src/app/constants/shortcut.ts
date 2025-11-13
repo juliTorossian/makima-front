@@ -4,7 +4,7 @@ export const SHORTCUTS = {
     descripcion: 'Crear nuevo registro'
   },
   INFO: {
-    combo: 'Ctrl+I',
+    combo: 'Alt+I',
     descripcion: 'Ver atajos de teclado'
   },
 } as const;

@@ -42,20 +42,27 @@ export class ProyectoSelect extends SelectBase<Proyecto> {
     }
 
     override ngOnInit(): void {
-        // Obtener el clienteId de la configuración del diálogo
+        super.ngOnInit();
+        
+        // Obtener el clienteId después de la inicialización
         this.clienteId = this.config?.data?.clienteId ?? null;
         
-        super.ngOnInit();
+        // Recargar items con el clienteId actualizado
+        if (this.clienteId !== null) {
+            this.loadItems();
+        }
     }
 
     loadItems() {
         this.loadingSelect = true;
         this.proyectoService.getAll(FiltroActivo.TRUE, this.clienteId).pipe(
-            finalize(() => this.loadingSelect = false)
+            finalize(() => {
+                this.loadingSelect = false
+                this.cdr.detectChanges();
+            })
         ).subscribe({
             next: (res: Proyecto[]) => {
                 this.proyectos = res;
-                this.cdr.detectChanges();
             },
             error: () => {
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron cargar los proyectos' });

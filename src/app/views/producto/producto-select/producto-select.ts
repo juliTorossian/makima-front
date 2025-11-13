@@ -40,12 +40,14 @@ export class ProductoSelect extends SelectBase<Producto> {
     loadItems() {
         this.loadingSelect = true;
         this.productoService.getAll().pipe(
-            finalize(() => this.loadingSelect = false)
+            finalize(() => {
+                this.loadingSelect = false;
+                this.cdr.detectChanges();
+            })
         ).subscribe({
             next: (res: Producto[]) => {
                 // console.log(res);
                 this.productos = res;
-                this.cdr.detectChanges();
             },
             error: () => {
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron cargar los productos' });

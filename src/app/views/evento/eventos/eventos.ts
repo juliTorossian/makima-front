@@ -33,6 +33,7 @@ import { FiltroActivo } from '@/app/constants/filtros_activo';
 import { ControlTrabajarCon } from '@app/components/trabajar-con/components/control-trabajar-con';
 import { getTimestamp } from '@/app/utils/time-utils';
 import { parseIsoAsLocal } from '@/app/utils/datetime-utils';
+import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-eventos',
@@ -54,6 +55,7 @@ import { parseIsoAsLocal } from '@/app/utils/datetime-utils';
     TooltipModule,
     FiltroRadioGroupComponent,
     ControlTrabajarCon,
+    NgbTooltipModule,
   ],
   providers: [
     DialogService,
@@ -262,10 +264,12 @@ export class Eventos extends TrabajarCon<Evento> {
       reqComentario: reqComentario,
       comentario: "",
       mensaje: mensaje,
+      rol
     }
 
     this.ref = this.dialogService.open(ModalSel, {
       ...modalConfig,
+      width: '50%',
       header,
       data
     });

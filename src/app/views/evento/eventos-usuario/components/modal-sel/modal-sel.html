@@ -61,9 +61,41 @@
     @if(modo !== 'REC') {
     <div class="mb-3">
         <label for="usuario" class="form-label">Usuario</label>
-        <input id="usuario" class="form-control mb-2" type="text" [(ngModel)]="usuario"
-                  [ngbTypeahead]="searchUsuario" [inputFormatter]="formatterUsuario"
-                  [resultFormatter]="formatterUsuario" placeholder="Buscar usuario..." />
+        <!-- <p-select 
+            id="usuario"
+            [(ngModel)]="usuario"
+            [options]="usuariosOptions"
+            optionLabel="nombre"
+            placeholder="Buscar usuario..."
+            [filter]="true"
+            filterPlaceholder="Buscar..."
+            [showClear]="true"
+            styleClass="w-100"
+        /> -->
+        <div class="card flex justify-center">
+            <p-select
+                id="usuario"
+                [options]="usuarios"
+                [(ngModel)]="usuario"
+                optionLabel="usuario"
+                [filter]="true"
+                filterBy="usuario,nombre,apellido"
+                [showClear]="true"
+                placeholder="Seleccionar usuario"
+                class="w-full md:w-56"
+            >
+                <ng-template #selectedItem let-selectedOption>
+                    <div class="flex items-center gap-2">
+                        <div>{{ `${selectedOption.usuario} | ${selectedOption.nombre} ${selectedOption.apellido}` }}</div>
+                    </div>
+                </ng-template>
+                <ng-template let-usuario #item>
+                        <div class="flex items-center gap-2">
+                        <div>{{ `${usuario.usuario} | ${usuario.nombre} ${usuario.apellido}` }}</div>
+                    </div>
+                </ng-template>
+            </p-select>
+        </div>
         <div class="form-text">Asigna al siguiente responsable.</div>
     </div>
     }

@@ -14,7 +14,7 @@ export class ShortcutService implements OnDestroy {
       const combo = this.normalizeShortcut(event);
 
       // Lista de combos para los que queremos evitar el comportamiento por defecto
-      const combosPreventDefault = ['CTRL+S', 'ALT+N', 'ESCAPE'];
+      const combosPreventDefault = ['CTRL+S', 'ALT+A', 'ALT+N', 'ESCAPE'];
 
       if (combosPreventDefault.includes(combo.toUpperCase())) {
         event.preventDefault();
@@ -22,7 +22,6 @@ export class ShortcutService implements OnDestroy {
 
       return combo;
     }),
-    shareReplay(1),
     takeUntil(this.destroy$)
   );
 

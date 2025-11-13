@@ -40,7 +40,10 @@ export class ClienteSelect extends SelectBase<Cliente> {
     loadItems() {
         this.loadingSelect = true;
         this.clienteService.getAll().pipe(
-            finalize(() => this.loadingSelect = false)
+            finalize(() => {
+                this.loadingSelect = false
+                this.cdr.detectChanges();
+            })
         ).subscribe({
             next: (res: Cliente[]) => {
                 // console.log(res);

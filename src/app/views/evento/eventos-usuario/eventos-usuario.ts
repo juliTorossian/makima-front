@@ -24,7 +24,7 @@ import { EventoDrawerComponent } from '../evento-drawer/evento-drawer';
 import { CommonModule } from '@angular/common';
 import { UsuarioDrawerComponent } from '../../usuario/usuario-drawer/usuario-drawer';
 import { PadZeroPipe } from '@core/pipes/pad-zero.pipe';
-import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbPopoverModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { TooltipModule } from 'primeng/tooltip';
 import { parseIsoAsLocal } from '@/app/utils/datetime-utils';
 import { PrioridadIconComponent } from '@app/components/priority-icon';
@@ -49,6 +49,7 @@ import { EventoCronometroComponent } from '@app/components/evento-cronometro';
     NgbPopoverModule,
     TooltipModule,
     PrioridadIconComponent,
+    NgbTooltipModule,
   ],
   providers: [
     DialogService,
@@ -185,16 +186,15 @@ export class EventosUsuario extends TrabajarCon<Evento> {
         header = "Autorizar Evento";
         data.etapaActual = evento?.etapaActualData?.nombre ?? '';
         data.proximaEtapa = evento?.etapaSiguiente?.nombre ?? '';
-        data.rol = evento?.etapaActualData?.rolPreferido ?? '';
+        data.rol = evento?.etapaSiguiente?.rolPreferido ?? '';
         break;
       case 'REC':
         header = "Rechazar Evento";
         data.etapaActual = evento?.etapaActualData?.nombre ?? '';
         data.proximaEtapa = evento?.etapaAnterior?.nombre ?? '';
-        data.rol = evento?.etapaActualData?.rolPreferido ?? '';
+        // data.rol = evento?.etapaActualData?.rolPreferido ?? '';
         break;
     }
-
 
     this.ref = this.dialogService.open(ModalSel, {
       ...modalConfig,
@@ -280,6 +280,7 @@ export class EventosUsuario extends TrabajarCon<Evento> {
         },
       });
     } else if (modo === 'REC') {
+      delete body.usuarioId; // no se usa en rechazar
       this.eventoAccionesService.rechazar(body).subscribe({
         next: () => this.showSuccess('Evento rechazado correctamente.'),
         error: (err: any) => this.showError(err.error.message || 'Error al rechazar el evento.'),

@@ -6,6 +6,7 @@ export interface TipoEvento {
   propio?: boolean;
   facturable?: boolean;
   facturableAuto?: boolean;
+  label?: string;
   // eventos?: Evento[];
   etapas?: TipoEventoEtapa[];
 }

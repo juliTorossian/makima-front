@@ -2,43 +2,36 @@ import { CommonModule } from '@angular/common';
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { NgIcon } from '@ng-icons/core';
 import { TooltipModule } from 'primeng/tooltip';
+import { SelectButtonModule } from 'primeng/selectbutton';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-filtro-radio-group',
   imports: [
     NgIcon,
     TooltipModule,
-    CommonModule
-],
+    CommonModule,
+    SelectButtonModule,
+    FormsModule
+  ],
   template: `
-    <div class="btn-group" role="group" aria-label="Radio toggle group">
-      @for (opt of options; track opt; let i = $index) {
-        <ng-container>
-          <input
-            type="radio"
-            class="btn-check"
-            [name]="name"
-            [id]="name + i"
-            [value]="opt.value"
-            [checked]="opt.value === checkedValue"
-            (change)="onChange($event)"
-          />
-          <label
-            class="btn btn-outline-secondary"
-            [for]="name + i"
-            [pTooltip]="opt.label"
-            tooltipPosition="top"
-          >
-            @if(!notIcon && (opt.icon || !opt.label)) {
-              <ng-icon [name]="opt.icon" />
-            }
-            @if(!notLabel || !opt.icon) {
-              <span [ngClass]="(opt.icon ? 'ms-1' : '')">{{ opt.label }}</span>
-            }
-          </label>
-        </ng-container>
-      }
-    </div>
+    <p-selectButton
+      [options]="options"
+      [(ngModel)]="checkedValue"
+      (ngModelChange)="onChange($event)"
+      optionLabel="label"
+      optionValue="value"
+      size="small"
+    >
+      <ng-template let-item>
+        <!-- @if(!notIcon && item.icon) { -->
+          <ng-icon [name]="item.icon" />
+        <!-- } -->
+        <!-- @if(!notLabel && (!item.icon || !notIcon)) {
+          <span [ngClass]="(item.icon && !notIcon ? 'ms-1' : '')">{{ item.label }}</span>
+        } -->
+      </ng-template>
+    </p-selectButton>
   `
 })
 export class FiltroRadioGroupComponent {
@@ -54,8 +47,7 @@ export class FiltroRadioGroupComponent {
 
   @Output() filtroCambio = new EventEmitter<string>();
 
-  onChange(event: Event) {
-    const value = (event.target as HTMLInputElement).value;
+  onChange(value: string) {
     this.filtroCambio.emit(value);
   }
 }

@@ -10,7 +10,15 @@
                         </ng-template>
                         <ng-template pTemplate="right">
                             @if (can('A')) {
-                                <button class="btn btn-ghost-success btn-md" (click)="mostrarModalCrud(null, 'A')" [appShortcut]="SHORTCUTS.NUEVO" (appShortcutTrigger)="mostrarModalCrud(null, 'A')">Solicitar Reporte</button>
+                                <button
+                                    class="btn btn-ghost-success btn-md"
+                                    (click)="mostrarModalCrud(null, 'A')"
+                                    [appShortcut]="SHORTCUTS.NUEVO"
+                                    (appShortcutTrigger)="mostrarModalCrud(null, 'A')"
+                                >
+                                    Solicitar Reporte
+                                </button>
+
                             }
                         </ng-template>
                     </p-toolbar>

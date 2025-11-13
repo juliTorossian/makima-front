@@ -27,7 +27,7 @@ const DEFAULT_DROPZONE_CONFIG: DropzoneConfigInterface = {
   imports: [DropzoneModule, NgIcon],
   template: `
     <dropzone
-      class="dropzone"
+      class="dropzone compact-dropzone"
       [config]="dropzoneConfig"
       [message]="dropzone"
       (addedFile)="onFileAdded($event)"
@@ -84,6 +84,48 @@ const DEFAULT_DROPZONE_CONFIG: DropzoneConfigInterface = {
       </div>
     }
   `,
+  styles: [`
+    :host ::ng-deep .compact-dropzone .dz-wrapper {
+      min-height: var(--dropzone-min-height, 120px) !important;
+      max-height: var(--dropzone-max-height, none) !important;
+      width: var(--dropzone-width, 100%) !important;
+      overflow: hidden !important;
+    }
+    :host ::ng-deep .compact-dropzone .dz-message {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 0.75rem !important;
+      padding: 0 1rem !important;
+      height: inherit !important;
+      margin: 0 !important;
+      min-height: 80px !important;
+      max-height: 100% !important;
+      overflow: hidden !important;
+    }
+    :host ::ng-deep .compact-dropzone .dz-message > div {
+      margin: 0 !important;
+      flex-shrink: 1 !important;
+    }
+    :host ::ng-deep .compact-dropzone .avatar-lg {
+      width: 2rem !important;
+      height: 2rem !important;
+      margin: 0 !important;
+      flex-shrink: 0 !important;
+    }
+    :host ::ng-deep .compact-dropzone h4 {
+      font-size: 0.85rem !important;
+      margin-bottom: 0.25rem !important;
+      margin-top: 0 !important;
+      line-height: 1.2 !important;
+      white-space: nowrap !important;
+    }
+    :host ::ng-deep .compact-dropzone .btn {
+      padding: 0.25rem 0.5rem !important;
+      font-size: 0.7rem !important;
+      white-space: nowrap !important;
+    }
+  `],
   providers: [
     {
       provide: DROPZONE_CONFIG,
@@ -94,6 +136,9 @@ const DEFAULT_DROPZONE_CONFIG: DropzoneConfigInterface = {
 export class FileUploader {
   @Input() url:string = '/fake'
   @Input() maxFilesize:number = 10
+  @Input() dropzoneMinHeight:string = '120px'
+  @Input() dropzoneMaxHeight:string = 'none'
+  @Input() dropzoneWidth:string = '100%'
   @Output() fileAdded = new EventEmitter<File>()
   formatFileSize = formatFileSize
   uploadedFiles: UploadedFile[] = []
@@ -101,18 +146,18 @@ export class FileUploader {
   dropzoneConfig: DropzoneConfigInterface = { ...DEFAULT_DROPZONE_CONFIG };
 
   dropzone = `
-   <div class="dz-message needsclick">
-             <div class="avatar-lg mx-auto my-3">
+   <div class="dz-message needsclick" style="padding: 0 !important; height: inherit !important;">
+             <div class="avatar-lg">
                         <span class="avatar-title bg-info-subtle text-info rounded-circle">
-                            <span class="fs-24 text-info">
-                            <span class="fs-24 upload-icon"></span>
+                            <span class="fs-20 text-info">
+                            <span class="fs-20 upload-icon"></span>
                         </span>
                         </span>
                     </div>
-                        <h4 class="mb-2">Arrastras archivos o click para subir.</h4>
-            <span class="d-block pb-3">
-                <span type="button" class="btn btn-sm shadow btn-default">Mis Achivos</span>
-            </span>
+                    <div>
+                        <h4>Arrastrar archivos o click para subir.</h4>
+                        <span type="button" class="btn btn-sm shadow btn-default">Mis Archivos</span>
+                    </div>
         </div>`
 
   imageURL: string = ''
