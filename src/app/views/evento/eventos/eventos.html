@@ -13,6 +13,19 @@
                     (filtroCambio)="filtroCambio($event)"
                     [notLabel]="true"
                 ></app-filtro-radio-group>
+
+                <p-datepicker
+                    [(ngModel)]="filtroFecha"
+                    selectionMode="range"
+                    [iconDisplay]="'input'"
+                    [showIcon]="true"
+                    [showButtonBar]="true"
+                    inputId="icondisplay"
+                    (ngModelChange)="onFechaChange()"
+                    (onClearClick)="onClearFecha()"
+                    style="margin-left: 10px;"
+                />
+
             </ng-template>
             <ng-template pTemplate="right">
                 @if (can('A')) {
@@ -21,6 +34,7 @@
                         (plantilla)="getPlantilla()"
                         (exportarExcel)="exportarExcel()"
                         (importar)="importarExcel($event)"
+                        hidden
                     ></app-control-trabajar-con>
                 }
             </ng-template>

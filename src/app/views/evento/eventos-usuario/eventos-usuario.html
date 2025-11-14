@@ -9,8 +9,24 @@
                 <div card-body>
                     <p-toolbar styleClass="mb-4 gap-2">
                         <ng-template pTemplate="left">
+                            <p-datepicker
+                                [(ngModel)]="filtroFecha"
+                                selectionMode="range"
+                                [iconDisplay]="'input'"
+                                [showIcon]="true"
+                                [showButtonBar]="true"
+                                inputId="icondisplay"
+                                (ngModelChange)="onFechaChange()"
+                                (onClearClick)="onClearFecha()"
+                            />
                         </ng-template>
                         <ng-template pTemplate="right">
+                            <app-control-trabajar-con
+                                (nuevo)="mostrarModalCrud(null, 'A')"
+                                (plantilla)="getPlantilla()"
+                                (exportarExcel)="exportarExcel()"
+                                (importar)="importarExcel($event)"
+                            ></app-control-trabajar-con>
                         </ng-template>
                     </p-toolbar>
                     <p-table

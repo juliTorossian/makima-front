@@ -61,7 +61,8 @@
                   [class.is-invalid]="get('cliente')?.invalid && get('cliente')?.touched"
                   class="form-control mb-2"
                   [ngbTypeahead]="searchCliente" [inputFormatter]="formatterCliente"
-                  [resultFormatter]="formatterCliente" placeholder="Buscar cliente..." />
+                  [resultFormatter]="formatterCliente" placeholder="Buscar cliente..."
+                  (blur)="onClienteBlur()" />
               </div>
               <div class="col-md-2">
                 <div class="btn-group" role="group">
@@ -75,7 +76,11 @@
               </div>
             </div>
             @if (get('cliente')?.invalid && get('cliente')?.touched) {
-              <div class="invalid-feedback d-block">Debe ingresar un cliente.</div>
+              @if (get('cliente')?.errors?.['required']) {
+                <div class="invalid-feedback d-block">Debe ingresar un cliente.</div>
+              } @else if (get('cliente')?.errors?.['invalidObject']) {
+                <div class="invalid-feedback d-block">Debe seleccionar una opción válida de la lista.</div>
+              }
             }
             @if (get('proyecto')?.errors?.['sinProyectos']) {
               <div class="text-warning small mt-1">
@@ -110,6 +115,9 @@
             @if (get('proyecto')?.touched && get('proyecto')?.errors?.['required']) {
               <div class="invalid-feedback d-block">Debe ingresar un proyecto.</div>
             }
+            @if (get('proyecto')?.touched && get('proyecto')?.errors?.['invalidObject']) {
+              <div class="invalid-feedback d-block">Debe seleccionar una opción válida de la lista.</div>
+            }
           </div>
 
         </div>
@@ -124,7 +132,8 @@
                   [class.is-invalid]="get('producto')?.invalid && get('producto')?.touched"
                   class="form-control mb-2"
                   [ngbTypeahead]="searchProducto" [inputFormatter]="formatterProducto"
-                  [resultFormatter]="formatterProducto" placeholder="Buscar producto..." />
+                  [resultFormatter]="formatterProducto" placeholder="Buscar producto..."
+                  (blur)="onProductoBlur()" />
               </div>
               <div class="col-md-2">
                 <div class="btn-group" role="group">
@@ -138,7 +147,11 @@
               </div>
             </div>
             @if (get('producto')?.invalid && get('producto')?.touched) {
-            <div class="invalid-feedback d-block">Debe ingresar un producto.</div>
+              @if (get('producto')?.errors?.['required']) {
+                <div class="invalid-feedback d-block">Debe ingresar un producto.</div>
+              } @else if (get('producto')?.errors?.['invalidObject']) {
+                <div class="invalid-feedback d-block">Debe seleccionar una opción válida de la lista.</div>
+              }
             }
           </div>
 
@@ -150,7 +163,8 @@
                   [class.is-invalid]="get('modulo')?.invalid && get('modulo')?.touched"
                   class="form-control mb-2"
                   [ngbTypeahead]="searchModulo" [inputFormatter]="formatterModulo" [resultFormatter]="formatterModulo"
-                  placeholder="Buscar modulo..." />
+                  placeholder="Buscar modulo..."
+                  (blur)="onModuloBlur()" />
               </div>
               <div class="col-md-2">
                 <div class="btn-group" role="group">
@@ -164,7 +178,11 @@
               </div>
             </div>
             @if (get('modulo')?.invalid && get('modulo')?.touched) {
-            <div class="invalid-feedback d-block">Debe ingresar un módulo.</div>
+              @if (get('modulo')?.errors?.['required']) {
+                <div class="invalid-feedback d-block">Debe ingresar un módulo.</div>
+              } @else if (get('modulo')?.errors?.['invalidObject']) {
+                <div class="invalid-feedback d-block">Debe seleccionar una opción válida de la lista.</div>
+              }
             }
           </div>
         </div>

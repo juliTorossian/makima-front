@@ -29,6 +29,12 @@ import { TooltipModule } from 'primeng/tooltip';
 import { parseIsoAsLocal } from '@/app/utils/datetime-utils';
 import { PrioridadIconComponent } from '@app/components/priority-icon';
 import { EventoCronometroComponent } from '@app/components/evento-cronometro';
+import { DatePickerModule } from 'primeng/datepicker';
+import { FormsModule } from '@angular/forms';
+import { ControlTrabajarCon } from '@app/components/trabajar-con/components/control-trabajar-con';
+import { EventoCrud } from '../evento-crud/evento-crud';
+import { getTimestamp } from '@/app/utils/time-utils';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-eventos-usuario',
@@ -50,6 +56,9 @@ import { EventoCronometroComponent } from '@app/components/evento-cronometro';
     TooltipModule,
     PrioridadIconComponent,
     NgbTooltipModule,
+    DatePickerModule,
+    FormsModule,
+    ControlTrabajarCon,
   ],
   providers: [
     DialogService,
@@ -61,13 +70,44 @@ import { EventoCronometroComponent } from '@app/components/evento-cronometro';
 })
 export class EventosUsuario extends TrabajarCon<Evento> {
   protected override exportarExcelImpl(): void {
-    throw new Error('Method not implemented.');
+    this.eventoService.exportarExcel().subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `export_eventos_${getTimestamp()}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    });
   }
   protected override procesarExcel(file: File): void {
-    throw new Error('Method not implemented.');
+    const form = new FormData();
+    form.append('file', file);
+
+    this.loadingService.show();
+    this.eventoService.importarExcel(form).pipe(
+      finalize(() => {
+        this.loadingService.hide();
+      })
+    ).subscribe({
+      next: () => this.afterChange('Eventos importados correctamente.'),
+      error: (err) => this.showError(err?.error?.message || 'Error al importar eventos.')
+    });
   }
   protected override descargarPlantilla(): void {
-    throw new Error('Method not implemented.');
+    this.eventoService.descargarPlantilla().subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'plantilla_eventos.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    });
   }
   private eventoService = inject(EventoService);
   private eventoAccionesService = inject(EventoAccionesService);
@@ -89,12 +129,15 @@ export class EventosUsuario extends TrabajarCon<Evento> {
 
   eventos: EventoCompleto[] = [];
   
+  filtroFecha: Date[] | undefined;
+  
   // Simplificar las propiedades del evento en trabajo
   eventoEnTrabajo: EventoCompleto | null = null;
   tiempoInicioTrabajo: Date | null = null;
 
   override ngOnInit(): void {
     setTimeout(() => {
+      this.inicializarFiltroFecha();
       this.verificarEventoEnTrabajo();
       this.loadItems();
     });
@@ -120,9 +163,41 @@ export class EventosUsuario extends TrabajarCon<Evento> {
     this.permisos = ['A', 'M', 'B'];
   }
 
+  private inicializarFiltroFecha(): void {
+    const hoy = new Date();
+    const hace3Meses = new Date();
+    hace3Meses.setMonth(hoy.getMonth() - 3);
+    this.filtroFecha = [hace3Meses, hoy];
+  }
+
+  private formatearFecha(fecha: Date): string {
+    const dia = String(fecha.getDate()).padStart(2, '0');
+    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+    const anio = fecha.getFullYear();
+    return `${dia}/${mes}/${anio}`;
+  }
+
+  onFechaChange(): void {
+    if (this.filtroFecha && this.filtroFecha.length === 2 && this.filtroFecha[0] && this.filtroFecha[1]) {
+      this.loadItems();
+    }
+  }
+
+  onClearFecha(): void {
+    this.filtroFecha = undefined;
+    this.loadItems();
+  }
+
   protected loadItems(): void {
     this.loadingService.show();
-    this.eventoService.getAllCompleteByUsuario(this.usuarioActivo?.id ?? '').subscribe({
+    
+    let params: any = {};
+    if (this.filtroFecha && this.filtroFecha.length === 2 && this.filtroFecha[0] && this.filtroFecha[1]) {
+      params.desde = this.formatearFecha(this.filtroFecha[0]);
+      params.hasta = this.formatearFecha(this.filtroFecha[1]);
+    }
+
+    this.eventoService.getAllCompleteByUsuario(this.usuarioActivo?.id ?? '', params).subscribe({
       next: (res) => {
         console.log(res);
         setTimeout(() => {
@@ -147,11 +222,63 @@ export class EventosUsuario extends TrabajarCon<Evento> {
     });
   }
 
-  alta(evento: Evento): void { }
-  editar(evento: Evento): void { }
-  eliminarDirecto(evento: Evento): void { }
+  alta(evento: Evento): void {
+    delete evento.id
+    this.eventoService.create(evento).subscribe({
+      next: () => this.afterChange('Evento creado correctamente.'),
+      error: (err) => this.showError(err.error.message || 'Error al crear el evento.')
+    });
+  }
 
-  mostrarModalCrud(evento: EventoCompleto | null, modo: 'AVZ' | 'RTO' | 'RAS' | 'AUT' | 'REC') {
+  editar(evento: Evento): void {
+    let eventoCodigo = evento.id ?? '';
+    this.eventoService.update(eventoCodigo, evento).subscribe({
+      next: () => this.afterChange('Evento actualizado correctamente.'),
+      error: (err) => this.showError(err.error.message || 'Error al modificar el evento.')
+    });
+  }
+
+  eliminarDirecto(evento: Evento): void {
+    let eventoCodigo = evento.id ?? '';
+    this.eventoService.delete(eventoCodigo).subscribe({
+      next: () => this.afterChange('Evento eliminado correctamente.'),
+      error: (err) => this.showError(err.error.message || 'Error al eliminar el Evento.')
+    });
+  }
+
+  mostrarModalCrud(evento: EventoCompleto | null, modo: 'A' | 'M' | 'AVZ' | 'RTO' | 'RAS' | 'AUT' | 'REC') {
+    // Si es modo de Alta o Modificación, abrir el modal de EventoCrud
+    if (modo === 'A' || modo === 'M') {
+      const data = { item: evento, modo };
+      const header = modo === 'A' ? 'Nuevo Evento' : 'Modificar Evento';
+
+      this.ref = this.dialogService.open(EventoCrud, {
+        ...modalConfig,
+        header,
+        data
+      });
+
+      this.ref.onClose.subscribe((result: any) => {
+        if (!result) return;
+        this.loadingService.show();
+        // Si es FormData, usar los métodos privados
+        if (result instanceof FormData) {
+          if (modo === 'M') {
+            const id = evento?.id ?? '';
+            this.editarFormData(id, result);
+          } else {
+            console.log(result)
+            this.altaFormData(result);
+          }
+        } else {
+          // fallback por si alguna vez retorna un objeto plano
+          modo === 'M' ? this.editar(result) : this.alta(result);
+        }
+      });
+      return;
+    }
+
+    // Modo original para acciones de evento (AVZ, RTO, RAS, AUT, REC)
     let header: string;
     let data = {
       reqComentario: false,
@@ -289,6 +416,21 @@ export class EventosUsuario extends TrabajarCon<Evento> {
         },
       });
     }
+  }
+
+  // Métodos privados para manejar FormData
+  private altaFormData(formData: FormData): void {
+    this.eventoService.createAdicional(formData).subscribe({
+      next: () => this.afterChange('Evento creado correctamente.'),
+      error: () => this.showError('Error al crear el evento.')
+    });
+  }
+
+  private editarFormData(id: string, formData: FormData): void {
+    this.eventoService.updateAdicional(id, formData).subscribe({
+      next: () => this.afterChange('Evento actualizado correctamente.'),
+      error: () => this.showError('Error al modificar el evento.')
+    });
   }
 
   abrirUsuarioDrawer(usuarioId: string | null | undefined) {

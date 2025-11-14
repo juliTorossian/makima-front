@@ -7,7 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "build:gaci": "ng build --configuration gaci && npm run write-version",
+    "build:gaci": "npm run write-version && ng build --configuration gaci",
     "write-version": "node tools/write-version.js"
   },
   "prettier": {
