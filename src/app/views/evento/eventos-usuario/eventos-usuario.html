@@ -21,6 +21,12 @@
                             />
                         </ng-template>
                         <ng-template pTemplate="right">
+                            <app-control-trabajar-con
+                                (nuevo)="mostrarModalCrud(null, 'A')"
+                                (plantilla)="getPlantilla()"
+                                (exportarExcel)="exportarExcel()"
+                                (importar)="importarExcel($event)"
+                            ></app-control-trabajar-con>
                         </ng-template>
                     </p-toolbar>
                     <p-table

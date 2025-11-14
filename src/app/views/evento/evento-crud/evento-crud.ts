@@ -82,11 +82,11 @@ export class EventoCrud extends CrudFormModal<Evento> {
       if (!control.value) {
         return null; // Si está vacío, dejar que 'required' lo maneje
       }
-      // Verificar que sea un objeto con id
+      // Verificar que sea un objeto con id o codigo
       if (typeof control.value === 'string') {
         return { invalidObject: true };
       }
-      if (typeof control.value === 'object' && !control.value.id) {
+      if (typeof control.value === 'object' && !control.value.id && !control.value.codigo) {
         return { invalidObject: true };
       }
       return null;
@@ -317,9 +317,12 @@ export class EventoCrud extends CrudFormModal<Evento> {
 
     this.moduloService.getAll().subscribe({
       next: (res: any) => {
-        this.modulos = res;
-        this.searchModulo = createTypeaheadSearch(this.modulos, m => `${m.codigo} - ${m.nombre}`);
-        this.checkAndSetupEditMode();
+        setTimeout(() => {
+          this.modulos = res;
+          this.searchModulo = createTypeaheadSearch(this.modulos, m => `${m.codigo} - ${m.nombre}`);
+          this.checkAndSetupEditMode();
+          this.cdr.detectChanges();
+        });
       }
     });
 
@@ -330,25 +333,34 @@ export class EventoCrud extends CrudFormModal<Evento> {
       })))
     ).subscribe({
       next: (res: any) => {
-        this.tiposEvento = res;
-        this.searchTipoEvento = createTypeaheadSearch(this.tiposEvento, te => `${te.codigo} - ${te.descripcion}`);
-        this.checkAndSetupEditMode();
+        setTimeout(() => {
+          this.tiposEvento = res;
+          this.searchTipoEvento = createTypeaheadSearch(this.tiposEvento, te => `${te.codigo} - ${te.descripcion}`);
+          this.checkAndSetupEditMode();
+          this.cdr.detectChanges();
+        });
       }
     });
 
     this.clienteService.getAll().subscribe({
       next: (res: any) => {
-        this.clientes = res;
-        this.searchCliente = createTypeaheadSearch(this.clientes, c => `${c.sigla} - ${c.nombre}`);
-        this.checkAndSetupEditMode();
+        setTimeout(() => {
+          this.clientes = res;
+          this.searchCliente = createTypeaheadSearch(this.clientes, c => `${c.sigla} - ${c.nombre}`);
+          this.checkAndSetupEditMode();
+          this.cdr.detectChanges();
+        });
       }
     });
 
     this.productoService.getAll().subscribe({
       next: (res: any) => {
-        this.productos = res;
-        this.searchProducto = createTypeaheadSearch(this.productos, p => `${p.sigla} - ${p.nombre} | ${p.entornoCodigo}`);
-        this.checkAndSetupEditMode();
+        setTimeout(() => {
+          this.productos = res;
+          this.searchProducto = createTypeaheadSearch(this.productos, p => `${p.sigla} - ${p.nombre} | ${p.entornoCodigo}`);
+          this.checkAndSetupEditMode();
+          this.cdr.detectChanges();
+        });
       }
     });
 
@@ -422,22 +434,25 @@ export class EventoCrud extends CrudFormModal<Evento> {
     // Cargar todos los proyectos activos una sola vez
     this.proyectoService.getAll(FiltroActivo.TRUE).subscribe({
       next: (res: any) => {
-        // Transformar la estructura si viene con la relación 'clientes' en lugar de 'clienteIds'
-        const proyectosTransformados = res.map((p: any) => {
-          if (!p.clienteIds && p.clientes && Array.isArray(p.clientes)) {
-            // Extraer los clienteId desde el array de relaciones
-            return {
-              ...p,
-              clienteIds: p.clientes.map((c: any) => c.clienteId)
-            };
-          }
-          return p;
+        setTimeout(() => {
+          // Transformar la estructura si viene con la relación 'clientes' en lugar de 'clienteIds'
+          const proyectosTransformados = res.map((p: any) => {
+            if (!p.clienteIds && p.clientes && Array.isArray(p.clientes)) {
+              // Extraer los clienteId desde el array de relaciones
+              return {
+                ...p,
+                clienteIds: p.clientes.map((c: any) => c.clienteId)
+              };
+            }
+            return p;
+          });
+          
+          this.proyectosCompletos = proyectosTransformados;
+          this.proyectos = proyectosTransformados;
+          this.searchProyecto = createTypeaheadSearch(this.proyectos, p => `${p.sigla} - ${p.nombre}`);
+          this.checkAndSetupEditMode();
+          this.cdr.detectChanges();
         });
-        
-        this.proyectosCompletos = proyectosTransformados;
-        this.proyectos = proyectosTransformados;
-        this.searchProyecto = createTypeaheadSearch(this.proyectos, p => `${p.sigla} - ${p.nombre}`);
-        this.checkAndSetupEditMode();
       }
     });
   }
@@ -510,8 +525,8 @@ export class EventoCrud extends CrudFormModal<Evento> {
       return;
     }
 
-    // Si es un string o no tiene id, es inválido
-    if (typeof value === 'string' || (typeof value === 'object' && !value.id)) {
+    // Si es un string o no tiene id ni codigo, es inválido
+    if (typeof value === 'string' || (typeof value === 'object' && !value.id && !value.codigo)) {
       ctrl.setValue(null);
       ctrl.markAsTouched();
       this.showError('Selección inválida', `Por favor seleccione una opción válida de la lista.`);
@@ -550,16 +565,22 @@ export class EventoCrud extends CrudFormModal<Evento> {
   protected override setupEditMode(): void {
     // Solo llamamos a populateForm cuando todos los datos están cargados
     if (this.config?.data?.item) {
-      this.populateForm(this.config.data.item);
+      setTimeout(() => {
+        this.populateForm(this.config.data.item);
+        this.cdr.detectChanges();
+      });
     }
   }
   private checkAndSetupEditMode() {
     this.dataLoadedCount++;
     if (this.dataLoadedCount === this.totalDataToLoad) {
       if (this.modo === 'M') {
-        this.setupEditMode();
-        // Ocultar loading después de cargar
-        this.loading = false;
+        setTimeout(() => {
+          this.setupEditMode();
+          // Ocultar loading después de cargar
+          this.loading = false;
+          this.cdr.detectChanges();
+        });
       }
     }
   }
