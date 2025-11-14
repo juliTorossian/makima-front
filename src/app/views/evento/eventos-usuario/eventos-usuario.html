@@ -9,6 +9,16 @@
                 <div card-body>
                     <p-toolbar styleClass="mb-4 gap-2">
                         <ng-template pTemplate="left">
+                            <p-datepicker
+                                [(ngModel)]="filtroFecha"
+                                selectionMode="range"
+                                [iconDisplay]="'input'"
+                                [showIcon]="true"
+                                [showButtonBar]="true"
+                                inputId="icondisplay"
+                                (ngModelChange)="onFechaChange()"
+                                (onClearClick)="onClearFecha()"
+                            />
                         </ng-template>
                         <ng-template pTemplate="right">
                         </ng-template>

@@ -16,12 +16,40 @@ export class EventoService {
     return this.http.get<Evento[]>(`${this.URL_COMPLETA}/evento?cerrado=${cerrado}&estado=${estado}`);
   }
 
-  getAllComplete(cerrado: FiltroActivo = FiltroActivo.ALL, estado: string | string[] = ''): Observable<EventoCompleto[]> {
-    return this.http.get<EventoCompleto[]>(`${this.URL_COMPLETA}/evento/completo?cerrado=${cerrado}&estado=${estado}`);
+  getAllComplete(cerrado: FiltroActivo = FiltroActivo.ALL, params?: any): Observable<EventoCompleto[]> {
+    let url = `${this.URL_COMPLETA}/evento/completo?cerrado=${cerrado}`;
+    
+    if (params) {
+      if (params.estado) {
+        url += `&estado=${params.estado}`;
+      }
+      if (params.desde) {
+        url += `&desde=${params.desde}`;
+      }
+      if (params.hasta) {
+        url += `&hasta=${params.hasta}`;
+      }
+    }
+    
+    return this.http.get<EventoCompleto[]>(url);
   }
 
-  getAllCompleteByUsuario(usuarioId:string, cerrado: FiltroActivo = FiltroActivo.FALSE, estado: string | string[] = ''): Observable<EventoCompleto[]> {
-    return this.http.get<EventoCompleto[]>(`${this.URL_COMPLETA}/evento/completo/usuario/${usuarioId}?cerrado=${cerrado}&estado=${estado}`);
+  getAllCompleteByUsuario(usuarioId:string, params?: any): Observable<EventoCompleto[]> {
+    let url = `${this.URL_COMPLETA}/evento/completo/usuario/${usuarioId}?cerrado=${FiltroActivo.FALSE}`;
+    
+    if (params) {
+      if (params.estado) {
+        url += `&estado=${params.estado}`;
+      }
+      if (params.desde) {
+        url += `&desde=${params.desde}`;
+      }
+      if (params.hasta) {
+        url += `&hasta=${params.hasta}`;
+      }
+    }
+    
+    return this.http.get<EventoCompleto[]>(url);
   }
 
   getById(eventoId: string): Observable<Evento> {

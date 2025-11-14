@@ -29,6 +29,8 @@ import { TooltipModule } from 'primeng/tooltip';
 import { parseIsoAsLocal } from '@/app/utils/datetime-utils';
 import { PrioridadIconComponent } from '@app/components/priority-icon';
 import { EventoCronometroComponent } from '@app/components/evento-cronometro';
+import { DatePickerModule } from 'primeng/datepicker';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-eventos-usuario',
@@ -50,6 +52,8 @@ import { EventoCronometroComponent } from '@app/components/evento-cronometro';
     TooltipModule,
     PrioridadIconComponent,
     NgbTooltipModule,
+    DatePickerModule,
+    FormsModule,
   ],
   providers: [
     DialogService,
@@ -89,12 +93,15 @@ export class EventosUsuario extends TrabajarCon<Evento> {
 
   eventos: EventoCompleto[] = [];
   
+  filtroFecha: Date[] | undefined;
+  
   // Simplificar las propiedades del evento en trabajo
   eventoEnTrabajo: EventoCompleto | null = null;
   tiempoInicioTrabajo: Date | null = null;
 
   override ngOnInit(): void {
     setTimeout(() => {
+      this.inicializarFiltroFecha();
       this.verificarEventoEnTrabajo();
       this.loadItems();
     });
@@ -120,9 +127,41 @@ export class EventosUsuario extends TrabajarCon<Evento> {
     this.permisos = ['A', 'M', 'B'];
   }
 
+  private inicializarFiltroFecha(): void {
+    const hoy = new Date();
+    const hace3Meses = new Date();
+    hace3Meses.setMonth(hoy.getMonth() - 3);
+    this.filtroFecha = [hace3Meses, hoy];
+  }
+
+  private formatearFecha(fecha: Date): string {
+    const dia = String(fecha.getDate()).padStart(2, '0');
+    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+    const anio = fecha.getFullYear();
+    return `${dia}/${mes}/${anio}`;
+  }
+
+  onFechaChange(): void {
+    if (this.filtroFecha && this.filtroFecha.length === 2 && this.filtroFecha[0] && this.filtroFecha[1]) {
+      this.loadItems();
+    }
+  }
+
+  onClearFecha(): void {
+    this.filtroFecha = undefined;
+    this.loadItems();
+  }
+
   protected loadItems(): void {
     this.loadingService.show();
-    this.eventoService.getAllCompleteByUsuario(this.usuarioActivo?.id ?? '').subscribe({
+    
+    let params: any = {};
+    if (this.filtroFecha && this.filtroFecha.length === 2 && this.filtroFecha[0] && this.filtroFecha[1]) {
+      params.desde = this.formatearFecha(this.filtroFecha[0]);
+      params.hasta = this.formatearFecha(this.filtroFecha[1]);
+    }
+
+    this.eventoService.getAllCompleteByUsuario(this.usuarioActivo?.id ?? '', params).subscribe({
       next: (res) => {
         console.log(res);
         setTimeout(() => {

@@ -64,10 +64,15 @@
               <!-- <label>Secuencia</label> -->
               <input type="time" class="form-control" 
                 formControlName="inicio" 
-                [class.is-invalid]="hora.errors?.['overlap']" />
+                [class.is-invalid]="hora.errors?.['overlap'] || hora.errors?.['invalidTimeRange']" />
               @if (hora.errors?.['overlap']) {
                 <div class="invalid-feedback">
                   Horario superpuesto
+                </div>
+              }
+              @if (hora.errors?.['invalidTimeRange']) {
+                <div class="invalid-feedback">
+                  Hora inválida
                 </div>
               }
             </div>
@@ -76,10 +81,15 @@
               <!-- <label>Secuencia</label> -->
               <input type="time" class="form-control" 
                 formControlName="fin" 
-                [class.is-invalid]="hora.errors?.['overlap']" />
+                [class.is-invalid]="hora.errors?.['overlap'] || hora.errors?.['invalidTimeRange']" />
               @if (hora.errors?.['overlap']) {
                 <div class="invalid-feedback">
                   Horario superpuesto
+                </div>
+              }
+              @if (hora.errors?.['invalidTimeRange']) {
+                <div class="invalid-feedback">
+                  Fin debe ser mayor que inicio
                 </div>
               }
             </div>
