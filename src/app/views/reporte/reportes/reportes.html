@@ -9,7 +9,7 @@
                         <ng-template pTemplate="left">
                         </ng-template>
                         <ng-template pTemplate="right">
-                            @if (can('A')) {
+                            @if (can(PermisoAccion.CREAR)) {
                                 <button
                                     class="btn btn-ghost-success btn-md"
                                     (click)="mostrarModalCrud(null, 'A')"
@@ -79,7 +79,7 @@
                                 <td><app-status-badge [status]="reporte.estado" /></td>
                                 <td>{{ reporte.errorDescripcion }}</td>
                                 <td class="d-flex justify-content-end">
-                                    @if (can('M')) {
+                                    @if (can(PermisoAccion.MODIFICAR)) {
                                         <button class="btn btn-ghost-success" (click)="descargarReporte(reporte)" [disabled]="!reporte.archivoUrl"><ng-icon name="lucideFileDown"/></button>
                                     }
                                 </td>

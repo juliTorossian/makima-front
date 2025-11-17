@@ -11,7 +11,7 @@
                                 (filtroCambio)="filtroCambio($event)" [notLabel]="true"></app-filtro-radio-group>
                         </ng-template>
                         <ng-template pTemplate="right">
-                            @if (can('A')) {
+                            @if (can(PermisoAccion.CREAR)) {
                                 <app-control-trabajar-con
                                     (nuevo)="mostrarModalCrud(null, 'A')"
                                     (plantilla)="getPlantilla()"
@@ -74,12 +74,12 @@
                                         [ngClass]="producto.activo ? 'text-bg-success' : 'text-bg-danger'">{{
                                         producto.activo | booleanLabel }}</span></td>
                                 <td class="d-flex justify-content-end">
-                                    @if (can('M')) {
-                                    <button class="btn btn-ghost-warning"
+                                    @if (can(PermisoAccion.MODIFICAR)) {
+                                        <button class="btn btn-ghost-warning"
                                         (click)="mostrarModalCrud(producto, 'M')"><ng-icon
                                             name="lucidePencil" /></button>
                                     }
-                                    @if (can('B')) {
+                                    @if (can(PermisoAccion.ELIMINAR)) {
                                     <button class="btn btn-ghost-danger" (click)="delete(producto)"><ng-icon
                                             name="lucideTrash2" /></button>
                                     }

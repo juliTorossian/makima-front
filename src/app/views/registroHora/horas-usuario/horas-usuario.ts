@@ -72,7 +72,6 @@ export class HorasUsuario extends TrabajarCon<RegistroHora> {
       inject(MessageService),
       inject(ConfirmationService)
     );
-    this.permisos = ['A', 'M', 'B'];
   }
 
   protected loadItems(): void {

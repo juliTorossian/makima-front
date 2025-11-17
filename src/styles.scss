@@ -8,6 +8,9 @@
 .p-multiselect {
   width: 100%;
 }
+.p-contextmenu {
+  position: fixed !important;
+}
 
 .choices__list--dropdown {
   z-index: 1055 !important; /* Asegura que esté por encima de la mayoría de los modales (z-index 1050) */
@@ -31,3 +34,4 @@ dropzone>.dropzone.dz-wrapper .dz-message .dz-text {
 .dropzone {
   min-height: inherit !important;
 }
+

@@ -15,7 +15,7 @@
                             ></app-filtro-radio-group>
                         </ng-template>
                         <ng-template pTemplate="right">
-                            @if (can('A')) {
+                            @if (can(PermisoAccion.CREAR)) {
                                 <app-control-trabajar-con
                                     (nuevo)="mostrarModalCrud(null, 'A')"
                                     (plantilla)="getPlantilla()"
@@ -68,10 +68,10 @@
                                 <td>{{ etapa.rolPreferido }}</td>
                                 <td><span class="badge " style="min-width: 40%;" [ngClass]="etapa.activo ? 'text-bg-success' : 'text-bg-danger'">{{ etapa.activo | booleanLabel }}</span></td>
                                 <td class="d-flex justify-content-end">
-                                    @if (can('M')) {
+                                    @if (can(PermisoAccion.MODIFICAR)) {
                                         <button class="btn btn-ghost-warning" (click)="mostrarModalCrud(etapa, 'M')"><ng-icon name="lucidePencil"/></button>
                                     }
-                                    @if (can('B')) {
+                                    @if (can(PermisoAccion.ELIMINAR)) {
                                         <button class="btn btn-ghost-danger" (click)="delete(etapa)"><ng-icon name="lucideTrash2"/></button>
                                     }
                                 </td>

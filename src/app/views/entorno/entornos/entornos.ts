@@ -21,6 +21,7 @@ import { BooleanLabelPipe } from '@core/pipes/boolean-label.pipe';
 import { CommonModule } from '@angular/common';
 import { ControlTrabajarCon } from '@app/components/trabajar-con/components/control-trabajar-con';
 import { getTimestamp } from '@/app/utils/time-utils';
+import { PermisoAccion } from '@/app/types/permisos';
 
 @Component({
   selector: 'app-entornos',

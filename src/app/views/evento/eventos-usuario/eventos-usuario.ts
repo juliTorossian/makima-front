@@ -160,7 +160,6 @@ export class EventosUsuario extends TrabajarCon<Evento> {
       inject(MessageService),
       inject(ConfirmationService)
     );
-    this.permisos = ['A', 'M', 'B'];
   }
 
   private inicializarFiltroFecha(): void {

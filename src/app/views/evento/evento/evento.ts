@@ -28,6 +28,7 @@ import { showError } from '@/app/utils/message-utils';
 import { PermisosService } from '@core/services/permisos';
 import { PermisoAccion } from '@/app/types/permisos';
 import { PermisoClave } from '@core/interfaces/rol';
+import { buildPermiso } from '@/app/utils/permiso-utils';
 import { getEstadoDescCorto } from '@/app/constants/evento_estados';
 import { PadZeroPipe } from '@core/pipes/pad-zero.pipe';
 
@@ -68,6 +69,8 @@ export class Evento implements OnInit {
   private rutActiva = inject(ActivatedRoute);
   private cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
   private userStorageService = inject(UserStorageService);
+  
+  readonly PermisoAccion = PermisoAccion;
   getEstadoDescCorto = getEstadoDescCorto;
 
   usuarioActivo:UsuarioLogeado | null = this.userStorageService.getUsuario();
@@ -334,7 +337,7 @@ export class Evento implements OnInit {
   }
 
   can(accion: PermisoAccion): boolean {
-    return this.permisosService.can(this.permisoClave, accion);
+    return this.permisosService.can(buildPermiso(this.permisoClave, accion));
   }
 
   getRequerimientoDisabled(req: any): boolean {

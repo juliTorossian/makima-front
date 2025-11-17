@@ -29,6 +29,7 @@ import { ProductoSelect } from '../../producto/producto-select/producto-select';
 import { PermisoAccion } from '@/app/types/permisos';
 import { PermisosService } from '@core/services/permisos';
 import { PermisoClave } from '@core/interfaces/rol';
+import { buildPermiso } from '@/app/utils/permiso-utils';
 import { SelectModule } from 'primeng/select';
 import { PrioridadIconComponent } from '@app/components/priority-icon';
 import { getPrioridadDesc } from '@/app/constants/prioridad';
@@ -72,6 +73,7 @@ export class EventoCrud extends CrudFormModal<Evento> {
   private cdr = inject(ChangeDetectorRef);
   private loadingService = inject(LoadingService);
 
+  readonly PermisoAccion = PermisoAccion;
   getPrioridadDesc = getPrioridadDesc
 
   usuarioActivo: UsuarioLogeado | null = this.userStorageService.getUsuario();
@@ -695,7 +697,7 @@ export class EventoCrud extends CrudFormModal<Evento> {
   }
 
   can(accion: PermisoAccion): boolean {
-    return this.permisosService.can(PermisoClave.EVENTO_TIPO_FAC, accion);
+    return this.permisosService.can(buildPermiso(PermisoClave.EVENTO_TIPO_FAC, accion));
   }
 
   private applyTipoPropioValidators(tipo: TipoEvento | null) {

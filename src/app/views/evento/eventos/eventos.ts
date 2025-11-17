@@ -36,6 +36,7 @@ import { parseIsoAsLocal } from '@/app/utils/datetime-utils';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { DatePickerModule } from 'primeng/datepicker';
 import { FormsModule } from '@angular/forms';
+import { PermisoAccion } from '@/app/types/permisos';
 
 @Component({
   selector: 'app-eventos',

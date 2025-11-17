@@ -1,6 +1,7 @@
 import { FiltroActivo, FiltroActivoOptions, FiltroCerradoOptions } from '@/app/constants/filtros_activo';
 import { SHORTCUTS } from '@/app/constants/shortcut';
 import { PermisoAccion } from '@/app/types/permisos';
+import { buildPermiso } from '@/app/utils/permiso-utils';
 import { Component, inject } from '@angular/core';
 import { ChangeDetectorRef } from '@angular/core';
 import { PermisoClave } from '@core/interfaces/rol';
@@ -21,6 +22,7 @@ export abstract class TrabajarCon<T> {
   protected loadingService = inject(LoadingService);
   protected permisos: PermisoAccion[] = [];
   readonly SHORTCUTS = SHORTCUTS;
+  readonly PermisoAccion = PermisoAccion;
   readonly FiltroActivo = FiltroActivo;
   FiltroActivoOptions = FiltroActivoOptions;
   FiltroCerradoOptions = FiltroCerradoOptions;
@@ -104,7 +106,7 @@ export abstract class TrabajarCon<T> {
   }
 
   can(accion: PermisoAccion): boolean {
-    return this.permisosService.can(this.permisoClave, accion);
+    return this.permisosService.can(buildPermiso(this.permisoClave, accion));
   }
 
   getEventValue($event:any) :string {

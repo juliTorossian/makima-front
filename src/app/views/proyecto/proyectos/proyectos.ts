@@ -21,6 +21,7 @@ import { FiltroRadioGroupComponent } from '@app/components/filtro-check';
 import { FiltroActivo } from '@/app/constants/filtros_activo';
 import { ControlTrabajarCon } from '@app/components/trabajar-con/components/control-trabajar-con';
 import { getTimestamp } from '@/app/utils/time-utils';
+import { PermisoAccion } from '@/app/types/permisos';
 
 @Component({
   selector: 'app-proyectos',
