@@ -22,6 +22,7 @@ import { PrioridadService } from '@core/services/prioridad-regla';
 import { PrioridadRegla } from '@core/interfaces/prioridad-reglas';
 import { ControlTrabajarCon } from '@app/components/trabajar-con/components/control-trabajar-con';
 import { getTimestamp } from '@/app/utils/time-utils';
+import { PermisoAccion } from '@/app/types/permisos';
 
 @Component({
   selector: 'app-tipo-evento',

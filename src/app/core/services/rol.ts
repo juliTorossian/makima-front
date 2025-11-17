@@ -50,4 +50,8 @@ export class RolService {
     return this.http.post<any>(`${this.URL_COMPLETA}/rol/importacion/excel`, formData);
   }
 
+  getPermisosDisponibles(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.URL_COMPLETA}/permiso`);
+  }
+
 }

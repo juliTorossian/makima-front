@@ -21,12 +21,14 @@
                             />
                         </ng-template>
                         <ng-template pTemplate="right">
-                            <app-control-trabajar-con
-                                (nuevo)="mostrarModalCrud(null, 'A')"
-                                (plantilla)="getPlantilla()"
-                                (exportarExcel)="exportarExcel()"
-                                (importar)="importarExcel($event)"
-                            ></app-control-trabajar-con>
+                            @if (can(PermisoAccion.CREAR)) {
+                                <app-control-trabajar-con
+                                    (nuevo)="mostrarModalCrud(null, 'A')"
+                                    (plantilla)="getPlantilla()"
+                                    (exportarExcel)="exportarExcel()"
+                                    (importar)="importarExcel($event)"
+                                ></app-control-trabajar-con>
+                            }
                         </ng-template>
                     </p-toolbar>
                     <p-table
@@ -97,7 +99,7 @@
                                     </div>
                                 </th>
                                 <th pSortableColumn="prioridadFin">Prioridad  <p-sortIcon field="prioridadFin"></p-sortIcon></th>
-                                <th pSortableColumn="usuarioActual.usuario" style="min-width: 115px;" filterField="usuarioActual.usuario">
+                                <th pSortableColumn="usuarioActual.usuario" style="min-width: 115px;" filterField="usuarioActual.usuario" hidden>
                                     <div class="flex align-items-center" style="justify-content: space-around;">
                                         Usuario
                                         <p-columnFilter type="text" field="usuarioActual.usuario" display="menu" matchMode="contains" style="margin-left: 2px;"></p-columnFilter>
@@ -157,14 +159,14 @@
                                     <app-prioridad-icon [nivel]="evento?.prioridadFin" ></app-prioridad-icon>
                                 </div>
                                 </td>
-                                <td>
-                                <app-badge-click
-                                    [backgroundColor]="evento.usuarioActual?.color"
-                                    style="cursor: pointer"
-                                    (click)="abrirUsuarioDrawer(evento?.usuarioActual?.id)"
-                                >
-                                    {{ evento?.usuarioActual?.usuario }}
-                                </app-badge-click>
+                                <td hidden>
+                                    <app-badge-click
+                                        [backgroundColor]="evento.usuarioActual?.color"
+                                        style="cursor: pointer"
+                                        (click)="abrirUsuarioDrawer(evento?.usuarioActual?.id)"
+                                    >
+                                        {{ evento?.usuarioActual?.usuario }}
+                                    </app-badge-click>
                                 </td>
                                 <td> {{ evento?.createdAt ? (evento.createdAt | date : "short") : "" }} </td>
                                 <td> {{ evento?.fechaInicio ? (evento.fechaInicio | date : "shortDate") : "" }} </td>

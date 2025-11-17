@@ -115,13 +115,13 @@
 									</button>
 									<div card-body>
 										@if (adjuntos && adjuntos.length > 0) {
-											@for (adjunto of adjuntos; track $index) {
-												<app-item-adjunto
-													[adjunto]="adjunto"
-													[puedeEliminar]="can('B')"
-													(eliminar)="onEliminarAdjunto($event)"
-												></app-item-adjunto>
-											}
+									@for (adjunto of adjuntos; track $index) {
+										<app-item-adjunto
+											[adjunto]="adjunto"
+											[puedeEliminar]="can(PermisoAccion.DOC_ELIMINAR)"
+											(eliminar)="onEliminarAdjunto($event)"
+										></app-item-adjunto>
+										}
 										} @else {
 											<p>No hay archivos adjuntos.</p>
 										}

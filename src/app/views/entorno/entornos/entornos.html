@@ -15,7 +15,7 @@
                             ></app-filtro-radio-group>
                         </ng-template>
                         <ng-template pTemplate="right">
-                            @if (can('A')) {
+                            @if (can(PermisoAccion.CREAR)) {
                                 <app-control-trabajar-con
                                     (nuevo)="mostrarModalCrud(null, 'A')"
                                     (plantilla)="getPlantilla()"
@@ -66,10 +66,10 @@
                                 <td>{{ entorno.nombre }}</td>
                                 <td><span class="badge " style="min-width: 40%;" [ngClass]="entorno.activo ? 'text-bg-success' : 'text-bg-danger'">{{ entorno.activo | booleanLabel }}</span></td>
                                 <td class="d-flex justify-content-end">
-                                    @if (can('M')) {
+                                    @if (can(PermisoAccion.MODIFICAR)) {
                                         <button class="btn btn-ghost-warning" (click)="mostrarModalCrud(entorno, 'M')"><ng-icon name="lucidePencil"/></button>
                                     }
-                                    @if (can('B')) {
+                                    @if (can(PermisoAccion.ELIMINAR)) {
                                         <button class="btn btn-ghost-danger" (click)="delete(entorno)"><ng-icon name="lucideTrash2"/></button>
                                     }
                                 </td>

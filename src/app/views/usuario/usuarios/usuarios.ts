@@ -25,6 +25,7 @@ import { getTimestamp } from '@/app/utils/time-utils';
 import { FormsModule } from '@angular/forms';
 import { SelectModule } from 'primeng/select';
 import { RolService } from '@core/services/rol';
+import { PermisoAccion } from '@/app/types/permisos';
 
 @Component({
   selector: 'app-usuarios',

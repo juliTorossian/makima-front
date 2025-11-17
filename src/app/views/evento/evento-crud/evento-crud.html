@@ -214,7 +214,7 @@
           </div>
 
           <div class="col-md-6">
-            @if (can('M')) {
+            @if (can(PermisoAccion.TPO_FACTURABLE)) {
               <label for="facEventoCerr" class="form-label">Tipo de facturacion</label>
               <div class="mb-2">
                 <input id="facEventoCerr" type="checkbox" formControlName="facEventoCerr" class="btn-check" />

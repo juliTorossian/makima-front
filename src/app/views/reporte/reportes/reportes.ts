@@ -20,6 +20,7 @@ import { CommonModule } from '@angular/common';
 import { BadgeClickComponent } from '@app/components/badge-click';
 import { UsuarioDrawerComponent } from '../../usuario/usuario-drawer/usuario-drawer';
 import { StatusBadgeComponent } from '@app/components/status-badge';
+import { PermisoAccion } from '@/app/types/permisos';
 
 @Component({
   selector: 'app-reportes',

@@ -29,7 +29,7 @@
                             </div>
                         </ng-template>
                         <ng-template pTemplate="right">
-                            @if (can('A')) {
+                            @if (can(PermisoAccion.CREAR)) {
                                 <app-control-trabajar-con
                                     (nuevo)="mostrarModalCrud(null, 'A')"
                                     (plantilla)="getPlantilla()"
@@ -91,10 +91,10 @@
                                 <td>{{ usuario.createdAt | date:'short' }}</td>
                                 <td>{{ usuario.ultimo_login | date:'short' }}</td>
                                 <td class="d-flex justify-content-end">
-                                    @if (can('M')) {
+                                    @if (can(PermisoAccion.MODIFICAR)) {
                                         <button class="btn btn-ghost-warning" (click)="mostrarModalCrud(usuario, 'M')"><ng-icon name="lucidePencil"/></button>
                                     }
-                                    @if (can('B')) {
+                                    @if (can(PermisoAccion.ELIMINAR)) {
                                         <button class="btn btn-ghost-danger" (click)="delete(usuario)"><ng-icon name="lucideTrash2"/></button>
                                     }
                                 </td>
