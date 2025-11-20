@@ -43,6 +43,7 @@ export class PermisosService {
      */
     can(permiso: PermisoCompleto): boolean {
         const permisos = PermisosService.loadPermisos();
+        // console.log('Verificando permiso:', permiso, 'Permisos del usuario:', permisos);
         
         // Si el usuario tiene el permiso de admin completo, tiene acceso total
         if (permisos.includes('SYS.ADMIN')) {

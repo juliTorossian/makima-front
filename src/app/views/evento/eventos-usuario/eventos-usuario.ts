@@ -35,6 +35,7 @@ import { ControlTrabajarCon } from '@app/components/trabajar-con/components/cont
 import { EventoCrud } from '../evento-crud/evento-crud';
 import { getTimestamp } from '@/app/utils/time-utils';
 import { finalize } from 'rxjs';
+import { PermisoClave } from '@core/interfaces/rol';
 
 @Component({
   selector: 'app-eventos-usuario',
@@ -160,6 +161,7 @@ export class EventosUsuario extends TrabajarCon<Evento> {
       inject(MessageService),
       inject(ConfirmationService)
     );
+    this.permisoClave = PermisoClave.EVENTO;
   }
 
   private inicializarFiltroFecha(): void {
