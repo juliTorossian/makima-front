@@ -3,7 +3,7 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectorRef, Component, inject, Input, OnInit } from '@angular/core';
 import { UiCard } from '@app/components/ui-card';
 import { ShortcutDirective } from '@core/directive/shortcut';
-import { Evento_requisito, Evento_requisito_completo, EventoCompleto, VidaEvento } from '@core/interfaces/evento';
+import { Evento_requisito, Evento_requisito_completo, EventoCompleto, formatEventoNumero, VidaEvento } from '@core/interfaces/evento';
 import { EventoService } from '@core/services/evento';
 import { NgIcon } from '@ng-icons/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -24,7 +24,7 @@ import { finalize } from 'rxjs';
 import { LoadingService } from '@core/services/loading.service';
 import { LoadingSpinnerComponent } from '@app/components/index';
 import { Tipo_requisito } from '@core/interfaces/etapa';
-import { showError } from '@/app/utils/message-utils';
+import { showError, showSuccessToast } from '@/app/utils/message-utils';
 import { PermisosService } from '@core/services/permisos';
 import { PermisoAccion } from '@/app/types/permisos';
 import { PermisoClave } from '@core/interfaces/rol';
@@ -48,7 +48,6 @@ import { PadZeroPipe } from '@core/pipes/pad-zero.pipe';
     NgIcon,
     FormsModule,
     LoadingSpinnerComponent,
-    PadZeroPipe,
   ],
   providers: [
     DialogService,
@@ -125,13 +124,11 @@ export class Evento implements OnInit {
         payload.url = event.target.files[0];
         break;
     }
-
-    console.log('onActualizarRequisito')
-    console.log(payload)
     if (req.cumplido) {
       this.eventoService.updateEventoRequisito(this.eventoId, req.requisito.id, payload).subscribe({
         next: (res) => {
           this.onReloadRequisitos();
+          showSuccessToast(this.messageService, 'Requisito registrado', 'El requisito ha sido registrado exitosamente.');
         },
         error: (err) => {
           showError(this.messageService, 'Error al actualizar requisito:', err.error.message);
@@ -141,6 +138,7 @@ export class Evento implements OnInit {
       this.eventoService.registrarEventoRequisito(this.eventoId, payload).subscribe({
         next: (res) => {
           this.onReloadRequisitos();
+          showSuccessToast(this.messageService, 'Requisito registrado', 'El requisito ha sido registrado exitosamente.');
         },
         error: (err) => {
           showError(this.messageService, 'Error al registrar requisito:', err.error.message);
@@ -188,7 +186,10 @@ export class Evento implements OnInit {
     ).subscribe(
       {
         next: (res:any) => {
-          this.evento = res;
+          this.evento = {
+            ...res,
+            evento: formatEventoNumero(res.tipo.codigo, res.numero)
+          };
           const usuarioId = this.usuarioActivo?.id;
           const observadores = this.evento.observadores;
           if (usuarioId && Array.isArray(observadores)) {

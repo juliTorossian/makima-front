@@ -4,7 +4,7 @@ import { BadgeClickComponent } from '@app/components/badge-click';
 import { TrabajarCon } from '@app/components/trabajar-con/trabajar-con';
 import { UiCard } from '@app/components/ui-card';
 import { ShortcutDirective } from '@core/directive/shortcut';
-import { CircularEvento, Evento, EventoCompleto } from '@core/interfaces/evento';
+import { CircularEvento, Evento, EventoCompleto, formatEventoNumero } from '@core/interfaces/evento';
 import { EventoService } from '@core/services/evento';
 import { UserStorageService, UsuarioLogeado } from '@core/services/user-storage';
 import { NgIcon } from '@ng-icons/core';
@@ -52,7 +52,6 @@ import { PermisoClave } from '@core/interfaces/rol';
     CommonModule,
     EventoDrawerComponent,
     UsuarioDrawerComponent,
-    PadZeroPipe,
     NgbPopoverModule,
     TooltipModule,
     PrioridadIconComponent,
@@ -204,6 +203,7 @@ export class EventosUsuario extends TrabajarCon<Evento> {
         setTimeout(() => {
           this.eventos = res.map(e => ({
             ...e,
+            evento: formatEventoNumero(e.tipo.codigo, e.numero),
             fechaInicio: (e as any).fechaInicio ? parseIsoAsLocal((e as any).fechaInicio) : null,
             fechaFinReal: (e as any).fechaFinReal ? parseIsoAsLocal((e as any).fechaFinReal) : null,
             fechaFinEst: (e as any).fechaFinEst ? parseIsoAsLocal((e as any).fechaFinEst) : null,

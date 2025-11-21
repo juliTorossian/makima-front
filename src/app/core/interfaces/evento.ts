@@ -1,6 +1,10 @@
 import { EstadosEvento } from "@/app/constants/evento_estados";
 import { Etapa_requisito, Etapa } from "./etapa";
 
+export function formatEventoNumero(tipoCodigo: string, numero: number, pad: number = 3): string {
+  return `${tipoCodigo}-${numero.toString().padStart(pad, '0')}`;
+}
+
 // Evento completo con datos enriquecidos
 // export interface EventoCompleto {
 //   id: string;
@@ -178,6 +182,7 @@ export interface Evento {
   deletedAt?: string;
 
   comentario?:string
+  evento?: string;
 }
 
 /** Registro de horas asociadas a un evento */

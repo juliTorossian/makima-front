@@ -19,6 +19,7 @@ import { TableModule } from 'primeng/table';
 import { UserStorageService, UsuarioLogeado } from '@core/services/user-storage';
 import { getFechaLocal, parseIsoAsLocal } from '@/app/utils/datetime-utils';
 import { finalize } from 'rxjs';
+import { formatEventoNumero } from '@core/interfaces/evento';
 @Component({
   selector: 'app-horas-usuario',
   imports: [
@@ -120,12 +121,19 @@ export class HorasUsuario extends TrabajarCon<RegistroHora> {
 
   consultarRegistros(fechaFiltro:any){
     this.loadingService.show();
-    this.registroHoraService.getByUsuario(this.usuarioActivo?.id!).pipe(
+    this.registroHoraService.getByUsuario(this.usuarioActivo?.id!,fechaFiltro.getMonth() + 1, fechaFiltro.getFullYear()).pipe(
       finalize(() => this.loadingService.hide())
     ).subscribe({
       next: (res) => {
         console.log(res);
-        this.registrosHoras = res.map(r => ({ ...r, fecha: parseIsoAsLocal((r as any).fecha) }));
+        this.registrosHoras = res.map(r => ({
+          ...r,
+          fecha: parseIsoAsLocal((r as any).fecha),
+          horas: r.horas?.map(h => ({
+            ...h,
+            eventoTxt: formatEventoNumero(h.evento?.tipoCodigo!, h.evento?.numero!)
+          }))
+        }));
         this.registrosHorasFiltradas = this.registrosHoras;
         this.cdr.detectChanges();
         this.aplicarFiltroFecha(fechaFiltro);

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { AppVersion, VersionService } from '@core/services/version';
 
 @Component({
@@ -14,12 +14,16 @@ export class Footer implements OnInit {
   versionInfo?: AppVersion;
   isProdBuild = false;
 
-  constructor(private versionService: VersionService) {}
+  constructor(
+    private versionService: VersionService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
     this.versionService.getVersion().subscribe(data => {
       this.versionInfo = data;
       this.isProdBuild = ['main'].includes(data.branch);
+      this.cdr.detectChanges();
     });
   }
 }

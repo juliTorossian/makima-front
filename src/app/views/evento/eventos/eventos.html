@@ -44,7 +44,7 @@
             [value]="eventos"
             [rows]="10"
             [paginator]="true"
-            [globalFilterFields]="[ 'id', 'tipo.codigo', 'numero', 'titulo', 'etapaActualData.nombre', 'cliente.sigla', 'cliente.nombre', 'producto.sigla', 'producto.nombre', 'producto.entornoCodigo', 'modulo.codigo', 'modulo.nombre', 'usuarioActual.usuario' ]"
+            [globalFilterFields]="[ 'id', 'tipo.codigo', 'numero', 'evento', 'titulo', 'etapaActualData.nombre', 'cliente.sigla', 'cliente.nombre', 'producto.sigla', 'producto.nombre', 'producto.entornoCodigo', 'modulo.codigo', 'modulo.nombre', 'usuarioActual.usuario' ]"
             [tableStyle]="{ 'min-width': '75rem' }"
             [rowHover]="true"
             dataKey="id"
@@ -128,7 +128,7 @@
                         (click)="abrirEventoDrawer(evento)"
                         style="cursor:pointer"
                     >
-                        {{ evento.tipo.codigo }}-{{evento.numero | padZero:3}}
+                        {{ evento.evento }}
                     </app-badge-click>
                 </td>
                 <td>{{ evento?.titulo }}</td>
