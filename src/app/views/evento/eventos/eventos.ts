@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, inject, OnInit, ViewChild, ViewContainerRef, ComponentRef, AfterViewInit } from '@angular/core';
 import { TrabajarCon } from '@app/components/trabajar-con/trabajar-con';
-import { CircularEvento, Evento, EventoCompleto } from '@core/interfaces/evento';
+import { CircularEvento, Evento, EventoCompleto, formatEventoNumero } from '@core/interfaces/evento';
 import { EventoService } from '@core/services/evento';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -53,7 +53,6 @@ import { PermisoAccion } from '@/app/types/permisos';
     CommonModule,
     EventoDrawerComponent,
     UsuarioDrawerComponent,
-    PadZeroPipe,
     PrioridadIconComponent,
     TooltipModule,
     FiltroRadioGroupComponent,
@@ -143,9 +142,9 @@ export class Eventos extends TrabajarCon<Evento> {
       finalize(() => this.loadingService.hide())
     ).subscribe({
       next: (res) => {
-        console.log(res)
-        this.eventos = res.map(e => ({
-          ...e,
+          this.eventos = res.map(e => ({
+            ...e,
+          evento: formatEventoNumero(e.tipo.codigo, e.numero),
           fechaInicio: (e as any).fechaInicio ? parseIsoAsLocal((e as any).fechaInicio) : null,
           fechaFinReal: (e as any).fechaFinReal ? parseIsoAsLocal((e as any).fechaFinReal) : null,
           fechaFinEst: (e as any).fechaFinEst ? parseIsoAsLocal((e as any).fechaFinEst) : null,

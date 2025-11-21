@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { BadgeClickComponent, LoadingSpinnerComponent } from '@app/components/index';
 import { SelectBase } from '@app/components/select-base/select-base';
-import { Evento, EventoCompleto } from '@core/interfaces/evento';
+import { Evento, EventoCompleto, formatEventoNumero } from '@core/interfaces/evento';
 import { EventoService } from '@core/services/evento';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { TableModule } from 'primeng/table';
@@ -22,7 +22,6 @@ import { DynamicDialogConfig } from 'primeng/dynamicdialog';
         TableModule,
         BadgeClickComponent,
         EventoDrawerComponent,
-        PadZeroPipe,
         NgIcon,
     ]
 })
@@ -77,7 +76,11 @@ export class EventoSelect extends SelectBase<Evento> {
         ).subscribe({
             next: (res: EventoCompleto[]) => {
                 // console.log(res);
-                this.eventos = res;
+                // this.eventos = res;
+                this.eventos = res.map(evento => ({
+                    ...evento,
+                    evento: formatEventoNumero(evento.tipo.codigo, evento.numero)
+                }));
             },
             error: () => {
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron cargar los eventos' });
