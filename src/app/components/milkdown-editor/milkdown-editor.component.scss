@@ -1,0 +1,343 @@
+// Variables CSS
+:root {
+  --milkdown-primary: #3b82f6;
+  --milkdown-primary-hover: #2563eb;
+  --milkdown-border: #e2e8f0;
+  --milkdown-border-hover: #d1d5db;
+  --milkdown-bg: #ffffff;
+  --milkdown-bg-secondary: #f8fafc;
+  --milkdown-text: #374151;
+  --milkdown-text-secondary: #6b7280;
+  --milkdown-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --milkdown-shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.15);
+  --milkdown-radius: 8px;
+  --milkdown-radius-sm: 6px;
+}
+
+.milkdown-wrapper {
+  width: 100%;
+  margin: 0 auto;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+// Controles del editor
+.milkdown-controls {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  background: var(--milkdown-bg-secondary);
+  border: 1px solid var(--milkdown-border);
+  border-radius: var(--milkdown-radius) var(--milkdown-radius) 0 0;
+  flex-wrap: wrap;
+  
+  @media (max-width: 768px) {
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+}
+
+.control-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--milkdown-border);
+  border-radius: var(--milkdown-radius-sm);
+  background: var(--milkdown-bg);
+  color: var(--milkdown-text);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  
+  &:hover:not(:disabled) {
+    background: var(--milkdown-bg-secondary);
+    border-color: var(--milkdown-border-hover);
+    transform: translateY(-1px);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    background: var(--milkdown-border);
+  }
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--milkdown-primary);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  &.clear-btn:hover:not(:disabled) {
+    background: #fef2f2;
+    border-color: #fecaca;
+    color: #dc2626;
+  }
+}
+
+// Container principal del editor
+.milkdown-editor-container {
+  width: 100%;
+  border: 1px solid var(--milkdown-border);
+  border-radius: 0 0 var(--milkdown-radius) var(--milkdown-radius);
+  background: var(--milkdown-bg);
+  box-shadow: var(--milkdown-shadow);
+  overflow: visible !important; // Permitir que los menús salgan
+  position: relative; // Contexto de posicionamiento
+  transition: border-color 0.15s ease;
+  
+  &:focus-within {
+    border-color: var(--milkdown-primary);
+    box-shadow: 0 0 0 1px var(--milkdown-primary);
+  }
+  
+  &.disabled {
+    opacity: 0.6;
+    background: #f9fafb;
+    cursor: not-allowed;
+  }
+}
+
+// Barra de estado
+.milkdown-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background: var(--milkdown-bg-secondary);
+  border: 1px solid var(--milkdown-border);
+  border-top: none;
+  border-radius: 0 0 var(--milkdown-radius) var(--milkdown-radius);
+  font-size: 0.75rem;
+  color: var(--milkdown-text-secondary);
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 0.25rem;
+    align-items: flex-start;
+  }
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #dc2626;
+  transition: background-color 0.15s ease;
+  
+  &.active {
+    background: #16a34a;
+  }
+}
+
+// Personalización del editor Milkdown
+:host ::ng-deep {
+  // Estilos para el contenido del editor
+  .milkdown {
+    padding: 1.5rem;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--milkdown-text);
+    
+    // Títulos
+    h1, h2, h3, h4, h5, h6 {
+      margin: 1.5rem 0 1rem 0;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+    
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 1.25rem; }
+    h4 { font-size: 1.125rem; }
+    h5 { font-size: 1rem; }
+    h6 { font-size: 0.875rem; }
+    
+    // Párrafos
+    p {
+      margin: 1rem 0;
+    }
+    
+    // Listas
+    ul, ol {
+      margin: 1rem 0;
+      padding-left: 2rem;
+    }
+    
+    li {
+      margin: 0.5rem 0;
+    }
+    
+    // Citas
+    blockquote {
+      margin: 1.5rem 0;
+      padding: 1rem 1.5rem;
+      border-left: 4px solid var(--milkdown-primary);
+      background: var(--milkdown-bg-secondary);
+      border-radius: 0 var(--milkdown-radius-sm) var(--milkdown-radius-sm) 0;
+      font-style: italic;
+    }
+    
+    // Código inline
+    code {
+      padding: 0.25rem 0.5rem;
+      background: var(--milkdown-bg-secondary);
+      border: 1px solid var(--milkdown-border);
+      border-radius: var(--milkdown-radius-sm);
+      font-size: 0.875rem;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    }
+    
+    // Bloques de código
+    pre {
+      margin: 1.5rem 0;
+      padding: 1.5rem;
+      background: #1f2937;
+      color: #f9fafb;
+      border-radius: var(--milkdown-radius);
+      overflow-x: auto;
+      
+      code {
+        background: none;
+        border: none;
+        padding: 0;
+        color: inherit;
+      }
+    }
+    
+    // Tablas
+    table {
+      width: 100%;
+      margin: 1.5rem 0;
+      border-collapse: collapse;
+      border: 1px solid var(--milkdown-border);
+      border-radius: var(--milkdown-radius);
+      overflow: hidden;
+    }
+    
+    th, td {
+      padding: 0.75rem;
+      border: 1px solid var(--milkdown-border);
+      text-align: left;
+    }
+    
+    th {
+      background: var(--milkdown-bg-secondary);
+      font-weight: 600;
+    }
+    
+    // Enlaces
+    a {
+      color: var(--milkdown-primary);
+      text-decoration: none;
+      
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+    
+    // Imágenes
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: var(--milkdown-radius-sm);
+      box-shadow: var(--milkdown-shadow);
+    }
+    
+    // Separadores
+    hr {
+      margin: 2rem 0;
+      border: none;
+      border-top: 2px solid var(--milkdown-border);
+    }
+  }
+  
+  // Barra de herramientas
+  .toolbar {
+    background: var(--milkdown-bg-secondary);
+    border-bottom: 1px solid var(--milkdown-border);
+    padding: 0.5rem;
+    border-radius: var(--milkdown-radius) var(--milkdown-radius) 0 0;
+  }
+  
+  // Menú de comandos slash - Forzar renderizado fuera del modal
+  .slash-menu,
+  .milkdown-menu,
+  [data-tippy-root],
+  .tippy-box {
+    border-radius: var(--milkdown-radius);
+    box-shadow: var(--milkdown-shadow-lg);
+    border: 1px solid var(--milkdown-border);
+    background: var(--milkdown-bg);
+    z-index: 9999 !important;
+    position: fixed !important;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  
+  // Tooltips y popovers
+  .tooltip, .popover {
+    background: var(--milkdown-bg);
+    border: 1px solid var(--milkdown-border);
+    border-radius: var(--milkdown-radius-sm);
+    box-shadow: var(--milkdown-shadow-lg);
+    z-index: 9999 !important;
+    position: fixed !important;
+  }
+  
+  // Estados de hover y selección
+  .selected {
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: var(--milkdown-radius-sm);
+  }
+  
+  // Placeholder
+  .placeholder {
+    color: var(--milkdown-text-secondary);
+    font-style: italic;
+  }
+  
+  // Responsive adjustments
+  @media (max-width: 768px) {
+    .milkdown {
+      padding: 1rem;
+      font-size: 14px;
+    }
+    
+    .toolbar {
+      padding: 0.25rem;
+    }
+    
+    table {
+      font-size: 0.875rem;
+    }
+    
+    th, td {
+      padding: 0.5rem;
+    }
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  :root {
+    --milkdown-primary: #60a5fa;
+    --milkdown-primary-hover: #3b82f6;
+    --milkdown-border: #374151;
+    --milkdown-border-hover: #4b5563;
+    --milkdown-bg: #1f2937;
+    --milkdown-bg-secondary: #111827;
+    --milkdown-text: #f9fafb;
+    --milkdown-text-secondary: #d1d5db;
+    --milkdown-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    --milkdown-shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.4);
+  }
+}

@@ -5,6 +5,51 @@
 
 @use "./assets/scss/app.scss";
 
+// Crepe Editor styles
+@import "@milkdown/crepe/theme/common/style.css";
+// @import "@milkdown/crepe/theme/frame.css";
+// @import "@milkdown/crepe/theme/nord-dark.css";
+@import "@milkdown/crepe/theme/nord.css";
+
+// Forzar que el slash-menu y otros popovers se rendericen en z-index alto
+.milkdown-slash-menu,
+.milkdown .milkdown-slash-menu,
+[data-tippy-root],
+.tippy-box {
+  z-index: 9999 !important;
+  position: fixed !important;
+}
+
+.milkdown {
+  min-height: inherit;
+}
+.milkdown .milkdown-slash-menu .tab-group {
+  padding: 0px !important;
+  ul {
+    margin: 0 !important;
+    li {
+      margin: 0 !important;
+    }
+  }
+}
+.milkdown .milkdown-slash-menu .menu-groups .menu-group {
+  h6 {
+    margin: 0 !important;
+    padding: 7px 5px !important;
+  }
+  ul {
+    margin: 0 !important;
+    li {
+      margin: 0 !important;
+      padding: 7px 5px !important;
+    }
+  }
+}
+.milkdown .ProseMirror {
+  padding: 10px 50px !important;
+}
+
+
 .p-multiselect {
   width: 100%;
 }

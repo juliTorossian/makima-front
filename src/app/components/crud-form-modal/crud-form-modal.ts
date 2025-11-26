@@ -32,7 +32,7 @@ export abstract class CrudFormModal<T> {
   }
 
   form!: FormGroup;
-  modo!: 'A' | 'M';
+  modo!: 'A' | 'M' | 'V';
 
   ngOnInit(): void {
     this.modo = this.config.data.modo;
@@ -43,6 +43,7 @@ export abstract class CrudFormModal<T> {
     if (data) this.populateForm(data);
 
     if (this.modo === 'M') this.setupEditMode();
+    if (this.modo === 'V') this.setupViewMode();
   }
 
   protected abstract buildForm(): FormGroup;
@@ -51,6 +52,11 @@ export abstract class CrudFormModal<T> {
 
   protected setupEditMode(): void {
     // Por defecto nada, pero overrideable
+  }
+
+  protected setupViewMode(): void {
+    // Por defecto deshabilita todos los campos
+    this.form.disable();
   }
 
   submit(): void {

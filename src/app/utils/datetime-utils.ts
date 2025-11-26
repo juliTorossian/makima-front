@@ -26,10 +26,17 @@ export function formatTime(value: any, offset: number = 0): string {
   return '';
 }
 
-export function getTimeAgo(fecha: Date): string {
+export function getTimeAgo(fecha: Date | string): string {
     if (!fecha) return '';
+    
+    // Convertir a Date si viene como string
+    const fechaDate = fecha instanceof Date ? fecha : new Date(fecha);
+    
+    // Validar que sea una fecha válida
+    if (isNaN(fechaDate.getTime())) return '';
+    
     const now = new Date();
-    const diffMs = now.getTime() - fecha.getTime();
+    const diffMs = now.getTime() - fechaDate.getTime();
     const diffSec = Math.floor(diffMs / 1000);
     if (diffSec < 60) return `hace ${diffSec} segundos`;
     const diffMin = Math.floor(diffSec / 60);
