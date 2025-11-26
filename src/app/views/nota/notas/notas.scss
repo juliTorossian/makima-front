@@ -14,12 +14,12 @@
     margin: 0;
     font-size: 18px;
     font-weight: 500;
-    color: #333;
+    color: var(--ins-body-color);
   }
 }
 
 .btn-nueva-nota {
-  background-color: #2563eb;
+  background-color: var(--ins-primary);
   color: white;
   border: none;
   padding: 8px 16px;
@@ -30,7 +30,7 @@
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: #1d4ed8;
+    background-color: var(--ins-primary-text-emphasis);
   }
 }
 
@@ -44,14 +44,15 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  background-color: #f3f4f6;
+  background-color: var(--ins-secondary-bg);
+  border: 1px solid var(--ins-border-color);
   padding: 16px;
   border-radius: 8px;
   transition: background-color 0.2s;
   overflow: hidden;
 
   &:hover {
-    background-color: #e5e7eb;
+    background-color: var(--ins-tertiary-bg);
   }
 }
 
@@ -66,12 +67,12 @@
   margin: 0 0 8px 0;
   font-size: 15px;
   font-weight: 600;
-  color: #111827;
+  color: var(--ins-body-color);
   cursor: pointer;
   transition: color 0.2s;
 
   &:hover {
-    color: #2563eb;
+    color: var(--ins-primary);
   }
 }
 
@@ -79,7 +80,7 @@
   margin: 0 0 8px 0;
   font-size: 14px;
   line-height: 1.5;
-  color: #4b5563;
+  color: var(--ins-body-secondary-color);
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 3;
@@ -110,7 +111,7 @@
   }
 
   :deep(code) {
-    background-color: #f1f5f9;
+    background-color: var(--ins-tertiary-bg);
     padding: 0.1em 0.3em;
     border-radius: 3px;
     font-family: monospace;
@@ -118,7 +119,7 @@
   }
 
   :deep(pre) {
-    background-color: #f1f5f9;
+    background-color: var(--ins-tertiary-bg);
     padding: 0.5em;
     border-radius: 4px;
     overflow-x: auto;
@@ -126,14 +127,14 @@
   }
 
   :deep(blockquote) {
-    border-left: 3px solid #d1d5db;
+    border-left: 3px solid var(--ins-border-color);
     padding-left: 0.8em;
     margin: 0.3em 0;
-    color: #6b7280;
+    color: var(--ins-secondary-color);
   }
 
   :deep(a) {
-    color: #2563eb;
+    color: var(--ins-primary);
     text-decoration: none;
     
     &:hover {
@@ -152,7 +153,7 @@
 
 .nota-fecha {
   font-size: 12px;
-  color: #9ca3af;
+  color: var(--ins-secondary-color);
 }
 
 .nota-acciones {
@@ -165,12 +166,12 @@
   border: none;
   cursor: pointer;
   padding: 4px;
-  color: #6b7280;
+  color: var(--ins-secondary-color);
   font-size: 16px;
   transition: color 0.2s;
 
   &:hover {
-    color: #111827;
+    color: var(--ins-body-color);
   }
 
   i {

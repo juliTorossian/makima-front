@@ -8,8 +8,9 @@
 // Crepe Editor styles
 @import "@milkdown/crepe/theme/common/style.css";
 // @import "@milkdown/crepe/theme/frame.css";
-// @import "@milkdown/crepe/theme/nord-dark.css";
-@import "@milkdown/crepe/theme/nord.css";
+
+// Los temas nord.css y nord-dark.css se cargan dinámicamente desde el componente
+// para soportar cambio de tema en tiempo real
 
 // Forzar que el slash-menu y otros popovers se rendericen en z-index alto
 .milkdown-slash-menu,
@@ -18,6 +19,97 @@
 .tippy-box {
   z-index: 9999 !important;
   position: fixed !important;
+}
+
+// Estilos para el slash-menu con soporte para temas light/dark
+.milkdown-slash-menu {
+  background-color: var(--ins-secondary-bg) !important;
+  border: 1px solid var(--ins-border-color) !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  border-radius: 0.5rem !important;
+  
+  // Items del menú
+  .menu-item,
+  li {
+    color: var(--ins-body-color) !important;
+    
+    &:hover {
+      background-color: var(--ins-tertiary-bg) !important;
+    }
+    
+    &.selected,
+    &[data-selected="true"] {
+      background-color: var(--ins-primary-bg-subtle) !important;
+    }
+  }
+  
+  // Títulos de grupo
+  h6,
+  .menu-group-title {
+    color: var(--ins-secondary-color) !important;
+  }
+}
+
+// Tema oscuro específico
+[data-bs-theme="dark"] {
+  .milkdown-slash-menu {
+    background-color: #1e1f27 !important;
+    border-color: #293036 !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2) !important;
+  }
+  
+  // Iconos del editor en tema oscuro
+  .milkdown {
+    // Iconos de la toolbar y menús
+    svg,
+    .icon,
+    [class*="icon-"] {
+      color: #aab8c5 !important;
+      fill: #aab8c5 !important;
+      stroke: #aab8c5 !important;
+    }
+    
+    // Botones y controles
+    button,
+    .button,
+    [role="button"] {
+      color: #aab8c5 !important;
+      
+      svg {
+        color: #aab8c5 !important;
+        fill: #aab8c5 !important;
+        stroke: #aab8c5 !important;
+      }
+      
+      &:hover {
+        color: #ffffff !important;
+        
+        svg {
+          color: #ffffff !important;
+          fill: #ffffff !important;
+          stroke: #ffffff !important;
+        }
+      }
+    }
+    
+    // Slash menu icons
+    .milkdown-slash-menu {
+      svg,
+      .icon {
+        color: #aab8c5 !important;
+        fill: #aab8c5 !important;
+      }
+    }
+    
+    // Tooltips y popovers
+    .tippy-box,
+    [data-tippy-root] {
+      svg {
+        color: #aab8c5 !important;
+        fill: #aab8c5 !important;
+      }
+    }
+  }
 }
 
 .milkdown {
