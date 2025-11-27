@@ -7,11 +7,14 @@ import {
   Output,
   EventEmitter,
   forwardRef,
-  OnInit
+  OnInit,
+  inject
 } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 import { CommonModule } from "@angular/common";
 import { Crepe } from "@milkdown/crepe";
+import { LayoutStoreService } from "@/app/core/services/layout-store.service";
+import { Subscription } from "rxjs";
 
 export interface MilkdownConfig {
   placeholder?: string;
@@ -130,6 +133,11 @@ export class MilkdownEditorComponent implements OnInit, OnDestroy, ControlValueA
   private onChange = (value: string) => {};
   private onTouched = () => {};
   
+  // Servicio de layout y suscripción
+  private layoutStore = inject(LayoutStoreService);
+  private themeSubscription?: Subscription;
+  private currentThemeLink?: HTMLLinkElement;
+  
   // Valor por defecto
   private defaultContent = `# Editor Milkdown
 
@@ -158,6 +166,17 @@ export class MilkdownEditorComponent implements OnInit, OnDestroy, ControlValueA
     // Configurar readonly inicial
     this.isReadonly = this.config.readonly || false;
     this.currentContent = this.initialValue || this.defaultContent;
+    
+    // Cargar el tema inicial
+    this.loadMilkdownTheme(this.layoutStore.theme);
+    
+    // Suscribirse a cambios de tema
+    this.themeSubscription = this.layoutStore.layoutState$.subscribe((state) => {
+      const resolvedTheme = state.theme === 'system' 
+        ? this.layoutStore.getSystemTheme() 
+        : state.theme;
+      this.loadMilkdownTheme(resolvedTheme);
+    });
   }
 
   async ngAfterViewInit() {
@@ -166,6 +185,14 @@ export class MilkdownEditorComponent implements OnInit, OnDestroy, ControlValueA
 
   ngOnDestroy() {
     this.destroyEditor();
+    
+    // Limpiar suscripción
+    if (this.themeSubscription) {
+      this.themeSubscription.unsubscribe();
+    }
+    
+    // Limpiar el link del tema
+    this.removeMilkdownTheme();
   }
 
   // ControlValueAccessor Implementation
@@ -382,5 +409,36 @@ export class MilkdownEditorComponent implements OnInit, OnDestroy, ControlValueA
 
   isReady(): boolean {
     return this.isInitialized;
+  }
+
+  // Manejo de temas dinámicos para Milkdown
+  private loadMilkdownTheme(theme: 'light' | 'dark' | 'system'): void {
+    const resolvedTheme = theme === 'system' 
+      ? this.layoutStore.getSystemTheme() 
+      : theme;
+    
+    const themeFile = resolvedTheme === 'dark' 
+      ? 'node_modules/@milkdown/crepe/theme/nord-dark.css'
+      : 'node_modules/@milkdown/crepe/theme/nord.css';
+    
+    // Remover el tema anterior si existe
+    this.removeMilkdownTheme();
+    
+    // Crear nuevo link element para el tema
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = themeFile;
+    link.id = 'milkdown-theme';
+    
+    // Agregar al head
+    document.head.appendChild(link);
+    this.currentThemeLink = link;
+  }
+  
+  private removeMilkdownTheme(): void {
+    if (this.currentThemeLink && this.currentThemeLink.parentNode) {
+      this.currentThemeLink.parentNode.removeChild(this.currentThemeLink);
+      this.currentThemeLink = undefined;
+    }
   }
 }

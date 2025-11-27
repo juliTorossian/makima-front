@@ -31,7 +31,8 @@ import { MessageService } from 'primeng/api';
       
       <div class="form-group mb-3">
         <label class="form-label">Contenido</label>
-        <milkdown-editor 
+        <milkdown-editor
+        class="form-control"
           formControlName="descripcion"
           [config]="editorConfig"
           [showControls]="false"
