@@ -55,7 +55,7 @@ export class Usuarios extends TrabajarCon<Usuario> {
   private usuarioService = inject(UsuarioService);
   private rolService = inject(RolService);
   private dialogService = inject(DialogService);
-  ref!: DynamicDialogRef;
+  ref!: DynamicDialogRef | null;
 
   // Estado para el usuario drawer
   showUsuarioDrawer = false;
@@ -147,6 +147,8 @@ export class Usuarios extends TrabajarCon<Usuario> {
       header,
       data
     });
+
+    if (!this.ref) return;
 
     this.ref.onClose.subscribe((usuarioCrud: Usuario) => {
       if (!usuarioCrud) return;

@@ -72,7 +72,7 @@ import { PermisoAccion } from '@/app/types/permisos';
 export class Eventos extends TrabajarCon<Evento> {
   private eventoService = inject(EventoService);
   private dialogService = inject(DialogService);
-  ref!: DynamicDialogRef;
+  ref!: DynamicDialogRef | null;
   private userStorageService = inject(UserStorageService);
   private eventoAccionesService = inject(EventoAccionesService);
 
@@ -214,6 +214,8 @@ export class Eventos extends TrabajarCon<Evento> {
       data
     });
 
+    if (!this.ref) return;
+
     this.ref.onClose.subscribe((result: any) => {
       if (!result) return;
       this.loadingService.show();
@@ -312,6 +314,8 @@ export class Eventos extends TrabajarCon<Evento> {
       header,
       data
     });
+
+    if (!this.ref) return;
 
     this.ref.onClose.subscribe((result: any) => {
       if (!result) return;

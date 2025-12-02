@@ -66,10 +66,10 @@ export class EventoCrud extends CrudFormModal<Evento> {
   private proyectoService = inject(ProyectoService);
   private userStorageService = inject(UserStorageService);
   private dialogService = inject(DialogService);
-  private selCliente = inject(DynamicDialogRef);
-  private selProyecto = inject(DynamicDialogRef);
-  private selProducto = inject(DynamicDialogRef);
-  private selModulo = inject(DynamicDialogRef);
+  private selCliente!: DynamicDialogRef | null;
+  private selProyecto!: DynamicDialogRef | null;
+  private selProducto!: DynamicDialogRef | null;
+  private selModulo!: DynamicDialogRef | null;
   private cdr = inject(ChangeDetectorRef);
   private loadingService = inject(LoadingService);
 
@@ -141,6 +141,8 @@ export class EventoCrud extends CrudFormModal<Evento> {
       focusOnShow: false
     });
 
+    if (!this.selModulo) return;
+
     this.selModulo.onClose.subscribe((result: any) => {
       if (result) {
         this.form.patchValue({
@@ -207,6 +209,8 @@ export class EventoCrud extends CrudFormModal<Evento> {
       focusOnShow: false
     });
 
+    if (!this.selCliente) return;
+
     this.selCliente.onClose.subscribe((result: any) => {
       if (result) {
         this.form.patchValue({
@@ -245,6 +249,8 @@ export class EventoCrud extends CrudFormModal<Evento> {
       }
     });
 
+    if (!this.selProyecto) return;
+
     this.selProyecto.onClose.subscribe((result: any) => {
       if (result) {
         this.form.patchValue({
@@ -278,6 +284,8 @@ export class EventoCrud extends CrudFormModal<Evento> {
       header: "Seleccionar Producto",
       focusOnShow: false
     });
+
+    if (!this.selProducto) return;
 
     this.selProducto.onClose.subscribe((result: any) => {
       if (result) {

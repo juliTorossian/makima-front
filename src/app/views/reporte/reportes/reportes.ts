@@ -57,7 +57,7 @@ export class Reportes extends TrabajarCon<Reporte> {
   }
   private reporteService = inject(ReporteService);
   private dialogService = inject(DialogService);
-  ref!: DynamicDialogRef;
+  ref!: DynamicDialogRef | null;
   getReporteEstadoDescripcion = getReporteEstadoDescripcion;
 
   reportes!:Reporte[];
@@ -121,6 +121,8 @@ export class Reportes extends TrabajarCon<Reporte> {
       header,
       data
     });
+
+    if (!this.ref) return;
 
     this.ref.onClose.subscribe((reporteCrud: Reporte) => {
       if (!reporteCrud) return;

@@ -112,7 +112,7 @@ export class EventosUsuario extends TrabajarCon<Evento> {
   private eventoService = inject(EventoService);
   private eventoAccionesService = inject(EventoAccionesService);
   private dialogService = inject(DialogService);
-  ref!: DynamicDialogRef;
+  ref!: DynamicDialogRef | null;
   private userStorageService = inject(UserStorageService);
   private eventoTrabajoService = inject(EventoTrabajoService);
   @ViewChild('dt') table!: Table;
@@ -259,6 +259,8 @@ export class EventosUsuario extends TrabajarCon<Evento> {
         data
       });
 
+      if (!this.ref) return;
+
       this.ref.onClose.subscribe((result: any) => {
         if (!result) return;
         this.loadingService.show();
@@ -330,6 +332,8 @@ export class EventosUsuario extends TrabajarCon<Evento> {
       header,
       data
     });
+
+    if (!this.ref) return;
 
     this.ref.onClose.subscribe((result: any) => {
       if (!result) return;

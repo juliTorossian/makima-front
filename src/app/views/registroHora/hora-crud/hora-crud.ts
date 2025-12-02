@@ -30,7 +30,7 @@ import { FiltroActivo } from '@/app/constants/filtros_activo';
   styleUrl: './hora-crud.scss'
 })
 export class HoraCrud extends CrudFormModal<RegistroHora> {
-  protected modalSel = inject(DynamicDialogRef);
+  protected modalSel!: DynamicDialogRef | null;
   private eventoService = inject(EventoService)
   private userStorageService = inject(UserStorageService);
   private dialogService = inject(DialogService);
@@ -258,6 +258,8 @@ export class HoraCrud extends CrudFormModal<RegistroHora> {
         filtroEvento: FiltroActivo.FALSE
       }
     });
+
+    if (!this.modalSel) return;
 
     this.modalSel.onClose.subscribe((result: any) => {
       if (!result) return;

@@ -54,7 +54,7 @@ export class Horas extends TrabajarCon<RegistroHora> {
   }
   private registroHoraService = inject(RegistroHoraService);
   private dialogService = inject(DialogService);
-  ref!: DynamicDialogRef;
+  ref!: DynamicDialogRef | null;
   getFechaLocal=getFechaLocal
 
   registrosHorasGenerales!: UsuarioHorasGenerales[];
@@ -108,6 +108,8 @@ export class Horas extends TrabajarCon<RegistroHora> {
       header,
       data
     });
+
+    if (!this.ref) return;
 
     this.ref.onClose.subscribe((registroHoraCrud: RegistroHora) => {
       if (!registroHoraCrud) return;

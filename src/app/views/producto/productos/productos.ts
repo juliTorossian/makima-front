@@ -50,7 +50,7 @@ import { PermisoAccion } from '@/app/types/permisos';
 export class Productos extends TrabajarCon<Producto> {
   private productoService = inject(ProductoService);
   private dialogService = inject(DialogService);
-  ref!: DynamicDialogRef;
+  ref!: DynamicDialogRef | null;
 
   productos!:Producto[];
 
@@ -115,6 +115,8 @@ export class Productos extends TrabajarCon<Producto> {
       header,
       data
     });
+
+    if (!this.ref) return;
 
     this.ref.onClose.subscribe((productoCrud: Producto) => {
       if (!productoCrud) return;

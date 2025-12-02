@@ -49,8 +49,8 @@ export class TiposEvento extends TrabajarCon<TipoEvento> {
   private tipoEventoService = inject(TipoEventoService);
   private prioridadService = inject(PrioridadService);
   private dialogService = inject(DialogService);
-  ref!: DynamicDialogRef;
-  refPrioridadRegla!: DynamicDialogRef;
+  ref!: DynamicDialogRef | null;
+  refPrioridadRegla!: DynamicDialogRef | null;
 
   tiposEvento!:TipoEvento[];
 
@@ -108,6 +108,8 @@ export class TiposEvento extends TrabajarCon<TipoEvento> {
       header,
       data
     });
+
+    if (!this.ref) return;
 
     this.ref.onClose.subscribe((tipoEventoCrud: TipoEvento) => {
       if (!tipoEventoCrud) return;

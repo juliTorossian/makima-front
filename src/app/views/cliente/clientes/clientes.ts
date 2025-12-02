@@ -49,7 +49,7 @@ import { PermisoAccion } from '@/app/types/permisos';
 export class Clientes extends TrabajarCon<Cliente> {
   private clienteService = inject(ClienteService);
   private dialogService = inject(DialogService);
-  ref!: DynamicDialogRef;
+  ref!: DynamicDialogRef | null;
 
   clientes!: Cliente[];
 
@@ -116,6 +116,8 @@ export class Clientes extends TrabajarCon<Cliente> {
       header,
       data
     });
+
+    if (!this.ref) return;
 
     this.ref.onClose.subscribe((clienteCrud: Cliente) => {
       if (!clienteCrud) return;

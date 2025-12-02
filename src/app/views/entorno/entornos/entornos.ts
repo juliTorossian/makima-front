@@ -48,7 +48,7 @@ import { PermisoAccion } from '@/app/types/permisos';
 export class Entornos extends TrabajarCon<Entorno> {
   private entornoService = inject(EntornoService);
   private dialogService = inject(DialogService);
-  ref!: DynamicDialogRef;
+  ref!: DynamicDialogRef | null;
 
   entornos!:Entorno[];
 
@@ -112,6 +112,8 @@ export class Entornos extends TrabajarCon<Entorno> {
       header,
       data
     });
+
+    if (!this.ref) return;
 
     this.ref.onClose.subscribe((entornoCrud: Entorno) => {
       if (!entornoCrud) return;

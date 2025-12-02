@@ -48,7 +48,7 @@ import { PermisoAccion } from '@/app/types/permisos';
 export class Etapas extends TrabajarCon<Etapa> {
   private etapaService = inject(EtapaService);
   private dialogService = inject(DialogService);
-  ref!: DynamicDialogRef;
+  ref!: DynamicDialogRef | null;
 
   etapas!:Etapa[];
 
@@ -117,6 +117,8 @@ export class Etapas extends TrabajarCon<Etapa> {
       header,
       data
     });
+
+    if (!this.ref) return;
 
     this.ref.onClose.subscribe((etapaCrud: Etapa) => {
       if (!etapaCrud) return;

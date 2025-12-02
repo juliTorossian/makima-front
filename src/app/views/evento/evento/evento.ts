@@ -64,7 +64,7 @@ export class Evento implements OnInit {
   private messageService = inject(MessageService);
   protected confirmationService = inject(ConfirmationService);
   protected permisosService = inject(PermisosService);
-  ref!: DynamicDialogRef;
+  ref!: DynamicDialogRef | null;
   private rutActiva = inject(ActivatedRoute);
   private cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
   private userStorageService = inject(UserStorageService);
@@ -310,6 +310,8 @@ export class Evento implements OnInit {
         usuarioId: this.usuarioActivo?.id
       }
     });
+
+    if (!this.ref) return;
 
     this.ref.onClose.subscribe((result: any) => {
       if (!result) return;

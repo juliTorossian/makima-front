@@ -47,7 +47,7 @@ import { PermisoAccion } from '@/app/types/permisos';
 export class Roles extends TrabajarCon<Rol> {
   private rolService = inject(RolService);
   private dialogService = inject(DialogService);
-  ref!: DynamicDialogRef;
+  ref!: DynamicDialogRef | null;
 
   roles!:Rol[];
 
@@ -111,6 +111,8 @@ export class Roles extends TrabajarCon<Rol> {
       header,
       data
     });
+
+    if (!this.ref) return;
 
     this.ref.onClose.subscribe((rolCrud: Rol) => {
       if (!rolCrud) return;

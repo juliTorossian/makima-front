@@ -27,7 +27,7 @@ export class Notas implements OnInit {
   private notaService = inject(NotaService);
   private sanitizer = inject(DomSanitizer);
   private cdr = inject(ChangeDetectorRef);
-  private ref?: DynamicDialogRef;
+  private ref?: DynamicDialogRef | null;
 
   notas: NotaComplete[] = [];
   loading = false;
@@ -196,6 +196,8 @@ export class Notas implements OnInit {
       header,
       data
     });
+
+    if (!this.ref) return;
 
     this.ref.onClose.subscribe((notaEditada: Nota) => {
       if (!notaEditada) return;
