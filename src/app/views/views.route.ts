@@ -89,5 +89,10 @@ export const VIEWS_ROUTES: Routes = [
     loadChildren: () =>
       import('./reporte/reporte.route').then((mod) => mod.REPORTES_ROUTES),
   },
+  {
+    path: '',
+    loadChildren: () =>
+      import('./archivos/archivos.route').then((mod) => mod.ARCHIVOS_ROUTES),
+  },
   
 ]

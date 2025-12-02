@@ -1,0 +1,67 @@
+<div class="explorer">
+
+    <!-- CONTROLES -->
+    <div class="controls">
+        <p-select [options]="tipos" optionLabel="label" optionValue="value" [(ngModel)]="selectedTipo"
+            (ngModelChange)="cargarRoot()"></p-select>
+
+        <p-select [options]="ordenOptions" optionLabel="label" optionValue="value" [(ngModel)]="ordenSeleccionado"
+            (ngModelChange)="cargarRoot()"></p-select>
+
+        <p-select [options]="directionOptions" optionLabel="label" optionValue="value" [(ngModel)]="ordenDirection"
+            (ngModelChange)="cargarRoot()"></p-select>
+
+        <button pButton label="Recargar" icon="pi pi-refresh" (click)="cargarRoot()"></button>
+    </div>
+
+    <!-- TREE -->
+    <p-tree [value]="nodes()" (onNodeExpand)="onNodeExpand($event)">
+        <!-- <ng-template pTemplate="default" let-node>
+            <div class="node" [pTooltip]="getTooltip(node)" tooltipPosition="right" (click)="onNodeSelect(node)">
+                <span>{{ node.label }}</span>
+
+                <span *ngIf="isNew(node.data.updatedAt)" class="new">NEW</span>
+
+                <span *ngIf="node.data.size" class="size">• {{ formatSize(node.data.size) }}</span>
+            </div>
+        </ng-template> -->
+        <ng-template pTemplate="default" let-node>
+            <div class="node" [pTooltip]="getTooltip(node)" tooltipPosition="right" (click)="onNodeSelect(node)">
+
+                <span class="label">{{ node.label }}</span>
+
+                <span *ngIf="isNew(node.data.updatedAt)" class="new">NEW</span>
+                <span *ngIf="node.data.size" class="size">• {{ formatSize(node.data.size) }}</span>
+
+                <!-- BOTÓN DESCARGAR -->
+                <button pButton
+                icon="pi pi-download"
+                class="p-button-sm p-button-text download-btn"
+                (click)="onDescargar(node); $event.stopPropagation()">
+                </button>
+            </div>
+        </ng-template>
+    </p-tree>
+
+    <!-- PREVIEW DIALOG -->
+    <p-dialog [visible]="previewVisible()" (visibleChange)="previewVisible.set($event)" [modal]="true"
+        [style]="{ width: '70vw' }" [header]="previewTitle()">
+        <!-- IMAGEN -->
+        <img *ngIf="previewType() === 'image'" [src]="previewContent()" style="width: 100%; border-radius: 8px;" />
+
+        <!-- PDF -->
+        <iframe *ngIf="previewType() === 'pdf'" [src]="previewContent()"
+            style="width: 100%; height: 75vh; border: none;"></iframe>
+
+        <!-- JSON -->
+        <pre *ngIf="previewType() === 'json'" style="max-height: 70vh; overflow: auto;">
+{{ previewContent() | json }}
+  </pre>
+
+        <!-- TEXTO -->
+        <pre *ngIf="previewType() === 'text'" style="max-height: 70vh; overflow: auto;">
+{{ previewContent() }}
+  </pre>
+
+    </p-dialog>
+</div>

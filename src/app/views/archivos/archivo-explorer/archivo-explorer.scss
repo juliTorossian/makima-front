@@ -1,0 +1,52 @@
+.explorer {
+  padding: 1rem;
+}
+
+.controls {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.node {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.new {
+  background: #ff5252;
+  color: white;
+  padding: 0 .4rem;
+  border-radius: 10px;
+  font-size: .7rem;
+}
+
+.size {
+  color: #888;
+  font-size: .8rem;
+}
+
+:host ::ng-deep .p-tree {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.node {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-right: 6px;
+}
+
+.label {
+  flex: 1;
+}
+
+.download-btn {
+  opacity: 0.4;
+}
+
+.node:hover .download-btn {
+  opacity: 1;
+}

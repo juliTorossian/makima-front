@@ -321,31 +321,27 @@ export class RolCrud extends CrudFormModal<Rol> implements OnInit {
     ];
   }
 
-  // Método auxiliar para obtener las acciones únicas (columnas de la tabla)
-  getAccionesUnicas(): { subcodigo: string, descripcion: string }[] {
-    if (!this.permisosDisponibles.length) return [];
+  // Método auxiliar para obtener las acciones de un módulo específico
+  getAccionesDelModulo(moduloCodigo: string): { subcodigo: string, descripcion: string }[] {
+    const modulo = this.permisosDisponibles.find(m => m.codigo === moduloCodigo);
+    if (!modulo) return [];
     
-    const accionesMap = new Map<string, string>();
-    this.permisosDisponibles.forEach(modulo => {
-      modulo.acciones.forEach(accion => {
-        if (!accionesMap.has(accion.subcodigo)) {
-          accionesMap.set(accion.subcodigo, accion.descripcion);
-        }
-      });
-    });
-    
-    const accionesArray = Array.from(accionesMap.entries()).map(([subcodigo, descripcion]) => ({
-      subcodigo,
-      descripcion
-    }));
+    // Filtrar ADMIN
+    const accionesDelModulo = modulo.acciones
+      .filter(a => a.subcodigo !== 'ADMIN')
+      .map(a => ({
+        subcodigo: a.subcodigo,
+        descripcion: a.descripcion
+      }));
     
     const orden = ['LEER', 'CREAR', 'MODIFICAR', 'ELIMINAR'];
     
-    // Separar acciones prioritarias y resto
+    // Separar acciones prioritarias (que existen en este módulo) y resto
     const prioritarias = orden
-      .filter(s => accionesArray.some(a => a.subcodigo === s))
-      .map(s => accionesArray.find(a => a.subcodigo === s)!);
-    const resto = accionesArray
+      .filter(s => accionesDelModulo.some(a => a.subcodigo === s))
+      .map(s => accionesDelModulo.find(a => a.subcodigo === s)!);
+    
+    const resto = accionesDelModulo
       .filter(a => !orden.includes(a.subcodigo))
       .sort((a, b) => a.subcodigo.localeCompare(b.subcodigo));
     
@@ -371,5 +367,25 @@ export class RolCrud extends CrudFormModal<Rol> implements OnInit {
       c.get('moduloCodigo')?.value === moduloCodigo && 
       c.get('accionSubcodigo')?.value === accionSubcodigo
     ) as FormGroup || null;
+  }
+
+  // Método para obtener el número máximo de columnas de acciones
+  getMaxColumnas(): number {
+    if (!this.permisosDisponibles.length) return 0;
+    
+    const maxAcciones = Math.max(
+      ...this.permisosDisponibles.map(m => 
+        m.acciones.filter(a => a.subcodigo !== 'ADMIN').length
+      )
+    );
+    
+    return maxAcciones;
+  }
+
+  // Método para calcular cuántas columnas faltan en una fila
+  getColspanRestante(moduloCodigo: string): number {
+    const accionesDelModulo = this.getAccionesDelModulo(moduloCodigo).length;
+    const maxColumnas = this.getMaxColumnas();
+    return maxColumnas - accionesDelModulo;
   }
 }

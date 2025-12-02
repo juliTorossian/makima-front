@@ -1,4 +1,5 @@
 import { MenuItemType } from '@/app/types/layout'
+import { PermisoAccion } from '@/app/types/permisos'
 import { inject } from '@angular/core'
 import { PermisoClave } from '@core/interfaces/rol'
 import { Usuario } from '@core/interfaces/usuario'
@@ -137,6 +138,13 @@ export const menuItems: MenuItemType[] = [
     icon: 'tablerReport',
     url: '/reporte/reportes',
     permisoClave: PermisoClave.REPORTE
+  },
+  {
+    label: 'Archivos',
+    icon: 'tablerFile',
+    url: '/archivos/',
+    permisoClave: PermisoClave.SISTEMA,
+    permisoAccion: PermisoAccion.LOG_LEER
   },
 
 ]

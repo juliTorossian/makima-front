@@ -74,11 +74,10 @@
                 </div>
               </ng-template>
               <ng-template #body let-modulo>
-                @if (modulo.codigo !== 'SYS') {
-                <tr [pContextMenuRow]="modulo">
-                  <td style="width: 200px; height: 55px; vertical-align: middle;"><strong>{{ modulo.modulo }}</strong></td>
-                  @for (accion of getAccionesUnicas(); track accion.subcodigo) {
-                    @if (tieneAccion(modulo.codigo, accion.subcodigo)) {
+                <!-- @if (modulo.codigo !== 'SYS') { -->
+                  <tr [pContextMenuRow]="modulo">
+                    <td style="width: 200px; height: 55px; vertical-align: middle;"><strong>{{ modulo.modulo }}</strong></td>
+                    @for (accion of getAccionesDelModulo(modulo.codigo); track accion.subcodigo) {
                       <td class="text-center" style="width: 120px; height: 55px; vertical-align: middle;">
                         @let control = getPermisoControl(modulo.codigo, accion.subcodigo);
                         @if (control) {
@@ -92,12 +91,12 @@
                           </div>
                         }
                       </td>
-                    } @else {
-                      <td style="width: 120px; height: 55px;"></td>
                     }
-                  }
-                </tr>
-                }
+                    @if (getColspanRestante(modulo.codigo) > 0) {
+                      <td [attr.colspan]="getColspanRestante(modulo.codigo)" style="height: 55px;"></td>
+                    }
+                  </tr>
+                <!-- } -->
               </ng-template>
             </p-table>
           </div>

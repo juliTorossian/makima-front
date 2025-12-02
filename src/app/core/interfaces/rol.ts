@@ -79,6 +79,7 @@ export enum PermisoClave {
   TIPO_EVENTO = 'TEV',
   ROL = 'ROL',
   REPORTE = 'REP',
+  SISTEMA = 'SYS',
 }
 
 // Array vacío de permisos para inicialización
