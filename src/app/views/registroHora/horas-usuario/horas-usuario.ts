@@ -128,14 +128,16 @@ export class HorasUsuario extends TrabajarCon<RegistroHora> {
     ).subscribe({
       next: (res) => {
         console.log(res);
-        this.registrosHoras = res.map(r => ({
+        this.registrosHoras = res.map((r: any) => ({
           ...r,
-          fecha: parseIsoAsLocal((r as any).fecha),
-          horas: r.horas?.map(h => ({
+          fecha: parseIsoAsLocal(r.fecha),
+          horas: r.horas?.map((h: any) => ({
             ...h,
+            inicio: h?.inicio ? parseIsoAsLocal(h.inicio) : undefined,
+            fin: h?.fin ? parseIsoAsLocal(h.fin) : undefined,
             eventoTxt: formatEventoNumero(h.evento?.tipoCodigo!, h.evento?.numero!)
           }))
-        }));
+        })) as any;
         this.registrosHorasFiltradas = this.registrosHoras;
         this.cdr.detectChanges();
         this.aplicarFiltroFecha(fechaFiltro);
