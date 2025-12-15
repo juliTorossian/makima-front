@@ -73,7 +73,7 @@ export class Evento implements OnInit {
   getEstadoDescCorto = getEstadoDescCorto;
 
   usuarioActivo:UsuarioLogeado | null = this.userStorageService.getUsuario();
-  permisoClave = PermisoClave.EVENTO_DOCUMENTO;
+  permisoClave = PermisoClave.EVENTO;
 
   private eventoService = inject(EventoService);
   evento!: EventoCompleto;
@@ -341,6 +341,10 @@ export class Evento implements OnInit {
 
   can(accion: PermisoAccion): boolean {
     return this.permisosService.can(buildPermiso(this.permisoClave, accion));
+  }
+
+  canModificarRequisitos(): boolean {
+    return this.can(PermisoAccion.REQ_MODIFICAR);
   }
 
   getRequerimientoDisabled(req: any): boolean {

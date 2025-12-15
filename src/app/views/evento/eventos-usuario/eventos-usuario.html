@@ -178,9 +178,9 @@
                                             @if (evento.etapaActualData.deAutoriza) {
                                                 <button class="btn btn-ghost-warning" placement="top" ngbTooltip="Autorizar" (click)="mostrarModalCrud(evento, 'AUT')"><ng-icon name="lucideCircleCheckBig"/></button>
                                             } @else {
-                                                @if (evento.etapaActualData.puedeContinuar){
+                                                <!-- @if (evento.etapaActualData.puedeContinuar){ -->
                                                     <button class="btn btn-ghost-warning" placement="top" ngbTooltip="Avanzar" (click)="mostrarModalCrud(evento, 'AVZ')"><ng-icon name="lucideFastForward"/></button>
-                                                } @else {
+                                                <!-- } @else {
                                                     <div
                                                         style="min-height: 42px;"
                                                         placement="top"
@@ -199,7 +199,7 @@
                                                             <ng-icon name="lucideFastForward"/>
                                                         </button>
                                                     </div>
-                                                }    
+                                                }     -->
                                             }
                                         }
                                         @if (evento.etapaAnterior) {

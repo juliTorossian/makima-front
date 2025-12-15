@@ -129,12 +129,21 @@ export interface EventoCount {
   eventosAdicion: number;
 }
 
+export enum TipoRequisito {
+  Text = 'text',
+  Numeric = 'numeric',
+  File = 'file',
+  Boolean = 'boolean',
+  Date = 'date'
+}
+
 /** Etapa enriquecida para EventoCompleto */
-export interface RequisitoFaltante {
+export interface Requisito {
   id: number;
-  tipo: string;
+  tipo: TipoRequisito;
   codigo: string;
   descripcion: string;
+  obligatorio?: boolean;
 }
 
 export interface EventoEtapa {
@@ -146,7 +155,8 @@ export interface EventoEtapa {
   deAutoriza?: boolean;
   puedeContinuar?: boolean;
   etapaFinal?: boolean;
-  requisitosFaltantes?: RequisitoFaltante[];
+  requisitosFaltantes?: Requisito[];
+  requisitos?: Requisito[];
 }
 
 // Evento base

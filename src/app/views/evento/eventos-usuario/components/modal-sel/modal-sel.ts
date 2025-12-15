@@ -1,6 +1,7 @@
 import { createTypeaheadFormatter, createTypeaheadSearch } from '@/app/utils/typeahead-utils';
 import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Requisito } from '@core/interfaces/evento';
 import { Usuario } from '@core/interfaces/usuario';
 import { UsuarioService } from '@core/services/usuario';
 import { NgbTypeaheadModule } from '@ng-bootstrap/ng-bootstrap';
@@ -8,8 +9,11 @@ import { NgIcon } from '@ng-icons/core';
 import { MessageService } from 'primeng/api';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { SelectModule } from 'primeng/select';
+import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
-import { tap } from 'rxjs';
+import { forkJoin, of, tap } from 'rxjs';
+import { EventoService } from '@core/services/evento';
+import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-modal-sel',
@@ -19,6 +23,7 @@ import { tap } from 'rxjs';
     NgIcon,
     NgbTypeaheadModule,
     SelectModule,
+    TableModule,
   ],
   providers: [
     MessageService,
@@ -31,6 +36,7 @@ export class ModalSel implements OnInit{
   private config = inject(DynamicDialogConfig);
 
   private usuarioService = inject(UsuarioService);
+  private eventoService = inject(EventoService);
 
   private cdr = inject(ChangeDetectorRef);
   private messageService = inject(MessageService);
@@ -46,7 +52,11 @@ export class ModalSel implements OnInit{
   rol: string = '';
 
   etapaActual: string = '';
+  requisitos: Requisito[] = [];
+  requisitosValores: { [key: number]: any } = {};
   proximaEtapa: string = '';
+  eventoId: string = '';
+  usuarioId: string = '';
 
   ngOnInit(): void {
     // lectura segura de config
@@ -56,7 +66,15 @@ export class ModalSel implements OnInit{
     this.mensaje = data.mensaje ?? '';
     this.modo = data.modo ?? '';
     this.etapaActual = data.etapaActual ?? '';
+    this.requisitos = data.requisitos ?? [];
     this.proximaEtapa = data.proximaEtapa ?? '';
+    this.eventoId = data.eventoId ?? '';
+    this.usuarioId = data.usuarioId ?? '';
+    
+    // Inicializar valores de requisitos
+    this.requisitos.forEach(req => {
+      this.requisitosValores[req.id] = '';
+    });
 
     this.rol = data.rol;
     if (this.rol) {
@@ -99,40 +117,132 @@ export class ModalSel implements OnInit{
   seleccionar($event:any){
     // validar usuario cuando corresponde
     if (this.modo !== 'REC' && (this.usuario === null || this.usuario === undefined)) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Validación',
+        detail: 'Debe seleccionar un usuario.'
+      });
       return;
     }
 
     if (this.reqComentario && !this.comentario) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Validación',
+        detail: 'El comentario es requerido.'
+      });
       return;
     }
 
-    // Si hay un rol exigido, comprobar que el usuario lo tenga; si no, impedir la asignación.
-    // if (this.rol) {
-    //   const rolesUsuario = this.usuario?.roles ?? [];
-    //   const roles = rolesUsuario.map(r => r.rolCodigo);
-    //   let hasRole = false;
-    //   if (Array.isArray(roles)) {
-    //     hasRole = roles.includes(this.rol);
-    //   } else if (roles && typeof roles === 'object') {
-    //     // soporte para objeto { rolName: true } o similar
-    //     hasRole = this.rol in roles || Object.values(roles).includes(this.rol);
-    //   }
+    // Validar que los requisitos obligatorios tengan valor
+    const requisitosObligatoriosIncumplidos = this.requisitos.filter(
+      req => req.obligatorio && (!this.requisitosValores[req.id] || this.requisitosValores[req.id].toString().trim() === '')
+    );
 
-    //   if (!hasRole) {
-    //     this.messageService.add({
-    //       severity: 'warn',
-    //       summary: 'Rol no permitido',
-    //       detail: 'El usuario no tiene el rol requerido y no puede ser asignado.'
-    //     });
-    //     return;
-    //   }
-    // }
+    if (requisitosObligatoriosIncumplidos.length > 0) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Requisitos obligatorios',
+        detail: 'Debe completar todos los requisitos obligatorios antes de continuar.'
+      });
+      return;
+    }
 
-    // console.log('Usuario seleccionado:', this.usuario);
+    // Obtener requisitos con valor
+    const requisitosConValor = Object.keys(this.requisitosValores)
+      .filter(key => this.requisitosValores[+key] && this.requisitosValores[+key].toString().trim() !== '')
+      .map(key => ({
+        requisitoId: +key,
+        valor: this.requisitosValores[+key]
+      }));
 
-    this.cerrar({
-      usuarioSeleccionado: (this.usuario) ? this.usuario.id : '',
-      comentario: this.comentario,
+    if (requisitosConValor.length > 0 && this.eventoId) {
+      this.registrarRequisitos(requisitosConValor);
+    } else {
+      this.cerrar({
+        usuarioSeleccionado: (this.usuario) ? this.usuario.id : '',
+        comentario: this.comentario,
+      });
+    }
+  }
+
+  private registrarRequisitos(requisitosData: { requisitoId: number, valor: any }[]): void {
+    const requests = requisitosData.map(data => {
+      const requisito = this.requisitos.find(r => r.id === data.requisitoId);
+      const dto: any = {
+        eventoId: this.eventoId,
+        requisitoId: data.requisitoId,
+        usuarioId: this.usuarioId
+      };
+
+      // Mapear el valor al campo correcto según el tipo
+      const tipoLower = requisito?.tipo?.toLowerCase();
+      switch (tipoLower) {
+        case 'text':
+          dto.valorTexto = data.valor;
+          break;
+        case 'numeric':
+          dto.valorNumero = Number(data.valor);
+          break;
+        case 'date':
+          dto.valorFecha = data.valor;
+          break;
+        case 'boolean':
+          dto.valorBooleano = Boolean(data.valor);
+          break;
+        case 'file':
+          dto.url = data.valor;
+          break;
+        default:
+          dto.valorTexto = data.valor;
+      }
+
+      return this.eventoService.registrarEventoRequisito(this.eventoId, dto).pipe(
+        catchError(error => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: `Error al registrar requisito "${requisito?.descripcion}": ${error?.error?.message || 'Error desconocido'}`
+          });
+          return of(null);
+        })
+      );
+    });
+
+    forkJoin(requests).subscribe({
+      next: (results) => {
+        const exitosos = results.filter(r => r !== null).length;
+        const errores = results.filter(r => r === null).length;
+        
+        if (errores === 0) {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Requisitos registrados',
+            detail: `${requisitosData.length} requisito(s) registrado(s) correctamente.`
+          });
+          
+          // Solo cerrar si no hay errores
+          this.cerrar({
+            usuarioSeleccionado: (this.usuario) ? this.usuario.id : '',
+            comentario: this.comentario,
+          });
+        } else {
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'Registro parcial',
+            detail: `${exitosos} requisito(s) registrado(s), ${errores} con error(es). Corrija los errores y vuelva a intentar.`
+          });
+          // NO cerrar el modal para que el usuario pueda corregir
+        }
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error al registrar los requisitos.'
+        });
+        // NO cerrar el modal
+      }
     });
   }
 
@@ -151,4 +261,34 @@ export class ModalSel implements OnInit{
   formatterUsuario = createTypeaheadFormatter<Usuario>(
     item => `${item.usuario} | ${item.nombre} ${item.apellido}`,
   );
+
+  getInputType(tipo: string): string {
+    const tipoLower = tipo?.toLowerCase();
+    switch (tipoLower) {
+      case 'numeric':
+        return 'number';
+      case 'text':
+        return 'text';
+      case 'date':
+        return 'date';
+      case 'file':
+        return 'file';
+      default:
+        return 'text';
+    }
+  }
+
+  getPlaceholder(requisito: Requisito): string {
+    const tipoLower = requisito.tipo?.toLowerCase();
+    switch (tipoLower) {
+      case 'numeric':
+        return 'Valor numérico';
+      case 'date':
+        return '';
+      case 'file':
+        return 'Seleccione archivo';
+      default:
+        return `Ingrese ${requisito.descripcion.toLowerCase()}`;
+    }
+  }
 }

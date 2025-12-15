@@ -46,7 +46,12 @@
 									<div card-body>
 
 										@if (requisitos && requisitos.length > 0) {
-											<p-table [value]="requisitos" dataKey="requisito.id" [tableStyle]="{ 'min-width': '30rem' }">
+											<p-table 
+												[value]="requisitos" 
+												dataKey="requisito.id" 
+												[tableStyle]="{ 'min-width': '30rem' }"
+												styleClass="p-datatable-sm p-datatable-gridlines"
+											>
                                                 <ng-template #header>
                                                     <tr>
                                                         <th style="width:10%"></th>
@@ -57,44 +62,40 @@
                                                 </ng-template>
                                                 <ng-template #body let-req>
                                                     <tr>
-                                                        <td>
+                                                        <td class="align-middle">
                                                             <span>
                                                                 @if (req.cumplido) { ✅ } @else { ❌ }
                                                             </span>
                                                         </td>
-                                                        <td>{{ req.requisito.descripcion }}</td>
-                                                        <td>{{ req.etapa.nombre }}</td>
-                                                        <td style="padding-right: 10px;" [pEditableColumn]="req.cumplimiento?.valor" pEditableColumnField="code">
-                                                            @if (evento.cerrado) {
+                                                        <td class="align-middle">{{ req.requisito.descripcion }}</td>
+                                                        <td class="align-middle">{{ req.etapa.nombre }}</td>
+                                                        <td class="align-middle">
+                                                            @if (evento.cerrado || !canModificarRequisitos()) {
                                                                 @if (req.cumplimiento?.valor) {
                                                                     {{ req.cumplimiento?.valor }}
                                                                 } @else {
                                                                     -
                                                                 }
                                                             } @else {
-                                                                <p-cellEditor>
-                                                                    <ng-template #input>
-                                                                        <!-- <input
-                                                                            pInputText
-                                                                            type="text"
-                                                                            [(ngModel)]="req.cumplimiento" 
-                                                                            fluid /> -->
-                                                                        <input
-                                                                            [type]="getType(req)"
-                                                                            [(ngModel)]="req.cumplimiento.valor"
-                                                                            [disabled]="getRequerimientoDisabled(req)"
-                                                                            class="form-control"
-                                                                            (change)="onActualizarRequisito(req, $event)"
-                                                                        />
-                                                                    </ng-template>
-                                                                    <ng-template #output>
+                                                                <div [pEditableColumn]="req.cumplimiento?.valor" pEditableColumnField="code">
+                                                                    <p-cellEditor>
+                                                                        <ng-template #input>
+                                                                            <input
+                                                                                [type]="getType(req)"
+                                                                                [(ngModel)]="req.cumplimiento.valor"
+                                                                                class="form-control form-control-sm"
+                                                                                (change)="onActualizarRequisito(req, $event)"
+                                                                            />
+                                                                        </ng-template>
+                                                                        <ng-template #output>
                                                                             @if (req.cumplimiento?.valor) {
                                                                                 {{ req.cumplimiento?.valor }}
                                                                             } @else {
                                                                                 -
                                                                             }
-                                                                    </ng-template>
-                                                                </p-cellEditor>
+                                                                        </ng-template>
+                                                                    </p-cellEditor>
+                                                                </div>
                                                             }
                                                         </td>
                                                     </tr>

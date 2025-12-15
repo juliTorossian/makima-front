@@ -291,6 +291,9 @@ export class EventosUsuario extends TrabajarCon<Evento> {
       etapaActual: '',
       proximaEtapa: '',
       rol: '',
+      requisitos: [] as any[],
+      eventoId: evento?.id ?? '',
+      usuarioId: this.usuarioActivo?.id ?? ''
     };
 
     switch (modo) {
@@ -298,6 +301,7 @@ export class EventosUsuario extends TrabajarCon<Evento> {
         header = "Avanzar Evento";
         // data.reqComentario = evento?.etapaSiguiente?.requiereComentario || false;
         data.etapaActual = evento?.etapaActualData?.nombre ?? '';
+        data.requisitos = evento?.etapaActualData?.requisitos ?? [];
         data.proximaEtapa = evento?.etapaSiguiente?.nombre ?? '';
         data.rol = evento?.etapaSiguiente?.rolPreferido ?? '';
         break;
@@ -315,6 +319,7 @@ export class EventosUsuario extends TrabajarCon<Evento> {
       case 'AUT':
         header = "Autorizar Evento";
         data.etapaActual = evento?.etapaActualData?.nombre ?? '';
+        data.requisitos = evento?.etapaActualData?.requisitos ?? [];
         data.proximaEtapa = evento?.etapaSiguiente?.nombre ?? '';
         data.rol = evento?.etapaSiguiente?.rolPreferido ?? '';
         break;

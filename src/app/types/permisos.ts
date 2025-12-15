@@ -8,6 +8,7 @@ export enum PermisoAccion {
   TPO_FACTURABLE = 'TPO_FACTU',
   DOC_ELIMINAR = 'DOC_ELIMINAR',
   LOG_LEER = 'LOG_LEER',
+  REQ_MODIFICAR = 'REQ_MODIFICAR',
 }
 
 // Tipo para permisos completos en formato "RECURSO.ACCION"
