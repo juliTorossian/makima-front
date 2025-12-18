@@ -54,7 +54,6 @@
                                 <th pSortableColumn="id" hidden>Id <p-sortIcon field="id" ></p-sortIcon></th>
                                 <th pSortableColumn="sigla">Sigla <p-sortIcon field="sigla"></p-sortIcon><p-columnFilter type="text" field="sigla" display="menu" matchMode="contains" style="margin-left: 2px;"></p-columnFilter></th>
                                 <th pSortableColumn="nombre">Nombre <p-sortIcon field="nombre" ></p-sortIcon><p-columnFilter type="text" field="nombre" display="menu" matchMode="contains" style="margin-left: 2px;"></p-columnFilter></th>
-                                <th pSortableColumn="cliente">Cliente <p-sortIcon field="cliente" ></p-sortIcon><p-columnFilter type="text" field="cliente" display="menu" matchMode="contains" style="margin-left: 2px;"></p-columnFilter></th>
                                 <th pSortableColumn="activo">Activo <p-sortIcon field="activo"></p-sortIcon></th>
                                 <th></th>
                             </tr>
@@ -67,7 +66,6 @@
                                 <td hidden>{{ proyecto.id }}</td>
                                 <td>{{ proyecto.sigla }}</td>
                                 <td>{{ proyecto.nombre }}</td>
-                                <td>{{ proyecto.cliente?.nombre }}</td>
                                 <td><span class="badge " style="min-width: 40%;" [ngClass]="proyecto.activo ? 'text-bg-success' : 'text-bg-danger'">{{ proyecto.activo | booleanLabel }}</span></td>
                                 <td class="d-flex justify-content-end">
                                     @if (can(PermisoAccion.MODIFICAR)) {

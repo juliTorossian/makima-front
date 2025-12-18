@@ -5,6 +5,7 @@ export interface Cliente {
   sigla: string;
   nombre?: string;
   activo: boolean;
+  proyectoIds?: number[];
 
   proyectos?: ClienteProyecto[];
   // eventos?: Evento[];

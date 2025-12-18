@@ -132,6 +132,12 @@ export const menuItems: MenuItemType[] = [
       { label: 'Roles', url: '/rol/roles', permisoClave: PermisoClave.ROL },
     ],
   },
+  {
+    label: 'Kbs',
+    icon: 'lucideBrainCircuit',
+    url: '/kb/kbs',
+    permisoClave: PermisoClave.KB
+  },
   { label: '', isTitle: true },
   {
     label: 'Reportes',

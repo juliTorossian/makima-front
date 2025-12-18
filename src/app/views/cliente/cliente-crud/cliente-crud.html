@@ -47,15 +47,42 @@
     </div>
 
     <div class="col-md-4">
-        <div class="form-check form-switch">
-            <input
-                id="activo"
-                type="checkbox"
-                formControlName="activo"
-                class="form-check-input"
-                role="switch"
-            >
-            <label class="form-check-label" for="activo">Activo</label>
+      <label for="proyectoIds" class="form-label">Proyectos</label>
+      <p-multiSelect
+        id="proyectoIds"
+        formControlName="proyectoIds"
+        [options]="proyectos"
+        optionLabel="nombre"
+        optionValue="id"
+        placeholder="Seleccionar proyectos"
+        display="chip"
+        [filter]="true"
+        filterPlaceholder="Buscar proyecto..."
+        styleClass="w-100"
+        appendTo="body"
+      >
+        <ng-template let-proyecto pTemplate="item">
+          <div class="flex align-items-center gap-2">
+            <span><strong>{{ proyecto.sigla }}</strong> - {{ proyecto.nombre }}</span>
+          </div>
+        </ng-template>
+      </p-multiSelect>
+      @if (get('proyectoIds')?.invalid && get('proyectoIds')?.touched) {
+        <div class="invalid-feedback d-block">Debe seleccionar al menos un proyecto.</div>
+      }
+    </div>
+
+    <div class="col-md-4">
+        <label for="activo" class="form-label">Activo</label>
+        <div class="mb-2">
+          <input id="activo" type="checkbox" formControlName="activo" class="btn-check" />
+          <label class="btn btn-outline-primary" for="activo">
+            @if (get('activo')?.value){
+            ACTIVO
+            } @else {
+            DESACTIVO
+            }
+          </label>
         </div>
     </div>
 

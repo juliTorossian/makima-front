@@ -47,32 +47,6 @@
     </div>
 
     <div class="col-md-4">
-      <label for="clienteIds" class="form-label">Clientes</label>
-      <p-multiSelect
-        id="clienteIds"
-        formControlName="clienteIds"
-        [options]="clientes"
-        optionLabel="nombre"
-        optionValue="id"
-        placeholder="Seleccionar clientes"
-        display="chip"
-        [filter]="true"
-        filterPlaceholder="Buscar cliente..."
-        styleClass="w-100"
-        appendTo="body"
-      >
-        <ng-template let-cliente pTemplate="item">
-          <div class="flex align-items-center gap-2">
-            <span><strong>{{ cliente.sigla }}</strong> - {{ cliente.nombre }}</span>
-          </div>
-        </ng-template>
-      </p-multiSelect>
-      @if (get('clienteIds')?.invalid && get('clienteIds')?.touched) {
-        <div class="invalid-feedback d-block">Debe seleccionar al menos un cliente.</div>
-      }
-    </div>
-
-    <div class="col-md-4">
         <label for="activo" class="form-label">Activo</label>
         <div class="mb-2">
           <input id="activo" type="checkbox" formControlName="activo" class="btn-check" />

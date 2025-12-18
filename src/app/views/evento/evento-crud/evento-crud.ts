@@ -386,16 +386,15 @@ export class EventoCrud extends CrudFormModal<Evento> {
     this.form.get('cliente')?.valueChanges.subscribe((cliente: Cliente | null) => {
       // Solo filtrar proyectos si es un objeto Cliente válido, no un string
       if (cliente && typeof cliente === 'object' && cliente.id) {
-        const clienteId = cliente.id;
         
         // Asegurarse de que proyectosCompletos esté inicializado
         if (!this.proyectosCompletos || this.proyectosCompletos.length === 0) {
           return;
         }
         
-        // Filtrar localmente los proyectos que incluyen este cliente
+        // Filtrar localmente los proyectos usando la relación inversa (cliente.proyectoIds)
         const proyectosFiltrados = this.proyectosCompletos.filter(p => 
-          p.clienteIds && Array.isArray(p.clienteIds) && p.clienteIds.includes(clienteId)
+          cliente.proyectoIds && Array.isArray(cliente.proyectoIds) && cliente.proyectoIds.includes(p.id!)
         );
         
         // Actualizar la lista de proyectos y el typeahead search
@@ -499,9 +498,9 @@ export class EventoCrud extends CrudFormModal<Evento> {
       return false;
     }
 
-    // Verificar si el cliente tiene proyectos asociados (relación muchos a muchos)
+    // Verificar si el cliente tiene proyectos asociados usando la relación inversa
     const proyectosDelCliente = this.proyectosCompletos?.filter(p => 
-      p.clienteIds && Array.isArray(p.clienteIds) && p.clienteIds.includes(cliente.id)
+      cliente.proyectoIds && Array.isArray(cliente.proyectoIds) && cliente.proyectoIds.includes(p.id!)
     ) || [];
     
     return proyectosDelCliente.length > 0;

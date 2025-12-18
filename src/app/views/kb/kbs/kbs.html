@@ -3,9 +3,9 @@
 <div class="container-fluid">
     <div class="row justify-content-center">
         <div class="col-12 mt-3">
-            <app-ui-card title="Clientes">
+            <app-ui-card title="Knowledge Base">
                 <div card-body>
-                    <p-toolbar styleClass="mb-4 gap-2">
+                    <p-toolbar>
                         <ng-template pTemplate="left">
                             <app-filtro-radio-group
                                 [options]="FiltroActivoOptions"
@@ -27,10 +27,10 @@
                     </p-toolbar>
                     <p-table
                         #dt
-                        [value]="clientes"
+                        [value]="kbs"
                         [rows]="10"
                         [paginator]="true"
-                        [globalFilterFields]="['id', 'sigla', 'nombre', 'activo']"
+                        [globalFilterFields]="['id', 'nombre', 'plataforma', 'tecnologia', 'tipo', 'estado', 'uso_actual']"
                         [tableStyle]="{ 'min-width': '75rem' }"
                         [rowHover]="true"
                         dataKey="id"
@@ -48,55 +48,66 @@
                         </ng-template>
                         <ng-template pTemplate="header">
                             <tr>
-                                <!-- <th style="width: 4rem">
-                                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
-                                </th> -->
-                                <th pSortableColumn="id" hidden>Id <p-sortIcon field="id" ></p-sortIcon></th>
-                                <th pSortableColumn="sigla">Sigla <p-sortIcon field="sigla"></p-sortIcon><p-columnFilter type="text" field="sigla" display="menu" matchMode="contains" style="margin-left: 2px;"></p-columnFilter></th>
-                                <th pSortableColumn="nombre">Nombre <p-sortIcon field="nombre" ></p-sortIcon><p-columnFilter type="text" field="nombre" display="menu" matchMode="contains" style="margin-left: 2px;"></p-columnFilter></th>
-                                <th>Proyectos</th>
+                                <th pSortableColumn="id" hidden>Id <p-sortIcon field="id"></p-sortIcon></th>
+                                <th pSortableColumn="nombre">Nombre <p-sortIcon field="nombre"></p-sortIcon></th>
+                                <th pSortableColumn="plataforma">Plataforma <p-sortIcon field="plataforma"></p-sortIcon></th>
+                                <th pSortableColumn="tecnologia">Tecnología <p-sortIcon field="tecnologia"></p-sortIcon></th>
+                                <th pSortableColumn="tipo">Tipo <p-sortIcon field="tipo"></p-sortIcon></th>
+                                <th pSortableColumn="estado">Estado <p-sortIcon field="estado"></p-sortIcon></th>
+                                <th pSortableColumn="uso_actual">Uso Actual <p-sortIcon field="uso_actual"></p-sortIcon></th>
+                                <th title="Total / Activos / Inactivos">Deploys</th>
+                                <th pSortableColumn="migrada">Migrada <p-sortIcon field="migrada"></p-sortIcon></th>
                                 <th pSortableColumn="activo">Activo <p-sortIcon field="activo"></p-sortIcon></th>
                                 <th></th>
                             </tr>
                         </ng-template>
-                        <ng-template pTemplate="body" let-cliente>
+                        <ng-template pTemplate="body" let-kb>
                             <tr>
-                                <!-- <td>
-                                    <p-tableCheckbox [value]="cliente"></p-tableCheckbox>
-                                </td> -->
-                                <td hidden>{{ cliente.id }}</td>
-                                <td>{{ cliente.sigla }}</td>
-                                <td>{{ cliente.nombre }}</td>
-                                <td>
-                                    @if (cliente.proyectos && cliente.proyectos.length > 0) {
-                                        <div class="d-flex flex-wrap gap-1">
-                                            @for (cp of cliente.proyectos; track cp.proyectoId) {
-                                                <span class="badge text-bg-primary">{{ cp.proyecto?.sigla }}</span>
-                                            }
-                                        </div>
-                                    } @else {
-                                        <span class="text-muted">Sin proyectos</span>
-                                    }
+                                <td hidden>{{ kb.id }}</td>
+                                <td>{{ kb.nombre }}</td>
+                                <td>{{ kb.plataforma }}</td>
+                                <td>{{ kb.tecnologia }}</td>
+                                <td>{{ kb.tipo }}</td>
+                                <td>{{ kb.estado }}</td>
+                                <td>{{ kb.uso_actual }}</td>
+                                <td class="text-center">
+                                    <span class="fw-semibold">{{ getTotalDeploys(kb) }} / {{ getDeploysActivos(kb) }} / {{ getDeploysInactivos(kb) }}</span>
                                 </td>
-                                <td><span class="badge " style="min-width: 40%;" [ngClass]="cliente.activo ? 'text-bg-success' : 'text-bg-danger'">{{ cliente.activo | booleanLabel }}</span></td>
+                                <td>
+                                    <span class="badge" [ngClass]="kb.migrada ? 'text-bg-info' : 'text-bg-secondary'">
+                                        {{ kb.migrada | booleanLabel }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge" [ngClass]="kb.activo ? 'text-bg-success' : 'text-bg-danger'">
+                                        {{ kb.activo | booleanLabel }}
+                                    </span>
+                                </td>
                                 <td class="d-flex justify-content-end">
                                     @if (can(PermisoAccion.MODIFICAR)) {
-                                        <button class="btn btn-ghost-warning" (click)="mostrarModalCrud(cliente, 'M')"><ng-icon name="lucidePencil"/></button>
+                                        <button class="btn btn-ghost-info" (click)="mostrarModalDeploys(kb)" title="Ver Deploys">
+                                            <ng-icon name="lucideRocket"/>
+                                        </button>
+                                        <button class="btn btn-ghost-warning" (click)="mostrarModalCrud(kb, 'M')" title="Modificar">
+                                            <ng-icon name="lucidePencil"/>
+                                        </button>
                                     }
                                     @if (can(PermisoAccion.ELIMINAR)) {
-                                        <button class="btn btn-ghost-danger" (click)="delete(cliente)"><ng-icon name="lucideTrash2"/></button>
+                                        <button class="btn btn-ghost-danger" (click)="delete(kb)" title="Eliminar">
+                                            <ng-icon name="lucideTrash2"/>
+                                        </button>
                                     }
                                 </td>
                             </tr>
                         </ng-template>
                         <ng-template pTemplate="summary">
-                            <div class="flex align-items-center justify-content-between">En total hay {{ clientes ? clientes.length : 0 }} Clientes.</div>
+                            <div class="flex align-items-center justify-content-between">
+                                En total hay {{ kbs ? kbs.length : 0 }} KBs.
+                            </div>
                         </ng-template>
                     </p-table>
-
                 </div>
             </app-ui-card>
-
         </div>
     </div>
 </div>

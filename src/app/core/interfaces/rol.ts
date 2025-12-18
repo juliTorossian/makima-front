@@ -80,6 +80,7 @@ export enum PermisoClave {
   ROL = 'ROL',
   REPORTE = 'REP',
   SISTEMA = 'SYS',
+  KB = 'KB'
 }
 
 // Array vacío de permisos para inicialización
