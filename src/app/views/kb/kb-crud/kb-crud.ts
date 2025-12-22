@@ -40,7 +40,7 @@ export class KbCrud extends CrudFormModal<kb> implements OnInit {
 
   cargarKbsDisponibles(): void {
     // Cargar KBs para el select de migración
-    this.kbService.findAll(true).subscribe({
+    this.kbService.findAll({ activo: true }).subscribe({
       next: (res) => {
         this.kbsDisponibles = res;
         this.cdr.detectChanges();

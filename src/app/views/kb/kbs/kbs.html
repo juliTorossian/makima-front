@@ -25,6 +25,17 @@
                             }
                         </ng-template>
                     </p-toolbar>
+
+                    <!-- Filtros de Catálogo -->
+                    <p-panel header="Filtros" [toggleable]="true" [collapsed]="true" styleClass="mb-3">
+                        <app-catalogo-filtros
+                            [filtrosConfig]="filtrosConfig"
+                            [autoApply]="false"
+                            (onFiltrosChange)="aplicarFiltros($event)"
+                            (onLimpiar)="limpiarFiltros()"
+                        ></app-catalogo-filtros>
+                    </p-panel>
+
                     <p-table
                         #dt
                         [value]="kbs"
@@ -102,7 +113,7 @@
                         </ng-template>
                         <ng-template pTemplate="summary">
                             <div class="flex align-items-center justify-content-between">
-                                En total hay {{ kbs ? kbs.length : 0 }} KBs.
+                                En total hay {{ kbs ? kbs.length : 0 }} KB(s).
                             </div>
                         </ng-template>
                     </p-table>

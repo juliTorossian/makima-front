@@ -3,6 +3,8 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { kb, deploy } from "@/app/core/interfaces/kb";
+import { CatalogoSearchOptions } from "@core/interfaces/catalogo-filter";
+import { combineCatalogoParams, CATALOGO_FILTROS_CONFIG } from "@/app/utils/catalogo-filter-utils";
 
 @Injectable({
   providedIn: 'root'
@@ -30,15 +32,75 @@ export class KbService {
   }
 
   /**
-   * Obtener todas las KBs
-   * @param activo - Filtrar por estado activo (opcional)
+   * Obtener todas las KBs con opciones de filtrado
+   * @param options - Opciones de búsqueda incluyendo filtros de catálogo
+   * @returns Observable con la lista de KBs
+   * 
+   * @example Uso básico
+   * ```typescript
+   * this.kbService.findAll({ activo: true }).subscribe(kbs => {...});
+   * ```
+   * 
+   * @example Con filtros de catálogo (formato simple)
+   * ```typescript
+   * this.kbService.findAll({
+   *   activo: true,
+   *   catalogos: {
+   *     plataforma: ['GENEXUS', 'ANGULAR'],
+   *     estado: ['ACTIVA']
+   *   }
+   * }).subscribe(kbs => {...});
+   * ```
+   * 
+   * @example Con filtros de catálogo (formato JSON)
+   * ```typescript
+   * this.kbService.findAll({
+   *   catalogos: [
+   *     { tipo: 'KB_PLATAFORMA', valores: ['GENEXUS'] },
+   *     { tipo: 'KB_ESTADO', valores: ['ACTIVA'] }
+   *   ]
+   * }).subscribe(kbs => {...});
+   * ```
    */
-  findAll(activo?: boolean): Observable<kb[]> {
-    let params = new HttpParams();
+  findAll(options: CatalogoSearchOptions = {}): Observable<kb[]> {
+    const { activo, search, catalogos, page, limit, sortBy, sortOrder } = options;
+    
+    // Preparar parámetros base
+    const baseParams: Record<string, string | number | boolean> = {};
     if (activo !== undefined) {
-      params = params.set('activo', activo.toString());
+      baseParams['activo'] = activo;
     }
+    if (search) {
+      baseParams['search'] = search;
+    }
+    if (page !== undefined) {
+      baseParams['page'] = page;
+    }
+    if (limit !== undefined) {
+      baseParams['limit'] = limit;
+    }
+    if (sortBy) {
+      baseParams['sortBy'] = sortBy;
+    }
+    if (sortOrder) {
+      baseParams['sortOrder'] = sortOrder;
+    }
+
+    // Combinar con filtros de catálogo si existen
+    const params = catalogos
+      ? combineCatalogoParams(baseParams, catalogos, CATALOGO_FILTROS_CONFIG['KB'], 'simple')
+      : new HttpParams({ fromObject: baseParams as any });
+
     return this.http.get<kb[]>(`${this.baseUrl}`, { params });
+  }
+
+  /**
+   * Obtener todas las KBs (método simplificado para retrocompatibilidad)
+   * @param activo - Filtrar por estado activo (opcional)
+   * @deprecated Usar findAll con options en su lugar
+   */
+  findAllSimple(activo?: boolean): Observable<kb[]> {
+    return this.findAll({ activo });
   }
 
   /**

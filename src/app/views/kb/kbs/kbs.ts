@@ -22,6 +22,9 @@ import { FiltroRadioGroupComponent } from '@app/components/filtro-check';
 import { FiltroActivo } from '@/app/constants/filtros_activo';
 import { PermisoAccion } from '@/app/types/permisos';
 import { ControlTrabajarCon } from '@app/components/trabajar-con/components/control-trabajar-con';
+import { PanelModule } from 'primeng/panel';
+import { CatalogoFiltrosComponent } from '@app/components/catalogo-filtros';
+import { CatalogoFiltroItemConfig, CatalogoFiltroState } from '@core/interfaces/catalogo-filter';
 
 @Component({
   selector: 'app-kbs',
@@ -36,6 +39,8 @@ import { ControlTrabajarCon } from '@app/components/trabajar-con/components/cont
     BooleanLabelPipe,
     FiltroRadioGroupComponent,
     ControlTrabajarCon,
+    PanelModule,
+    CatalogoFiltrosComponent,
   ],
   providers: [
     DialogService,
@@ -51,7 +56,53 @@ export class Kbs extends TrabajarCon<kb> {
   ref!: DynamicDialogRef | null;
   refDeploys!: DynamicDialogRef | null;
 
-  kbs!: kb[];
+  kbs: kb[] = [];
+
+  // Configuración de filtros de catálogo
+  filtrosConfig: CatalogoFiltroItemConfig[] = [
+    {
+      paramName: 'plataforma',
+      tipoCatalogo: 'KB_PLATAFORMA',
+      label: 'Plataforma',
+      placeholder: 'Seleccione plataformas',
+      multiple: true
+    },
+    {
+      paramName: 'tecnologia',
+      tipoCatalogo: 'KB_TECNOLOGIA',
+      label: 'Tecnología',
+      placeholder: 'Seleccione tecnologías',
+      multiple: true
+    },
+    {
+      paramName: 'compilador',
+      tipoCatalogo: 'KB_COMPILADOR',
+      label: 'Compilador',
+      placeholder: 'Seleccione compiladores',
+      multiple: true
+    },
+    {
+      paramName: 'tipo',
+      tipoCatalogo: 'KB_TIPO',
+      label: 'Tipo',
+      placeholder: 'Seleccione tipos',
+      multiple: true
+    },
+    {
+      paramName: 'estado',
+      tipoCatalogo: 'KB_ESTADO',
+      label: 'Estado',
+      placeholder: 'Seleccione estados',
+      multiple: true
+    },
+    {
+      paramName: 'uso_actual',
+      tipoCatalogo: 'KB_USO_ACTUAL',
+      label: 'Uso Actual',
+      placeholder: 'Seleccione uso actual',
+      multiple: true
+    }
+  ];
 
   constructor() {
     super(
@@ -63,10 +114,17 @@ export class Kbs extends TrabajarCon<kb> {
   }
 
   protected loadItems(): void {
+    this.cargarKbs();
+  }
+
+  /**
+   * Carga las KBs con los filtros actuales
+   */
+  private cargarKbs(catalogos?: CatalogoFiltroState): void {
     this.loadingService.show();
     const activo = this.filtroActivo === FiltroActivo.ALL ? undefined : this.filtroActivo === FiltroActivo.TRUE;
     
-    this.kbService.findAll(activo).pipe(
+    this.kbService.findAll({ activo, catalogos }).pipe(
       finalize(() => this.loadingService.hide())
     ).subscribe({
       next: (res) => {
@@ -75,6 +133,20 @@ export class Kbs extends TrabajarCon<kb> {
       },
       error: () => this.showError('Error al cargar las KBs.')
     });
+  }
+
+  /**
+   * Aplica los filtros de catálogo seleccionados
+   */
+  aplicarFiltros(filtros: CatalogoFiltroState): void {
+    this.cargarKbs(filtros);
+  }
+
+  /**
+   * Limpia todos los filtros
+   */
+  limpiarFiltros(): void {
+    this.cargarKbs();
   }
 
   alta(kb: kb): void {
