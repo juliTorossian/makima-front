@@ -27,7 +27,7 @@
                     </p-toolbar>
 
                     <!-- Filtros de Catálogo -->
-                    <p-panel header="Filtros" [toggleable]="true" [collapsed]="true" styleClass="mb-3">
+                    <p-panel header="Filtros" [toggleable]="true" [collapsed]="true" styleClass="mb-3 mt-1">
                         <app-catalogo-filtros
                             [filtrosConfig]="filtrosConfig"
                             [autoApply]="false"
@@ -86,7 +86,7 @@
                                 </td>
                                 <td>
                                     <span class="badge" [ngClass]="kb.migrada ? 'text-bg-info' : 'text-bg-secondary'">
-                                        {{ kb.migrada | booleanLabel }}
+                                        {{ kb.migrada | booleanLabel:'si-no' }}
                                     </span>
                                 </td>
                                 <td>

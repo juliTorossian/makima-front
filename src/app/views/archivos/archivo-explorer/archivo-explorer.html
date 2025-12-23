@@ -14,8 +14,12 @@
         <button pButton label="Recargar" icon="pi pi-refresh" (click)="cargarRoot()"></button>
     </div>
 
-    <!-- TREE -->
-    <p-tree [value]="nodes()" (onNodeExpand)="onNodeExpand($event)">
+        <!-- TREE -->
+        <div class="tree-wrapper" style="position: relative">
+                        @if (loadingRoot()) {
+                            <app-loading-spinner class="root-spinner"></app-loading-spinner>
+                        }
+            <p-tree [value]="nodes()" (onNodeExpand)="onNodeExpand($event)">
         <!-- <ng-template pTemplate="default" let-node>
             <div class="node" [pTooltip]="getTooltip(node)" tooltipPosition="right" (click)="onNodeSelect(node)">
                 <span>{{ node.label }}</span>
@@ -26,12 +30,19 @@
             </div>
         </ng-template> -->
         <ng-template pTemplate="default" let-node>
-            <div class="node" [pTooltip]="getTooltip(node)" tooltipPosition="right" (click)="onNodeSelect(node)">
+            <div class="node" [pTooltip]="getTooltip(node)" tooltipPosition="right">
 
-                <span class="label">{{ node.label }}</span>
+                <span class="label" (click)="onNodeSelect(node)">{{ node.label }}</span>
+                                @if (isLoading(node)) {
+                                    <app-loading-spinner class="inline-spinner"></app-loading-spinner>
+                                }
 
-                <span *ngIf="isNew(node.data.updatedAt)" class="new">NEW</span>
-                <span *ngIf="node.data.size" class="size">• {{ formatSize(node.data.size) }}</span>
+                                @if (isNew(node.data.updatedAt)) {
+                                    <span class="new">NEW</span>
+                                }
+                                @if (node.data.size) {
+                                    <span class="size">• {{ formatSize(node.data.size) }}</span>
+                                }
 
                 <!-- BOTÓN DESCARGAR -->
                 <button pButton
@@ -41,27 +52,35 @@
                 </button>
             </div>
         </ng-template>
-    </p-tree>
+            </p-tree>
+        </div>
 
     <!-- PREVIEW DIALOG -->
     <p-dialog [visible]="previewVisible()" (visibleChange)="previewVisible.set($event)" [modal]="true"
         [style]="{ width: '70vw' }" [header]="previewTitle()">
         <!-- IMAGEN -->
-        <img *ngIf="previewType() === 'image'" [src]="previewContent()" style="width: 100%; border-radius: 8px;" />
+                @if (previewType() === 'image') {
+                    <img [src]="previewContent()" style="width: 100%; border-radius: 8px;" />
+                }
 
         <!-- PDF -->
-        <iframe *ngIf="previewType() === 'pdf'" [src]="previewContent()"
-            style="width: 100%; height: 75vh; border: none;"></iframe>
+                @if (previewType() === 'pdf') {
+                    <iframe [src]="previewContent()" style="width: 100%; height: 75vh; border: none;"></iframe>
+                }
 
         <!-- JSON -->
-        <pre *ngIf="previewType() === 'json'" style="max-height: 70vh; overflow: auto;">
+                @if (previewType() === 'json') {
+                    <pre style="max-height: 70vh; overflow: auto;">
 {{ previewContent() | json }}
-  </pre>
+    </pre>
+                }
 
         <!-- TEXTO -->
-        <pre *ngIf="previewType() === 'text'" style="max-height: 70vh; overflow: auto;">
+                @if (previewType() === 'text') {
+                    <pre style="max-height: 70vh; overflow: auto;">
 {{ previewContent() }}
-  </pre>
+    </pre>
+                }
 
     </p-dialog>
 </div>

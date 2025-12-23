@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -9,7 +9,9 @@ import { ButtonModule } from 'primeng/button';
 import { PanelModule } from 'primeng/panel';
 import { NgIcon } from '@ng-icons/core';
 import { deploy } from '@core/interfaces/kb';
+import { Cliente } from '@core/interfaces/cliente';
 import { KbService } from '@core/services/kb';
+import { ClienteService } from '@core/services/cliente';
 import { CatalogoSelect } from '@app/components/catalogo-select/catalogo-select';
 import { TipoCatalogo } from '@/app/constants/catalogo-config';
 import { CatalogoService } from '@core/services/catalogo';
@@ -38,17 +40,21 @@ export class KbDeploys implements OnInit {
   private kbService = inject(KbService);
   private catalogoService = inject(CatalogoService);
   private messageService = inject(MessageService);
+  private clienteService = inject(ClienteService);
   private config = inject(DynamicDialogConfig);
   private ref = inject(DynamicDialogRef);
+  private cdr = inject(ChangeDetectorRef);
 
   kbId!: number;
   kbNombre?: string;
   deploys: deploy[] = [];
   deploysFiltrados: deploy[] = [];
   loading: boolean = false;
+  clientes: Cliente[] = [];
   
   // Filtros
   filtroAmbiente: string = '';
+  filtroCliente: number | null = null;
   filtroHosting: string = '';
   filtroEstado: string = '';
   
@@ -80,6 +86,7 @@ export class KbDeploys implements OnInit {
     }
 
     this.buildForm();
+    this.cargarClientes();
     this.cargarDeploys();
   }
 
@@ -99,6 +106,7 @@ export class KbDeploys implements OnInit {
 
   buildForm(): void {
     this.form = new FormGroup({
+      clienteId: new FormControl(null),
       ambiente: new FormControl('', [Validators.required]),
       hosting: new FormControl('', [Validators.required]),
       nombre: new FormControl(''),
@@ -111,7 +119,10 @@ export class KbDeploys implements OnInit {
   cargarDeploys(): void {
     this.loading = true;
     this.kbService.findAllDeploys(this.kbId)
-      .pipe(finalize(() => this.loading = false))
+      .pipe(finalize(() => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }))
       .subscribe({
         next: (deploys) => {
           this.deploys = deploys;
@@ -124,10 +135,24 @@ export class KbDeploys implements OnInit {
       });
   }
 
+  cargarClientes(): void {
+    this.clienteService.getAll().pipe(finalize(() => {
+        this.cdr.detectChanges();
+      })).subscribe({
+      next: (res) => {
+        this.clientes = res;
+      },
+      error: () => {
+        this.showError('No se pudieron cargar los clientes');
+      }
+    });
+  }
+
   nuevo(): void {
     this.editando = true;
     this.deployEditandoId = null;
     this.form.reset({
+      clienteId: null,
       ambiente: '',
       hosting: '',
       nombre: '',
@@ -135,12 +160,15 @@ export class KbDeploys implements OnInit {
       observaciones: '',
       activo: true
     });
+    // Dar foco al primer campo del formulario
+    this.focusFirstField();
   }
 
   editar(deploy: deploy): void {
     this.editando = true;
     this.deployEditandoId = deploy.id;
     this.form.patchValue({
+      clienteId: deploy.clienteId ?? null,
       ambiente: deploy.ambiente,
       hosting: deploy.hosting,
       nombre: deploy.nombre || '',
@@ -148,6 +176,24 @@ export class KbDeploys implements OnInit {
       observaciones: deploy.observaciones || '',
       activo: deploy.activo
     });
+    // Dar foco al primer campo del formulario y scrollearlo a la vista
+    this.focusFirstField();
+  }
+
+  private focusFirstField(): void {
+    // Esperar un tick para que el DOM esté actualizado
+    setTimeout(() => {
+      const el = document.getElementById('deploy-nombre') as HTMLInputElement | null;
+      if (el) {
+        try {
+          el.focus();
+          el.select?.();
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } catch (e) {
+          // Silenciar cualquier error de foco
+        }
+      }
+    }, 200);
   }
 
   cancelar(): void {
@@ -162,8 +208,14 @@ export class KbDeploys implements OnInit {
       return;
     }
 
+    // Asegurar que clienteId sea number o null (no string)
+    const raw = this.form.value;
+    const clienteRaw = raw.clienteId;
+    const clienteId = clienteRaw === null || clienteRaw === undefined || clienteRaw === '' ? null : Number(clienteRaw);
+
     const deployData = {
-      ...this.form.value,
+      ...raw,
+      clienteId: clienteId,
       kbId: this.kbId  // Agregar el kbId al body
     };
 
@@ -227,17 +279,21 @@ export class KbDeploys implements OnInit {
   aplicarFiltros(): void {
     this.deploysFiltrados = this.deploys.filter(deploy => {
       const cumpleAmbiente = !this.filtroAmbiente || deploy.ambiente === this.filtroAmbiente;
+      const cumpleCliente = (this.filtroCliente == null)
+        ? true
+        : Number(deploy.clienteId) === Number(this.filtroCliente);
       const cumpleHosting = !this.filtroHosting || deploy.hosting === this.filtroHosting;
       const cumpleEstado = !this.filtroEstado || 
         (this.filtroEstado === 'activo' && deploy.activo) || 
         (this.filtroEstado === 'inactivo' && !deploy.activo);
       
-      return cumpleAmbiente && cumpleHosting && cumpleEstado;
+      return cumpleAmbiente && cumpleCliente && cumpleHosting && cumpleEstado;
     });
   }
 
   limpiarFiltros(): void {
     this.filtroAmbiente = '';
+    this.filtroCliente = null;
     this.filtroHosting = '';
     this.filtroEstado = '';
     this.aplicarFiltros();
@@ -257,5 +313,10 @@ export class KbDeploys implements OnInit {
       summary: 'Error',
       detail: message
     });
+  }
+
+  getClienteLabel(deploy: deploy): string {
+    const c = (deploy as any).cliente || this.clientes.find(x => x.id === deploy.clienteId);
+    return c ? `${c.sigla} - ${c.nombre}` : '-';
   }
 }

@@ -20,6 +20,21 @@ export interface NotaCompartida {
     fecha: Date;
     nota: Nota;
 }
+export interface NotaUsuariosCompartidos {
+    id: number;
+    notaId: number;
+    usuarioId: string;
+    permiso: NotaPermiso;
+    fecha: Date;
+    usuario: UsuarioCompartido[];
+}
+export interface UsuarioCompartido{
+    id:string;
+    nombre:string;
+    apellido:string;
+    usuario:string;
+    color:string;
+}
 
 
 export enum NotaTipo {

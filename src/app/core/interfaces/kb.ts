@@ -37,6 +37,7 @@ export interface kb {
 export interface deploy {
   id:number;
   kbId:number;
+  clienteId:number;
 
   ambiente:string;
   hosting:string;
@@ -47,4 +48,12 @@ export interface deploy {
   activo: boolean;
   createdAt?: Date;
   updatedAt?: Date;
+
+
+}
+
+export interface DeployCliente {
+  id: number;
+  sigla: string;
+  nombre: string
 }

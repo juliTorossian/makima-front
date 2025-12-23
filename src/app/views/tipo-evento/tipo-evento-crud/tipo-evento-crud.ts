@@ -1,6 +1,6 @@
 import { getRandomColor } from '@/app/utils/color-utils';
 import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
-import { FormArray, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
 import { CrudFormModal } from '@app/components/crud-form-modal/crud-form-modal';
 import { Etapa } from '@core/interfaces/etapa';
 import { TipoEvento, TipoEventoEtapa } from '@core/interfaces/tipo-evento';
@@ -87,6 +87,14 @@ export class TipoEventoCrud extends CrudFormModal<TipoEvento> implements OnInit 
   removeEtapa(index: number) {
     this.etapasFormArray.removeAt(index);
     this.reorderSequences();
+  }
+
+  removeEtapaByControl(control: AbstractControl) {
+    const index = this.etapasFormArray.controls.indexOf(control);
+    if (index > -1) {
+      this.etapasFormArray.removeAt(index);
+      this.reorderSequences();
+    }
   }
   getRollbackOptions(currentSeq: number): number[] {
     return this.etapasFormArray.controls

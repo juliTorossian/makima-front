@@ -55,6 +55,9 @@
                                 <th pSortableColumn="nombre">Nombre <p-sortIcon field="nombre" ></p-sortIcon><p-columnFilter type="text" field="nombre" display="menu" matchMode="contains" style="margin-left: 2px;"></p-columnFilter></th>
                                 <th pSortableColumn="rolPreferido">Rol Preferido <p-sortIcon field="rolPreferido"></p-sortIcon></th>
                                 <th pSortableColumn="activo">Activo <p-sortIcon field="activo"></p-sortIcon></th>
+                                <th>Circuito</th>
+                                <th>Origen</th>
+                                <th>Requisitos</th>
                                 <th></th>
                             </tr>
                         </ng-template>
@@ -67,6 +70,15 @@
                                 <td>{{ etapa.nombre }}</td>
                                 <td>{{ etapa.rolPreferido }}</td>
                                 <td><span class="badge " style="min-width: 40%;" [ngClass]="etapa.activo ? 'text-bg-success' : 'text-bg-danger'">{{ etapa.activo | booleanLabel }}</span></td>
+                                <td>
+                                    <span class="badge" style="min-width: 40%;" [ngClass]="etapa.deAutoriza ? 'text-bg-success' : 'text-bg-danger'">{{ etapa.deAutoriza ? 'Circuito Autoriza' : 'Circuito Default' }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge" style="min-width: 40%;" [ngClass]="etapa.deArchivo ? 'text-bg-success' : 'text-bg-danger'">{{ etapa.deArchivo ? 'De Archivo' : 'De Circuito' }}</span>
+                                </td>
+                                <td>
+                                    {{ (etapa.requisitos && etapa.requisitos.length) ? etapa.requisitos.length : 0 }} Req.
+                                </td>
                                 <td class="d-flex justify-content-end">
                                     @if (can(PermisoAccion.MODIFICAR)) {
                                         <button class="btn btn-ghost-warning" (click)="mostrarModalCrud(etapa, 'M')"><ng-icon name="lucidePencil"/></button>

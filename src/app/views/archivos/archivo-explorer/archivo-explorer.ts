@@ -10,6 +10,7 @@ import { ArchivosService } from '@core/services/archivos';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { LoadingSpinnerComponent } from '../../../components/loading-spinner/loading-spinner';
 
 @Component({
   selector: 'app-archivo-explorer',
@@ -21,7 +22,8 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
     SelectModule,
     TooltipModule,
     DialogModule,
-    ButtonModule
+    ButtonModule,
+    LoadingSpinnerComponent
   ],
   templateUrl: './archivo-explorer.html',
   styleUrls: ['./archivo-explorer.scss']
@@ -60,6 +62,8 @@ export class ArchivoExplorer implements OnInit {
   previewType = signal<'image' | 'pdf' | 'json' | 'text' | 'none'>('none');
   previewContent = signal<any>(null);
   previewTitle = signal('');
+  // loading
+  loadingRoot = signal(false);
 
   constructor(
     protected cdr: ChangeDetectorRef,
@@ -72,10 +76,21 @@ export class ArchivoExplorer implements OnInit {
   }
 
   cargarRoot() {
-    this.archivosService.getTree(this.selectedTipo()).subscribe(resp => {
-      const root = this.buildTree(this.selectedTipo(), '', resp);
-      this.nodes.set([root]);
-      this.cdr.detectChanges();
+    this.loadingRoot.set(true);
+    this.archivosService.getTree(this.selectedTipo()).subscribe({
+      next: resp => {
+        const root = this.buildTree(this.selectedTipo(), '', resp);
+        this.nodes.set([root]);
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.loadingRoot.set(false);
+        this.cdr.detectChanges();
+      },
+      complete: () => {
+        this.loadingRoot.set(false);
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -122,13 +137,23 @@ export class ArchivoExplorer implements OnInit {
     const node = evt.node;
     const { tipo, path } = node.data;
 
-    this.loadingNodeKeys.add(node.key);
+    if (node.key) this.loadingNodeKeys.add(node.key);
 
-    this.archivosService.getTree(tipo, path).subscribe(resp => {
-      node.children = this.buildTree(tipo, path, resp).children!;
-      this.loadingNodeKeys.delete(node.key);
-      this.cdr.detectChanges();
+    this.archivosService.getTree(tipo, path).subscribe({
+      next: resp => {
+        node.children = this.buildTree(tipo, path, resp).children!;
+        if (node.key) this.loadingNodeKeys.delete(node.key);
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        if (node.key) this.loadingNodeKeys.delete(node.key);
+        this.cdr.detectChanges();
+      }
     });
+  }
+
+  isLoading(node: TreeNode) {
+    return !!node.key && this.loadingNodeKeys.has(node.key);
   }
 
   onNodeSelect(evt: any) {

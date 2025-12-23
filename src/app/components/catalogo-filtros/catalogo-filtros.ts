@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, AfterViewInit, inject, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MultiSelectModule } from 'primeng/multiselect';
@@ -56,8 +56,7 @@ import { finalize } from 'rxjs';
     FormsModule,
     MultiSelectModule,
     SelectModule,
-    ButtonModule,
-    NgIcon
+    ButtonModule
   ],
   template: `
     <div class="catalogo-filtros">
@@ -71,7 +70,7 @@ import { finalize } from 'rxjs';
                 [id]="'filtro-' + filtro.paramName"
                 [options]="catalogosMap[filtro.paramName] || []"
                 [(ngModel)]="filtrosState[filtro.paramName]"
-                [optionLabel]="'descripcion'"
+                [optionLabel]="'codigo'"
                 [optionValue]="'codigo'"
                 [placeholder]="filtro.placeholder || 'Seleccionar'"
                 [filter]="true"
@@ -96,7 +95,7 @@ import { finalize } from 'rxjs';
                 [id]="'filtro-' + filtro.paramName"
                 [options]="catalogosMap[filtro.paramName] || []"
                 [(ngModel)]="filtrosState[filtro.paramName][0]"
-                [optionLabel]="'descripcion'"
+                [optionLabel]="'codigo'"
                 [optionValue]="'codigo'"
                 [placeholder]="filtro.placeholder || 'Seleccionar'"
                 [filter]="true"
@@ -182,8 +181,10 @@ import { finalize } from 'rxjs';
     }
   `]
 })
-export class CatalogoFiltrosComponent implements OnInit {
+export class CatalogoFiltrosComponent implements OnInit, AfterViewInit {
   private catalogoService = inject(CatalogoService);
+  private cdRef = inject(ChangeDetectorRef);
+  private zone = inject(NgZone);
 
   /**
    * Configuración de los filtros a mostrar
@@ -227,7 +228,11 @@ export class CatalogoFiltrosComponent implements OnInit {
 
   ngOnInit(): void {
     this.inicializarEstado();
-    this.cargarTodosCatalogos();
+  }
+
+  ngAfterViewInit(): void {
+    // ejecutar la carga de catálogos después del primer chequeo de cambios
+    setTimeout(() => this.cargarTodosCatalogos(), 0);
   }
 
   /**
@@ -258,17 +263,32 @@ export class CatalogoFiltrosComponent implements OnInit {
    * Carga un catálogo específico
    */
   private cargarCatalogo(filtro: CatalogoFiltroItemConfig): void {
-    this.loadingMap[filtro.paramName] = true;
-    
+    // actualizar estados dentro de NgZone y forzar detección inmediatamente después
+    this.zone.run(() => {
+      this.loadingMap[filtro.paramName] = true;
+      this.cdRef.detectChanges();
+    });
+
     this.catalogoService.findByTipo(filtro.tipoCatalogo, true)
-      .pipe(finalize(() => this.loadingMap[filtro.paramName] = false))
+      .pipe(finalize(() => {
+        this.zone.run(() => {
+          this.loadingMap[filtro.paramName] = false;
+          this.cdRef.detectChanges();
+        });
+      }))
       .subscribe({
         next: (catalogos) => {
-          this.catalogosMap[filtro.paramName] = catalogos;
+          this.zone.run(() => {
+            this.catalogosMap[filtro.paramName] = catalogos;
+            this.cdRef.detectChanges();
+          });
         },
         error: (error) => {
           console.error(`Error al cargar catálogo ${filtro.tipoCatalogo}:`, error);
-          this.catalogosMap[filtro.paramName] = [];
+          this.zone.run(() => {
+            this.catalogosMap[filtro.paramName] = [];
+            this.cdRef.detectChanges();
+          });
         }
       });
   }

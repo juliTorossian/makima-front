@@ -1,0 +1,62 @@
+<div class="modal-container">
+    <div class="mb-3 mt-1">
+        <p-button label="Agregar usuario" icon="pi pi-plus" (onClick)="startAddRow()"></p-button>
+    </div>
+
+    <!-- Grilla de usuarios compartidos -->
+    <div class="usuarios-compartidos">
+        <h4>Usuarios con Acceso</h4>
+        <p-table [value]="usuariosCompartidos" [loading]="loading" responsiveLayout="scroll">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Nombre</th>
+                    <th>Permiso</th>
+                    <th>Acciones</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-compartido>
+                    <tr>
+                        <td>
+                            @if (editingRow === compartido) {
+                                <p-autoComplete [(ngModel)]="compartido._tempUsuarioLabel" [suggestions]="usuariosSugeridos"
+                                    (completeMethod)="filtrarUsuarios($event)" (onSelect)="onUsuarioSelected($event, compartido)" field="usuario" [dropdown]="true" name="tempUsuario"
+                                    [forceSelection]="true">
+                                    <ng-template pTemplate="item" let-u>
+                                        <div>{{ u?.nombre || '—' }} {{ u?.apellido || '' }} ({{ u?.usuario || '—' }})</div>
+                                    </ng-template>
+                                </p-autoComplete>
+                            } @else {
+                                {{ compartido.usuario?.nombre || 'Sin nombre' }} {{ compartido.usuario?.apellido || 'Sin apellido' }}
+                            }
+                        </td>
+                        <td>
+                            @if (editingRow === compartido) {
+                                <p-select [(ngModel)]="compartido.permiso" [options]="permisos" optionLabel="label"
+                                    optionValue="value" name="permisoEdit" appendTo="body"></p-select>
+                            } @else {
+                                {{ compartido.permiso }}
+                            }
+                        </td>
+                        <td>
+                            @if (editingRow === compartido) {
+                                <p-button icon="pi pi-check" (onClick)="onRowEditSave(compartido)"></p-button>
+                                <p-button icon="pi pi-times" (onClick)="onRowEditCancel(compartido)"></p-button>
+                            } @else {
+                                <p-button icon="pi pi-pencil" (onClick)="editRow(compartido)"></p-button>
+                                <p-button icon="pi pi-trash" severity="danger" (onClick)="quitarUsuario(compartido)" pTooltip="Quitar acceso"></p-button>
+                            }
+                        </td>
+                    </tr>
+            </ng-template>
+        </p-table>
+    </div>
+
+    <!-- Botones -->
+    <div class="modal-actions">
+        <p-button label="Cancelar" icon="pi pi-times" severity="secondary" (onClick)="cancelar()"></p-button>
+        <p-button label="Guardar" icon="pi pi-check" (onClick)="guardarCambios()"></p-button>
+    </div>
+</div>
+
+<p-confirmDialog></p-confirmDialog>
+<p-toast></p-toast>

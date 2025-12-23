@@ -13,6 +13,7 @@
             <input
               type="text"
               class="form-control"
+              id="deploy-nombre"
               formControlName="nombre"
               placeholder="Nombre descriptivo"
             />
@@ -30,6 +31,15 @@
             ></app-catalogo-select>
           </div>
           
+          <div class="col-md-4">
+            <label class="form-label fw-bold">Cliente</label>
+            <select class="form-select" formControlName="clienteId">
+              <option [ngValue]="null">-- Ninguno --</option>
+              @for (cliente of clientes; track cliente) {
+                <option [ngValue]="cliente.id">{{ cliente.sigla }} - {{ cliente.nombre }}</option>
+              }
+            </select>
+          </div>
           <div class="col-md-4">
             <label class="form-label fw-bold">
               Ambiente <span class="text-danger">*</span>
@@ -124,6 +134,20 @@
       </div>
       
       <div class="col-md-3">
+        <label class="form-label fw-bold">Cliente</label>
+        <select
+          class="form-select"
+          [(ngModel)]="filtroCliente"
+          (ngModelChange)="aplicarFiltros()"
+        >
+          <option [ngValue]="null">-- Todos --</option>
+          @for (cliente of clientes; track cliente) {
+            <option [ngValue]="cliente.id">{{ cliente.sigla }} - {{ cliente.nombre }}</option>
+          }
+        </select>
+      </div>
+      
+      <div class="col-md-3">
         <label class="form-label fw-bold">Hosting</label>
         <select 
           class="form-select" 
@@ -172,6 +196,7 @@
       <ng-template pTemplate="header">
         <tr>
           <th>Ambiente</th>
+          <th>Cliente</th>
           <th>Hosting</th>
           <th>Nombre</th>
           <th>URL</th>
@@ -186,6 +211,7 @@
           <td>
             <span class="badge text-bg-primary">{{ deploy.ambiente }}</span>
           </td>
+          <td>{{ getClienteLabel(deploy) }}</td>
           <td>{{ deploy.hosting }}</td>
           <td>{{ deploy.nombre || '-' }}</td>
           <td>
@@ -230,7 +256,7 @@
 
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td colspan="6" class="text-center text-muted py-4">
+          <td colspan="7" class="text-center text-muted py-4">
             <i class="pi pi-inbox" style="font-size: 2rem;"></i>
             <p class="mb-0 mt-2">No hay deploys registrados</p>
           </td>

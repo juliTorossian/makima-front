@@ -8,6 +8,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { NotaEditor } from '../nota-editor/nota-editor';
+import { NotaCompartirModal } from '../nota-compartir-modal/nota-compartir-modal';
 import { modalConfig } from '@/app/types/modals';
 import { NotaService } from '@core/services/nota';
 import { marked } from 'marked';
@@ -162,13 +163,20 @@ export class Notas implements OnInit {
       });
       return;
     }
-    
-    // TODO: Implementar funcionalidad de compartir con modal de selección de usuarios
-    console.log('Compartir nota:', nota);
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Compartir',
-      detail: 'Funcionalidad de compartir en desarrollo'
+
+    const data = { nota };
+    this.ref = this.dialogService.open(NotaCompartirModal, {
+      ...modalConfig,
+      width: '60%',
+      header: `Compartir Nota: ${nota.titulo}`,
+      data
+    });
+
+    this.ref?.onClose.subscribe((result) => {
+      if (result) {
+        // Recargar notas si se hicieron cambios
+        this.cargarNotas();
+      }
     });
   }
 
