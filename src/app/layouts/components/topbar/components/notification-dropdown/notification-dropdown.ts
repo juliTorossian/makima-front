@@ -66,7 +66,7 @@ export class NotificationDropdown implements OnInit{
 
     this.notificacionService.getByUsuario(this.usuarioActivo?.id||'', 10, filtro).subscribe({
       next: (data) => {
-        // console.log(data)
+        console.log(data)
         this.notifications = data;
         this.cdr.detectChanges();
       },

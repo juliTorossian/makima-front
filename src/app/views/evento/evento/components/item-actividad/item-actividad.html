@@ -12,7 +12,13 @@
             <p class="mb-1 text-muted" style="margin-left: 8px; font-size: 10px;">{{ getTimeAgo() }}</p>
         </span>
         @if (actividad.accion === ACCIONES.COMENTARIO) {
-            <textarea rows=2 [value]="actividad.adicion?.comentario" disabled (resize)="false" class="form-control w-100"></textarea>
+            <div class="comentario-container">
+                <app-comentario-texto 
+                    [texto]="actividad.adicion?.comentario?.texto || ''"
+                    [menciones]="actividad.adicion?.menciones || []"
+                    (usuarioClick)="abrirUsuarioDrawer($event)"
+                ></app-comentario-texto>
+            </div>
         } @else {
             @if (getDescripcionAccion()) {
                 @if (actividad.accion === ACCIONES.ELIMINO_ADJUNTO) {
@@ -25,6 +31,13 @@
         <!-- <span class="text-primary fw-medium">By {{ item.name }}</span> -->
     </div>
 </div>
+
+<!-- Drawer para mostrar el detalle del usuario -->
+<app-usuario-drawer
+    [visible]="showUsuarioDrawer"
+    [usuarioId]="usuarioSeleccionadoId"
+    (closed)="cerrarUsuarioDrawer()"
+></app-usuario-drawer>
 }
 
 <!-- <div class="timeline-item d-flex align-items-stretch">

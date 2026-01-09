@@ -326,7 +326,7 @@ export class Evento implements OnInit {
     formData.append('eventoId', this.eventoId);
     formData.append('usuarioId', this.usuarioActivo?.id || '');
     formData.append('tipo', "COMENTARIO");
-    formData.append('comentario', this.nuevoComentario);
+    formData.append('comentario', JSON.stringify({ "texto": this.nuevoComentario}));
     this.eventoService.agregarAdicional(this.eventoId, formData).subscribe({
       next: (res) => {
         console.log('Comentario guardado:', res);

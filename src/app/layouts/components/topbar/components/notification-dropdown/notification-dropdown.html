@@ -13,71 +13,74 @@
       }
     </button>
 
-    <div class="dropdown-menu-lg" ngbDropdownMenu>
-      <div class="px-3 py-2 border-bottom">
-        <div class="row align-items-center">
-          <div class="col">
-            <h6 class="m-0 fs-md fw-semibold">Notifications</h6>
-          </div>
-          <div class="col text-end">
-              <div class="d-flex align-items-center gap-2 justify-content-end">
-                <!-- Switch para ver solo no leídas -->
-                <div class="form-check form-switch m-0">
-                  <input class="form-check-input" type="checkbox" id="switchNoLeidas" [checked]="verSoloNoLeidas" (change)="onToggleNoLeidas($event)" />
-                  <label class="form-check-label fs-xs" for="switchNoLeidas">No leídas</label>
-                </div>
-                <!-- Boton refresh -->
-                <button (click)="loadNotifications()" class="btn-refresh border-0">
-                  <ng-icon name="tablerRefresh" />
-                </button>
-              </div>
-          </div>
+    <div class="dropdown-menu dropdown-menu-end notification-dropdown shadow-lg border-0" ngbDropdownMenu>
+      <!-- Header -->
+      <div class="notification-header d-flex justify-content-between align-items-center px-4 py-3 bg-white">
+        <h2 class="fw-bold text-dark mb-0" style="font-size: 22px; letter-spacing: -0.02em;">Notifications</h2>
+        <div class="d-flex align-items-center gap-3">
+          <button 
+            (click)="markAllAsRead()" 
+            class="btn btn-link btn-sm text-muted text-decoration-none p-0 border-0"
+            style="font-size: 12px; font-weight: 500;"
+          >
+            Mark all as read
+          </button>
+          <button 
+            (click)="loadNotifications()" 
+            class="btn btn-link text-muted p-0 border-0"
+            style="transition: color 0.2s ease;"
+          >
+            <ng-icon name="lucideSettings" style="width: 20px; height: 20px;" />
+          </button>
         </div>
       </div>
-      <ngx-simplebar style="max-height: 300px; overflow: auto">
+
+      <!-- Notification List -->
+      <ngx-simplebar style="max-height: 450px;">
         @if (notifications && notifications.length > 0) {
-            @for (notification of notifications; track notification.id) {
-            <div
-              class="dropdown-item notification-item py-2 text-wrap"
-              [ngClass]="{'bg-light': notification.leida === true, 'bg-warning-subtle': notification.leida === false}"
+          @for (notification of notifications; track notification.id) {
+            <article 
+              class="notification-item d-flex align-items-start gap-3 px-4 py-4 cursor-pointer"
+              [class.notification-unread]="!notification.leida"
+              [class.notification-read]="notification.leida"
+              (click)="toggleLida(notification); $event.stopPropagation()"
             >
-              <span class="d-flex gap-2" (click)="$event.stopPropagation()">
-                @if (notification.asunto) {
-                <span class="avatar-md flex-shrink-0">
-                  <span
-                    class="avatar-title bg-primary-subtle text-primary rounded-circle fs-22"
-                  >
-                    <ng-icon name="{{ getIconNameAccion(notification.asunto) }}" class="fs-md" />
-                  </span>
+              <!-- Icon -->
+              @if (notification.asunto) {
+                <div class="notification-icon flex-shrink-0 rounded-circle d-flex align-items-center justify-center"
+                     [class.icon-unread]="!notification.leida"
+                     [class.icon-read]="notification.leida"
+                >
+                  <ng-icon [name]="getIconNameAccion(notification.asunto)" style="width: 24px; height: 24px;" />
+                </div>
+              }
+
+              <!-- Content -->
+              <div class="flex-grow-1" style="min-width: 0;">
+                <p class="notification-text mb-1" [innerHTML]="notification.mensaje"></p>
+                <span class="notification-time d-block" style="font-size: 12px; color: #6b7280; font-weight: 500;">
+                  {{ getTimeAgo(notification.fecha) }}
                 </span>
-                }
-                <span class="flex-grow-1 text-muted">
-                  <span class="fw-medium text-body">
-                    {{ notification.mensaje }}
-                  </span>
-                  <br />
-                  <span class="fs-xs">{{ getTimeAgo(notification.fecha) }}</span>
-                </span>
-                  <button
-                    type="button"
-                    (click)="toggleLida(notification); $event.stopPropagation()"
-                    class="flex-shrink-0 text-muted btn shadow-none btn-link p-0 btn-mark-read border-0"
-                  >
-                    <ng-icon name="lucideCircleCheck" class="fs-xxl"></ng-icon>
-                  </button>
-              </span>
-            </div>
+              </div>
+
+              <!-- Checkmark -->
+              <div class="flex-shrink-0 mt-1">
+                <ng-icon 
+                  name="lucideCheck" 
+                  class="notification-check"
+                  [class.text-success]="notification.leida"
+                  style="width: 20px; height: 20px;"
+                />
+              </div>
+            </article>
           }
         } @else {
-          <div class="text-center py-4 text-muted">No tienes notificaciones</div>
+          <div class="text-center py-5 text-muted">
+            <ng-icon name="lucideBellOff" class="mb-2" style="width: 48px; height: 48px; opacity: 0.3;" />
+            <p class="mb-0">No tienes notificaciones</p>
+          </div>
         }
       </ngx-simplebar>
-      <a
-        (click)="markAllAsRead()"
-        class="dropdown-item text-center text-reset text-decoration-underline link-offset-2 fw-bold notify-item border-top border-light py-2"
-      >
-        Marcar todas como leídas
-      </a>
     </div>
   </div>
 </div>

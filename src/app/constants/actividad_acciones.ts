@@ -105,13 +105,13 @@ export function getIconNameAccion(accion:string): string {
 
 export function getDescripcionAccion(actividad:VidaEvento): string {
     if (actividad.accion === ACCIONES.COMENTARIO && actividad.adicion) {
-      return actividad.adicion.comentario || '';
+      return actividad.adicion.comentario?.texto || '';
     }
     if (actividad.accion === ACCIONES.ADJUNTO && actividad.adicion) {
-      return actividad.adicion.nameFile || '';
+      return actividad.adicion.archivo?.nameFile || '';
     }
     if (actividad.accion === ACCIONES.ELIMINO_ADJUNTO && actividad.adicion) {
-      return actividad.adicion.nameFile || '';
+      return actividad.adicion.archivo?.nameFile || '';
     }
     return '';
 }
