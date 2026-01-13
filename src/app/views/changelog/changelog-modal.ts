@@ -20,7 +20,10 @@ export class ChangelogModalComponent implements OnInit {
 
   ngOnInit(): void {
     // Marcar que el usuario ya vio este changelog
-    const latestVersion = CHANGELOG[0]?.version;
+    // Solo registrar la última versión lanzada, ignorando las futuras
+    const releasedVersions = CHANGELOG.filter(entry => !entry.isFuture);
+    const latestVersion = releasedVersions[0]?.version;
+
     if (latestVersion) {
       localStorage.setItem('lastSeenVersion', latestVersion);
     }
