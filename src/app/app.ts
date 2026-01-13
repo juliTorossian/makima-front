@@ -13,8 +13,6 @@ import { DialogService } from 'primeng/dynamicdialog';
 import { MessageService } from 'primeng/api';
 import { appTitle } from './constants';
 import Clarity from '@microsoft/clarity';
-import { CHANGELOG } from '@core/services/changelog';
-import { ChangelogModalComponent } from '@views/changelog/changelog-modal';
 
 @Component({
   selector: 'app-root',
@@ -46,9 +44,6 @@ export class App implements OnInit {
 
     // Clarity.init("tcuivyetkx");
 
-    // Mostrar changelog si hay una nueva versión
-    this.checkAndShowChangelog();
-
     this.loadingService.loading$.subscribe((loading) => {
       this.isLoading = loading;
       this.cdr.detectChanges();
@@ -72,23 +67,5 @@ export class App implements OnInit {
           );
         }
       });
-  }
-
-  private checkAndShowChangelog(): void {
-    const latestVersion = CHANGELOG[0]?.version;
-    const lastSeenVersion = localStorage.getItem('lastSeenVersion');
-
-    if (latestVersion && latestVersion !== lastSeenVersion) {
-      // Esperar un poco para que la app termine de cargar
-      setTimeout(() => {
-        this.dialogService.open(ChangelogModalComponent, {
-          header: 'Novedades',
-          width: '600px',
-          modal: true,
-          dismissableMask: true,
-          styleClass: 'changelog-dialog'
-        });
-      }, 1000);
-    }
   }
 }
