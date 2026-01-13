@@ -6,7 +6,7 @@ import { EventoService } from '@core/services/evento';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { TableModule } from 'primeng/table';
 import { finalize } from 'rxjs';
-import { EventoDrawerComponent } from '../evento-drawer/evento-drawer';
+import { DrawerService } from '@core/services/drawer.service';
 import { PadZeroPipe } from '@core/pipes/pad-zero.pipe';
 import { NgIcon } from '@ng-icons/core';
 import { FiltroActivo } from '@/app/constants/filtros_activo';
@@ -21,22 +21,19 @@ import { DynamicDialogConfig } from 'primeng/dynamicdialog';
         LoadingSpinnerComponent,
         TableModule,
         BadgeClickComponent,
-        EventoDrawerComponent,
         NgIcon,
     ]
 })
 export class EventoSelect extends SelectBase<Evento> {
     private eventoService = inject(EventoService);
     protected config = inject(DynamicDialogConfig);
+    private drawerService = inject(DrawerService);
 
     filtroEvento: FiltroActivo = FiltroActivo.ALL;
 
     eventos: EventoCompleto[] = [];
     eventoSeleccionado!: Evento;
     modalVisible: boolean = false;
-      // Estado para el offcanvas
-    showEventoDrawer = false;
-    eventoSeleccionadoId: string | null = null;
 
     constructor() {
         super(
@@ -55,15 +52,9 @@ export class EventoSelect extends SelectBase<Evento> {
     }
 
     abrirEventoDrawer(evento: EventoCompleto) {
-        this.eventoSeleccionadoId = evento.id || null;
-        this.showEventoDrawer = true;
-        this.cdr.detectChanges();
-    }
-
-    cerrarEventoDrawer() {
-        this.showEventoDrawer = false;
-        this.eventoSeleccionadoId = null;
-        this.cdr.detectChanges();
+        if (evento.id) {
+            this.drawerService.abrirEventoDrawer(evento.id);
+        }
     }
 
     loadItems() {

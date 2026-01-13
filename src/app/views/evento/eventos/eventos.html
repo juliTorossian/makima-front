@@ -183,18 +183,3 @@
     </div>
   </div>
 </div>
-
-<!-- Drawer para mostrar el detalle del evento -->
-<app-evento-drawer
-  [visible]="showEventoDrawer"
-  [eventoId]="eventoSeleccionadoId"
-  (closed)="cerrarEventoDrawer()"
->
-</app-evento-drawer>
-
-<!-- Drawer para mostrar el detalle del usuario -->
-<app-usuario-drawer
-  [visible]="showUsuarioDrawer"
-  [usuarioId]="usuarioSeleccionadoId"
-  (closed)="cerrarUsuarioDrawer()"
-></app-usuario-drawer>

@@ -18,11 +18,9 @@ import { ModalSel } from './components/modal-sel/modal-sel';
 import { modalConfig } from '@/app/types/modals';
 import { EventoAccionesService } from '@core/services/evento-acciones';
 import { EventoTrabajoService } from '@core/services/evento-trabajo.service';
+import { DrawerService } from '@core/services/drawer.service';
 
-import { DrawerModule } from 'primeng/drawer';
-import { EventoDrawerComponent } from '../evento-drawer/evento-drawer';
 import { CommonModule } from '@angular/common';
-import { UsuarioDrawerComponent } from '../../usuario/usuario-drawer/usuario-drawer';
 import { PadZeroPipe } from '@core/pipes/pad-zero.pipe';
 import { NgbPopoverModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { TooltipModule } from 'primeng/tooltip';
@@ -48,10 +46,7 @@ import { PermisoClave } from '@core/interfaces/rol';
     ToastModule,
     BadgeClickComponent,
     DatePipe,
-    DrawerModule,
     CommonModule,
-    EventoDrawerComponent,
-    UsuarioDrawerComponent,
     NgbPopoverModule,
     TooltipModule,
     PrioridadIconComponent,
@@ -115,15 +110,8 @@ export class EventosUsuario extends TrabajarCon<Evento> {
   ref!: DynamicDialogRef | null;
   private userStorageService = inject(UserStorageService);
   private eventoTrabajoService = inject(EventoTrabajoService);
+  private drawerService = inject(DrawerService);
   @ViewChild('dt') table!: Table;
-
-  // Agregar de vuelta estado del evento drawer para uso en la tabla
-  showEventoDrawer = false;
-  eventoSeleccionadoId: string | null = null;
-
-  // Estado para el usuario drawer
-  showUsuarioDrawer = false;
-  usuarioSeleccionadoId: string | null = null;
 
   usuarioActivo: UsuarioLogeado | null = this.userStorageService.getUsuario();
 
@@ -444,15 +432,9 @@ export class EventosUsuario extends TrabajarCon<Evento> {
   }
 
   abrirUsuarioDrawer(usuarioId: string | null | undefined) {
-    this.usuarioSeleccionadoId = usuarioId ?? null;
-    this.showUsuarioDrawer = true;
-    this.cdr.detectChanges();
-  }
-
-  cerrarUsuarioDrawer() {
-    this.showUsuarioDrawer = false;
-    this.usuarioSeleccionadoId = null;
-    this.cdr.detectChanges();
+    if (usuarioId) {
+      this.drawerService.abrirUsuarioDrawer(usuarioId);
+    }
   }
 
   getRequisitosFaltantes(evento: EventoCompleto): string {
@@ -533,18 +515,10 @@ export class EventosUsuario extends TrabajarCon<Evento> {
   ngOnDestroy(): void {
   }
 
-  // Agregar de vuelta métodos del evento drawer para uso en la tabla
   abrirEventoDrawer(evento: EventoCompleto) {
-    this.eventoSeleccionadoId = evento.id || null;
-    this.showEventoDrawer = true;
-    this.cdr.detectChanges();
-  }
-
-  cerrarEventoDrawer() {
-    this.showEventoDrawer = false;
-    this.eventoSeleccionadoId = null;
-    this.loadItems();
-    this.cdr.detectChanges();
+    if (evento.id) {
+      this.drawerService.abrirEventoDrawer(evento.id);
+    }
   }
 
 }

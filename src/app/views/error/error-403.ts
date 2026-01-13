@@ -26,10 +26,6 @@ import { credits, currentYear } from '@/app/constants'
                 </div>
               </div>
             </div>
-            <p class="text-center text-muted mt-4 mb-0">
-              © {{ currentYear }} Simple — by
-              <span class="fw-semibold">{{ credits.name }}</span>
-            </p>
           </div>
         </div>
       </div>
@@ -38,6 +34,4 @@ import { credits, currentYear } from '@/app/constants'
   styles: ``,
 })
 export class Error403 {
-  protected readonly currentYear = currentYear
-  protected readonly credits = credits
 }

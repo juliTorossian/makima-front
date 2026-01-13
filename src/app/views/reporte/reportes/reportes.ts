@@ -18,7 +18,7 @@ import { finalize } from 'rxjs';
 import { BooleanLabelPipe } from '@core/pipes/boolean-label.pipe';
 import { CommonModule } from '@angular/common';
 import { BadgeClickComponent } from '@app/components/badge-click';
-import { UsuarioDrawerComponent } from '../../usuario/usuario-drawer/usuario-drawer';
+import { DrawerService } from '@core/services/drawer.service';
 import { StatusBadgeComponent } from '@app/components/status-badge';
 import { PermisoAccion } from '@/app/types/permisos';
 
@@ -34,7 +34,6 @@ import { PermisoAccion } from '@/app/types/permisos';
     ShortcutDirective,
     CommonModule,
     BadgeClickComponent,
-    UsuarioDrawerComponent,
     StatusBadgeComponent,
   ],
   providers: [
@@ -58,13 +57,10 @@ export class Reportes extends TrabajarCon<Reporte> {
   private reporteService = inject(ReporteService);
   private dialogService = inject(DialogService);
   ref!: DynamicDialogRef | null;
+  private drawerService = inject(DrawerService);
   getReporteEstadoDescripcion = getReporteEstadoDescripcion;
 
   reportes!:Reporte[];
-
-  // Estado para el usuario drawer
-  showUsuarioDrawer = false;
-  usuarioSeleccionadoId: string | null = null;
 
  constructor() {
     super(
@@ -131,15 +127,7 @@ export class Reportes extends TrabajarCon<Reporte> {
   }
 
   abrirUsuarioDrawer(usuarioId: string) {
-    this.usuarioSeleccionadoId = usuarioId;
-    this.showUsuarioDrawer = true;
-    this.cdr.detectChanges();
-  }
-
-  cerrarUsuarioDrawer() {
-    this.showUsuarioDrawer = false;
-    this.usuarioSeleccionadoId = null;
-    this.cdr.detectChanges();
+    this.drawerService.abrirUsuarioDrawer(usuarioId);
   }
 
   descargarReporte(reporte: Reporte) {

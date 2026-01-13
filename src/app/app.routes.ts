@@ -26,4 +26,8 @@ export const routes: Routes = [
       import('./views/error/error.route').then((mod) => mod.ERROR_PAGES_ROUTES),
     canActivate: [authGuard],
   },
+  {
+    path: '**',
+    redirectTo: 'error/404',
+  },
 ];

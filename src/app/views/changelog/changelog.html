@@ -1,0 +1,112 @@
+<div class="changelog-page" [class.changelog-modal-view]="isModalView">
+    <div [class.container]="!isModalView" [class.py-4]="!isModalView">
+        @if (!isModalView) {
+        <app-ui-card [withTitle]="false">
+            <div card-body>
+                <div class="changelog-header mb-4">
+                    <h1 class="page-title">
+                        <i class="pi pi-megaphone me-3"></i>
+                        Novedades
+                    </h1>
+                    <p class="page-subtitle">Historial de cambios y nuevas funcionalidades</p>
+                </div>
+
+                <!-- Timeline Container -->
+                <div class="changelog-timeline">
+                    <ng-container *ngTemplateOutlet="timelineContent"></ng-container>
+                </div>
+            </div>
+        </app-ui-card>
+        } @else {
+        <!-- Timeline Container for Modal -->
+        <div class="changelog-timeline p-3">
+            <ng-container *ngTemplateOutlet="timelineContent"></ng-container>
+        </div>
+        }
+
+        <!-- Template reusable para el contenido del timeline -->
+        <ng-template #timelineContent>
+            <div class="timeline-line"></div>
+
+            @for (entry of displayedChangelog; track entry.version; let isFirst = $first) {
+            <details class="version-details" [attr.open]="shouldExpand(entry) ? '' : null">
+                <summary class="version-summary">
+                    <div class="timeline-dot" [class.timeline-dot-future]="entry.isFuture"
+                        [class.timeline-dot-current]="isCurrentVersion(entry)" [class.timeline-dot-active]="false">
+                    </div>
+                    <div class="version-info">
+                        <div class="version-header-row">
+                            <h3 class="version-number" [class.text-info]="entry.isFuture"
+                                [class.text-success]="isCurrentVersion(entry)">
+                                @if (entry.isFuture) {
+                                <span class="badge bg-info-subtle text-info fs-6 align-middle">Próximamente</span>
+                                <span class="ms-2 fs-5">{{ entry.version }}</span>
+                                } @else {
+                                {{ entry.version }}
+                                @if (isFirst && currentBuild() && !entry.isFuture) {
+                                <span class="text-muted ms-2 fw-normal fs-6">
+                                    (Build: {{ currentBuild() }})
+                                </span>
+                                }
+                                }
+                            </h3>
+                            <span class="version-date">
+                                @if (entry.isFuture && entry.estimatedDate) {
+                                <i class="pi pi-calendar me-1"></i>Est: {{ entry.estimatedDate }}
+                                } @else {
+                                {{ entry.date }}
+                                }
+                            </span>
+                        </div>
+                        <i class="pi pi-chevron-down expand-icon"></i>
+                    </div>
+                </summary>
+
+                <div class="version-content">
+                    <div class="changes-list">
+                        @for (group of getGroupedChanges(entry); track group.type) {
+                        <div class="change-item">
+                            <div class="change-icon-wrapper" [ngClass]="getChangeClass(group.type)">
+                                <i [class]="getChangeIcon(group.type)"></i>
+                            </div>
+                            <div class="change-content">
+                                <div class="change-badge">
+                                    <span class="badge" [ngClass]="getChangeBadgeClass(group.type)">
+                                        {{ getChangeLabel(group.type) }}
+                                    </span>
+                                </div>
+                                @for (item of group.items; track $index) {
+                                <p class="change-text" [class.mb-2]="!$last">
+                                    - {{ item.text }}
+                                    @if (item.link) {
+                                    <a class="ms-2 change-link" (click)="navigateToFeature(item.link)" role="button">
+                                        <i class="pi pi-external-link" style="font-size: 0.8rem"></i>
+                                    </a>
+                                    }
+                                </p>
+                                }
+                            </div>
+                        </div>
+                        }
+                    </div>
+                </div>
+            </details>
+            }
+        </ng-template>
+
+        <!-- Footer Button para vista modal -->
+        @if (isModalView) {
+        <div class="changelog-footer d-flex gap-2">
+            @if (hasMoreVersions) {
+            <button type="button" class="btn btn-outline-primary flex-fill" (click)="navigateToFullChangelog()">
+                <i class="pi pi-history me-2"></i>
+                Ver anteriores
+            </button>
+            }
+            <button type="button" class="btn btn-primary flex-fill" (click)="closeModal()">
+                Entendido
+            </button>
+        </div>
+        }
+    </div>
+</div>

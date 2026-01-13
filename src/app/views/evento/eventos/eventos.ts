@@ -14,13 +14,10 @@ import { NgIcon } from '@ng-icons/core';
 import { TableModule } from 'primeng/table';
 import { UiCard } from '@app/components/ui-card';
 import { BadgeClickComponent } from "@app/components/badge-click";
-import { DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 
-import { DrawerModule } from 'primeng/drawer';
-import { EventoDrawerComponent } from '../evento-drawer/evento-drawer';
-import { UsuarioDrawerComponent } from '../../usuario/usuario-drawer/usuario-drawer';
-import { CommonModule } from '@angular/common';
 import { UserStorageService, UsuarioLogeado } from '@core/services/user-storage';
+import { DrawerService } from '@core/services/drawer.service';
 import { PermisoClave } from '@core/interfaces/rol';
 import { finalize } from 'rxjs';
 import { PadZeroPipe } from '@core/pipes/pad-zero.pipe';
@@ -49,10 +46,7 @@ import { PermisoAccion } from '@/app/types/permisos';
     ToastModule,
     BadgeClickComponent,
     DatePipe,
-    DrawerModule,
     CommonModule,
-    EventoDrawerComponent,
-    UsuarioDrawerComponent,
     PrioridadIconComponent,
     TooltipModule,
     FiltroRadioGroupComponent,
@@ -75,19 +69,13 @@ export class Eventos extends TrabajarCon<Evento> {
   ref!: DynamicDialogRef | null;
   private userStorageService = inject(UserStorageService);
   private eventoAccionesService = inject(EventoAccionesService);
+  private drawerService = inject(DrawerService);
 
   usuarioActivo: UsuarioLogeado | null = this.userStorageService.getUsuario();
 
   eventos: EventoCompleto[] = [];
 
   filtroFecha: Date[] | undefined;
-
-  // Estado para el offcanvas
-  showEventoDrawer = false;
-  eventoSeleccionadoId: string | null = null;
-  // Estado para el usuario drawer
-  showUsuarioDrawer = false;
-  usuarioSeleccionadoId: string | null = null;
 
   override ngOnInit(): void {
     this.filtroActivo = FiltroActivo.ALL;
@@ -157,27 +145,15 @@ export class Eventos extends TrabajarCon<Evento> {
   }
 
   abrirEventoDrawer(evento: EventoCompleto) {
-    this.eventoSeleccionadoId = evento.id || null;
-    this.showEventoDrawer = true;
-    this.cdr.detectChanges();
-  }
-
-  cerrarEventoDrawer() {
-    this.showEventoDrawer = false;
-    this.eventoSeleccionadoId = null;
-    this.cdr.detectChanges();
+    if (evento.id) {
+      this.drawerService.abrirEventoDrawer(evento.id);
+    }
   }
   
   abrirUsuarioDrawer(usuarioId: string | null | undefined) {
-    this.usuarioSeleccionadoId = usuarioId ?? null;
-    this.showUsuarioDrawer = true;
-    this.cdr.detectChanges();
-  }
-
-  cerrarUsuarioDrawer() {
-    this.showUsuarioDrawer = false;
-    this.usuarioSeleccionadoId = null;
-    this.cdr.detectChanges();
+    if (usuarioId) {
+      this.drawerService.abrirUsuarioDrawer(usuarioId);
+    }
   }
 
   alta(evento: Evento): void {

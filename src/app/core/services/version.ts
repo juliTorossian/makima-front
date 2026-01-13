@@ -7,13 +7,14 @@ export interface AppVersion {
   branch: string;
   commitHash: string;
   buildTime: string;
+  build?: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class VersionService {
   private version$?: Observable<AppVersion>;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getVersion(): Observable<AppVersion> {
     if (!this.version$) {

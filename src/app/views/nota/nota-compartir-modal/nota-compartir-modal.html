@@ -20,7 +20,7 @@
                             @if (editingRow === compartido) {
                                 <p-autoComplete [(ngModel)]="compartido._tempUsuarioLabel" [suggestions]="usuariosSugeridos"
                                     (completeMethod)="filtrarUsuarios($event)" (onSelect)="onUsuarioSelected($event, compartido)" field="usuario" [dropdown]="true" name="tempUsuario"
-                                    [forceSelection]="true">
+                                    [forceSelection]="true" appendTo="body">
                                     <ng-template pTemplate="item" let-u>
                                         <div>{{ u?.nombre || '—' }} {{ u?.apellido || '' }} ({{ u?.usuario || '—' }})</div>
                                     </ng-template>

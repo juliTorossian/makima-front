@@ -2,7 +2,7 @@
 
 src/assets/version.json
 
-src/assets/scss
+# src/assets/scss
 
 # Compiled output
 /dist

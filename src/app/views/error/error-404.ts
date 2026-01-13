@@ -13,25 +13,21 @@ import { credits, currentYear } from '@/app/constants'
               <div class="card-body">
                 <div class="p-2 text-center">
                   <div class="text-error fw-bold fs-60">404</div>
-                  <h3 class="fw-semibold">Page Not Found</h3>
+                  <h3 class="fw-semibold">Pagina no encontrada</h3>
                   <p class="text-muted">
-                    The page you’re looking for doesn’t exist or has been moved.
+                    La pagina que buscas no existe o ha sido movida.
                   </p>
 
                   <button
                     class="btn btn-primary mt-3 rounded-pill"
                     onclick="window.location.href='index.html'"
                   >
-                    Go Home
+                    Volver al inicio
                   </button>
                 </div>
               </div>
             </div>
 
-            <p class="text-center text-muted mt-4 mb-0">
-              © {{ currentYear }} Simple — by
-              <span class="fw-semibold">{{ credits.name }}</span>
-            </p>
           </div>
         </div>
       </div>
@@ -40,6 +36,4 @@ import { credits, currentYear } from '@/app/constants'
   styles: ``,
 })
 export class Error404 {
-  protected readonly currentYear = currentYear
-  protected readonly credits = credits
 }

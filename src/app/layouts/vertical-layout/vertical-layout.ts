@@ -9,6 +9,7 @@ import { SHORTCUTS } from '@/app/constants/shortcut'
 import { ShortcutTable } from "@layouts/components/shortcut-table/shortcut-table";
 import { EventoCronometroComponent } from '@app/components/evento-cronometro';
 import { Footer } from '@layouts/components/footer/footer'
+import { DrawerContainerComponent } from '@app/components/drawer-container/drawer-container'
 
 @Component({
   selector: 'app-vertical-layout',
@@ -19,6 +20,7 @@ import { Footer } from '@layouts/components/footer/footer'
     ShortcutTable,
     EventoCronometroComponent,
     Footer,
+    DrawerContainerComponent,
 ],
   templateUrl: './vertical-layout.html',
   styles: `

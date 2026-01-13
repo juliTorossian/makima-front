@@ -19,7 +19,7 @@ import { PermisoClave } from '@core/interfaces/rol';
 import { finalize } from 'rxjs';
 import { FiltroActivo } from '@/app/constants/filtros_activo';
 import { FiltroRadioGroupComponent } from '@app/components/filtro-check';
-import { UsuarioDrawerComponent } from '../usuario-drawer/usuario-drawer';
+import { DrawerService } from '@core/services/drawer.service';
 import { ControlTrabajarCon } from '@app/components/trabajar-con/components/control-trabajar-con';
 import { getTimestamp } from '@/app/utils/time-utils';
 import { FormsModule } from '@angular/forms';
@@ -38,7 +38,6 @@ import { PermisoAccion } from '@/app/types/permisos';
     ConfirmDialogModule,
     ToastModule,
     FiltroRadioGroupComponent,
-    UsuarioDrawerComponent,
     ControlTrabajarCon,
     SelectModule,
     FormsModule,
@@ -56,10 +55,7 @@ export class Usuarios extends TrabajarCon<Usuario> {
   private rolService = inject(RolService);
   private dialogService = inject(DialogService);
   ref!: DynamicDialogRef | null;
-
-  // Estado para el usuario drawer
-  showUsuarioDrawer = false;
-  usuarioSeleccionadoId: string | null = null;
+  private drawerService = inject(DrawerService);
 
   usuarios!:Usuario[];
   roles: any[] = [];
@@ -157,15 +153,7 @@ export class Usuarios extends TrabajarCon<Usuario> {
   }
 
   abrirUsuarioDrawer(usuarioId: string) {
-    this.usuarioSeleccionadoId = usuarioId;
-    this.showUsuarioDrawer = true;
-    this.cdr.detectChanges();
-  }
-
-  cerrarUsuarioDrawer() {
-    this.showUsuarioDrawer = false;
-    this.usuarioSeleccionadoId = null;
-    this.cdr.detectChanges();
+    this.drawerService.abrirUsuarioDrawer(usuarioId);
   }
 
   descargarPlantilla() {

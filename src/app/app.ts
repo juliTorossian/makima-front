@@ -9,9 +9,12 @@ import { provideIcons } from '@ng-icons/core';
 import { filter, map, mergeMap } from 'rxjs';
 import { Title } from '@angular/platform-browser';
 import { Toast, ToastModule } from "primeng/toast";
+import { DialogService } from 'primeng/dynamicdialog';
 import { MessageService } from 'primeng/api';
 import { appTitle } from './constants';
 import Clarity from '@microsoft/clarity';
+import { CHANGELOG } from '@core/services/changelog';
+import { ChangelogModalComponent } from '@views/changelog/changelog-modal';
 
 @Component({
   selector: 'app-root',
@@ -21,7 +24,8 @@ import Clarity from '@microsoft/clarity';
     ToastModule
   ],
   providers: [
-    MessageService
+    MessageService,
+    DialogService
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
@@ -34,12 +38,16 @@ export class App implements OnInit {
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
   private loadingService = inject(LoadingService);
+  private dialogService = inject(DialogService);
   private cdr = inject(ChangeDetectorRef);
   isLoading = false;
 
   ngOnInit(): void {
 
     // Clarity.init("tcuivyetkx");
+
+    // Mostrar changelog si hay una nueva versión
+    this.checkAndShowChangelog();
 
     this.loadingService.loading$.subscribe((loading) => {
       this.isLoading = loading;
@@ -64,5 +72,23 @@ export class App implements OnInit {
           );
         }
       });
+  }
+
+  private checkAndShowChangelog(): void {
+    const latestVersion = CHANGELOG[0]?.version;
+    const lastSeenVersion = localStorage.getItem('lastSeenVersion');
+
+    if (latestVersion && latestVersion !== lastSeenVersion) {
+      // Esperar un poco para que la app termine de cargar
+      setTimeout(() => {
+        this.dialogService.open(ChangelogModalComponent, {
+          header: 'Novedades',
+          width: '600px',
+          modal: true,
+          dismissableMask: true,
+          styleClass: 'changelog-dialog'
+        });
+      }, 1000);
+    }
   }
 }

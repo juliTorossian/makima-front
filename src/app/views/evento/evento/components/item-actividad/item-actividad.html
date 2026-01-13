@@ -31,13 +31,6 @@
         <!-- <span class="text-primary fw-medium">By {{ item.name }}</span> -->
     </div>
 </div>
-
-<!-- Drawer para mostrar el detalle del usuario -->
-<app-usuario-drawer
-    [visible]="showUsuarioDrawer"
-    [usuarioId]="usuarioSeleccionadoId"
-    (closed)="cerrarUsuarioDrawer()"
-></app-usuario-drawer>
 }
 
 <!-- <div class="timeline-item d-flex align-items-stretch">

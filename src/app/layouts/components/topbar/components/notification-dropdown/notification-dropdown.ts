@@ -3,6 +3,8 @@ import {
   NgbDropdown,
   NgbDropdownMenu,
   NgbDropdownToggle,
+  NgbPopover,
+  NgbTooltip,
 } from '@ng-bootstrap/ng-bootstrap'
 import { SimplebarAngularModule } from 'simplebar-angular'
 import { NgIcon } from '@ng-icons/core'
@@ -16,6 +18,9 @@ import { CommonModule } from '@angular/common'
 import { FormsModule } from '@angular/forms'
 import { getIconNameAccion } from '@/app/constants/actividad_acciones'
 import { parseTimeToMs } from '@/app/utils/time-utils'
+import { finalize } from 'rxjs'
+import { Router } from '@angular/router'
+import { DrawerService } from '@core/services/drawer.service'
 
 const TIEMPO_INTERVALO = parseTimeToMs('30m');
 
@@ -29,6 +34,7 @@ const TIEMPO_INTERVALO = parseTimeToMs('30m');
     NgIcon,
     CommonModule,
     FormsModule,
+    NgbPopover,
   ],
   templateUrl: './notification-dropdown.html',
   styleUrls: ['./notificacion-dropdown.scss'],
@@ -39,6 +45,8 @@ export class NotificationDropdown implements OnInit{
   private userStorageService = inject(UserStorageService);
   private messageService = inject(MessageService);
   private cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
+  private router = inject(Router);
+  private drawerService = inject(DrawerService);
 
   usuarioActivo:UsuarioLogeado | null = this.userStorageService.getUsuario();
   notifications: Notificacion[] = [];
@@ -78,7 +86,11 @@ export class NotificationDropdown implements OnInit{
   }
 
   toggleLida(notificacion: Notificacion) {
-    this.notificacionService.toggleLeida(notificacion.id?.toString()||'').subscribe({
+    this.notificacionService.toggleLeida(notificacion.id?.toString()||'')
+    .pipe(finalize(() => {
+      this.cdr.detectChanges();
+    }))
+    .subscribe({
       next: () => {
         this.loadNotifications();
       },
@@ -89,7 +101,10 @@ export class NotificationDropdown implements OnInit{
     });
   }
 
-  getTimeAgo(fecha: Date) { return getTimeAgo(new Date(fecha)) }
+  getTimeAgo(fecha: string | Date | undefined) { 
+    if (!fecha) return 'Hace un momento';
+    return getTimeAgo(new Date(fecha));
+  }
 
   getCantidadNoLeidas(): number {
     return this.notifications.filter(n => !n.leida).length;
@@ -108,6 +123,44 @@ export class NotificationDropdown implements OnInit{
       this.verSoloNoLeidas = (event.target as HTMLInputElement).checked;
       this.loadNotifications();
     });
+  }
+
+  navigateToTarget(notificacion: Notificacion) {
+    if (!notificacion.targetType || !notificacion.targetId) {
+      return;
+    }
+    
+    this.toggleLida(notificacion);
+
+    switch (notificacion.targetType) {
+      case 'EVENTO':
+        // this.router.navigate(['/evento/evento', notificacion.targetId]);
+        
+        if (notificacion.targetId) {
+          this.drawerService.abrirEventoDrawer(notificacion.targetId);
+        }
+        break;
+      case 'COMENTARIO':
+        // TODO: Implementar navegación a comentario
+        break;
+      case 'NOTA':
+        // TODO: Implementar navegación a nota
+        break;
+    }
+  }
+
+  onCheckmarkHover(event: MouseEvent, leida: boolean) {
+    const target = event.currentTarget as HTMLElement;
+    if (target) {
+      target.style.backgroundColor = leida ? 'rgba(34, 197, 94, 0.2)' : 'rgba(156, 163, 175, 0.1)';
+    }
+  }
+
+  onCheckmarkLeave(event: MouseEvent, leida: boolean) {
+    const target = event.currentTarget as HTMLElement;
+    if (target) {
+      target.style.backgroundColor = leida ? 'rgba(34, 197, 94, 0.1)' : 'transparent';
+    }
   }
 
 }
