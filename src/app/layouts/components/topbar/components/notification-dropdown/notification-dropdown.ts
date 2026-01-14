@@ -39,7 +39,7 @@ const TIEMPO_INTERVALO = parseTimeToMs('30m');
   templateUrl: './notification-dropdown.html',
   styleUrls: ['./notificacion-dropdown.scss'],
 })
-export class NotificationDropdown implements OnInit{
+export class NotificationDropdown implements OnInit {
   private intervalId: any;
   private notificacionService = inject(NotificacionService);
   private userStorageService = inject(UserStorageService);
@@ -48,12 +48,12 @@ export class NotificationDropdown implements OnInit{
   private router = inject(Router);
   private drawerService = inject(DrawerService);
 
-  usuarioActivo:UsuarioLogeado | null = this.userStorageService.getUsuario();
+  usuarioActivo: UsuarioLogeado | null = this.userStorageService.getUsuario();
   notifications: Notificacion[] = [];
 
   verSoloNoLeidas = false;
 
-  getIconNameAccion=getIconNameAccion
+  getIconNameAccion = getIconNameAccion
 
   ngOnInit(): void {
     this.loadNotifications();
@@ -72,7 +72,7 @@ export class NotificationDropdown implements OnInit{
 
     let filtro = this.verSoloNoLeidas ? EstadosNotificacion.NoLeidas : EstadosNotificacion.Todas;
 
-    this.notificacionService.getByUsuario(this.usuarioActivo?.id||'', 10, filtro).subscribe({
+    this.notificacionService.getByUsuario(this.usuarioActivo?.id || '', 10, filtro).subscribe({
       next: (data) => {
         console.log(data)
         this.notifications = data;
@@ -86,22 +86,22 @@ export class NotificationDropdown implements OnInit{
   }
 
   toggleLida(notificacion: Notificacion) {
-    this.notificacionService.toggleLeida(notificacion.id?.toString()||'')
-    .pipe(finalize(() => {
-      this.cdr.detectChanges();
-    }))
-    .subscribe({
-      next: () => {
-        this.loadNotifications();
-      },
-      error: (error) => {
-        showError(this.messageService, 'Error', 'No se pudo cambiar el estado de la notificación');
-        console.error('Error toggling notification read status:', error);
-      }
-    });
+    this.notificacionService.toggleLeida(notificacion.id?.toString() || '')
+      .pipe(finalize(() => {
+        this.cdr.detectChanges();
+      }))
+      .subscribe({
+        next: () => {
+          this.loadNotifications();
+        },
+        error: (error) => {
+          showError(this.messageService, 'Error', 'No se pudo cambiar el estado de la notificación');
+          console.error('Error toggling notification read status:', error);
+        }
+      });
   }
 
-  getTimeAgo(fecha: string | Date | undefined) { 
+  getTimeAgo(fecha: string | Date | undefined) {
     if (!fecha) return 'Hace un momento';
     return getTimeAgo(new Date(fecha));
   }
@@ -129,22 +129,26 @@ export class NotificationDropdown implements OnInit{
     if (!notificacion.targetType || !notificacion.targetId) {
       return;
     }
-    
-    this.toggleLida(notificacion);
+
+    if (!notificacion.leida) {
+      this.toggleLida(notificacion);
+    }
 
     switch (notificacion.targetType) {
       case 'EVENTO':
         // this.router.navigate(['/evento/evento', notificacion.targetId]);
-        
+
         if (notificacion.targetId) {
           this.drawerService.abrirEventoDrawer(notificacion.targetId);
         }
         break;
-      case 'COMENTARIO':
-        // TODO: Implementar navegación a comentario
+      case 'EVENTO_ADICION':
+        if (notificacion.payload?.['eventoId'] && notificacion.targetId) {
+          this.drawerService.abrirEventoDrawer(notificacion.payload['eventoId'], notificacion.targetId);
+        }
         break;
       case 'NOTA':
-        // TODO: Implementar navegación a nota
+        this.drawerService.abrirNotaDrawer(notificacion.targetId);
         break;
     }
   }

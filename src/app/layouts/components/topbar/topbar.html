@@ -11,10 +11,7 @@
         </a>
       </div>
 
-      <button
-        class="button-collapse-toggle d-xl-none"
-        (click)="toggleSidebar()"
-      >
+      <button class="button-collapse-toggle d-xl-none" (click)="toggleSidebar()">
         <ng-icon name="lucideMenu" class="fs-22"></ng-icon>
       </button>
 
@@ -29,7 +26,7 @@
       <app-theme-toggler class="d-none d-sm-flex" />
 
       <app-user-profile-topbar />
-      
+
       <div class="topbar-item">
         <button (click)="abrirUserNotes()" class="topbar-link" type="button">
           <ng-icon name="lucideNotebook" class="fs-xxl mode-light-moon" />
@@ -42,8 +39,5 @@
 
 
 <!-- Drawer para mostrar el detalle del evento -->
-<app-user-notes
-  [visible]="showUserNotes"
-  (closed)="cerrarUserNotes()"
->
+<app-user-notes [visible]="showUserNotes" [targetId]="notaSeleccionadaId" (closed)="cerrarUserNotes()">
 </app-user-notes>

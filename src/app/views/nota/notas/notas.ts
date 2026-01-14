@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Nota, NotaComplete, NotaPermiso } from '@core/interfaces/nota';
 import { getTimeAgo } from '../../../utils/datetime-utils';
@@ -28,6 +28,7 @@ export class Notas implements OnInit {
   private notaService = inject(NotaService);
   private sanitizer = inject(DomSanitizer);
   private cdr = inject(ChangeDetectorRef);
+  @Input() targetId?: string;
   private ref?: DynamicDialogRef | null;
 
   notas: NotaComplete[] = [];
@@ -52,6 +53,12 @@ export class Notas implements OnInit {
         this.notas = notas;
         this.loading = false;
         this.cdr.markForCheck();
+
+        if (this.targetId) {
+          setTimeout(() => {
+            this.scrollToTarget();
+          }, 300);
+        }
       },
       error: (error) => {
         console.error('Error al cargar las notas:', error);
@@ -73,12 +80,12 @@ export class Notas implements OnInit {
   puedeEditar(nota: NotaComplete): boolean {
     // Si es propia, puede editar
     if (nota.tipoRelacion === 'P') return true;
-    
+
     // Si es compartida, solo puede editar si tiene permiso de EDITAR
     if (nota.tipoRelacion === 'C') {
       return nota.permiso === NotaPermiso.EDITAR;
     }
-    
+
     return false;
   }
 
@@ -130,7 +137,7 @@ export class Notas implements OnInit {
       rejectLabel: 'Cancelar',
       accept: () => {
         if (!nota.id) return;
-        
+
         this.notaService.delete(nota.id).subscribe({
           next: () => {
             this.notas = this.notas.filter(n => n.id !== nota.id);
@@ -209,11 +216,11 @@ export class Notas implements OnInit {
 
     this.ref.onClose.subscribe((notaEditada: Nota) => {
       if (!notaEditada) return;
-      
+
       if (modo === 'M') {
         // Actualizar nota existente
         if (!notaEditada.id) return;
-        
+
         this.notaService.update(notaEditada.id, notaEditada).subscribe({
           next: (notaActualizada) => {
             const index = this.notas.findIndex(n => n.id === notaActualizada.id);
@@ -257,5 +264,17 @@ export class Notas implements OnInit {
         });
       }
     });
+  }
+
+  scrollToTarget() {
+    if (!this.targetId) return;
+    const element = document.getElementById(`nota-item-${this.targetId}`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      element.classList.add('blink-target');
+      setTimeout(() => {
+        element.classList.remove('blink-target');
+      }, 3000);
+    }
   }
 }

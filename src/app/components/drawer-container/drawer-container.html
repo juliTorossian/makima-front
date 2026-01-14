@@ -1,13 +1,7 @@
 <!-- Drawer para mostrar el detalle del evento -->
-<app-evento-drawer
-    [visible]="showEventoDrawer"
-    [eventoId]="eventoSeleccionadoId"
-    (closed)="cerrarEventoDrawer()"
-></app-evento-drawer>
+<app-evento-drawer [visible]="showEventoDrawer" [eventoId]="eventoSeleccionadoId"
+    [targetId]="eventoSeleccionadoTargetId" (closed)="cerrarEventoDrawer()"></app-evento-drawer>
 
 <!-- Drawer para mostrar el detalle del usuario -->
-<app-usuario-drawer
-    [visible]="showUsuarioDrawer"
-    [usuarioId]="usuarioSeleccionadoId"
-    (closed)="cerrarUsuarioDrawer()"
-></app-usuario-drawer>
+<app-usuario-drawer [visible]="showUsuarioDrawer" [usuarioId]="usuarioSeleccionadoId"
+    (closed)="cerrarUsuarioDrawer()"></app-usuario-drawer>

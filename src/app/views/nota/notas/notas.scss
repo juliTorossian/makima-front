@@ -178,3 +178,16 @@
     display: block;
   }
 }
+
+.blink-target {
+  animation: blink-fade 1s ease-in-out infinite;
+  border-color: var(--ins-primary) !important;
+  box-shadow: 0 0 0 0.2rem rgba(var(--ins-primary-rgb), 0.25);
+  background-color: rgba(var(--ins-primary-rgb), 0.05) !important;
+}
+
+@keyframes blink-fade {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}

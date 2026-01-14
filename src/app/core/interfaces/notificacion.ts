@@ -1,6 +1,6 @@
 import { VidaEvento } from "./evento";
 
-export type NotificationTargetType = 'EVENTO' | 'COMENTARIO' | 'NOTA';
+export type NotificationTargetType = 'EVENTO' | 'COMENTARIO' | 'EVENTO_ADICION' | 'NOTA';
 export type NotificationSourceType = 'SISTEMA' | 'USUARIO';
 
 export interface NotificationPayload {
@@ -29,6 +29,6 @@ export interface Notificacion {
 	fecha?: Date;
 	asunto?: string;
 	envMail?: boolean;
-    icon?: string;
-    // tipo?: VidaEvento;
+	icon?: string;
+	// tipo?: VidaEvento;
 }

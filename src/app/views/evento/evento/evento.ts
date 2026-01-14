@@ -58,7 +58,8 @@ import { PadZeroPipe } from '@core/pipes/pad-zero.pipe';
   styleUrl: './evento.scss'
 })
 export class Evento implements OnInit {
-  @Input() eventoIdParam!:string;
+  @Input() eventoIdParam!: string;
+  @Input() targetId?: string;
   private loadingService = inject(LoadingService);
   private dialogService = inject(DialogService);
   private messageService = inject(MessageService);
@@ -68,11 +69,11 @@ export class Evento implements OnInit {
   private rutActiva = inject(ActivatedRoute);
   private cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
   private userStorageService = inject(UserStorageService);
-  
+
   readonly PermisoAccion = PermisoAccion;
   getEstadoDescCorto = getEstadoDescCorto;
 
-  usuarioActivo:UsuarioLogeado | null = this.userStorageService.getUsuario();
+  usuarioActivo: UsuarioLogeado | null = this.userStorageService.getUsuario();
   permisoClave = PermisoClave.EVENTO;
 
   private eventoService = inject(EventoService);
@@ -83,20 +84,30 @@ export class Evento implements OnInit {
   esObservador: boolean = false;
   togglingObservador: boolean = false;
 
-  eventoId!:string;
+  eventoId!: string;
 
   adjuntosReloading = false;
-  adjuntos!:any[];
-  
+  adjuntos!: any[];
+
   requisitosReloading = false;
-  requisitos!:Evento_requisito_completo[];
+  requisitos!: Evento_requisito_completo[];
 
   vidaEvento!: VidaEvento[];
+  mostrarTodasLasActividades: boolean = false;
   nuevoComentario: string = '';
 
-  onActualizarRequisito(req:any, event: any) {
+  get actividadesMostradas(): VidaEvento[] {
+    if (!this.vidaEvento) return [];
+    if (this.mostrarTodasLasActividades || this.vidaEvento.length <= 7) {
+      return this.vidaEvento;
+    }
+    // Mostramos las últimas 7 (las más recientes al final)
+    return this.vidaEvento.slice(-7);
+  }
+
+  onActualizarRequisito(req: any, event: any) {
     // Aquí puedes ajustar el payload según lo que espera tu backend
-    let payload:any = {
+    let payload: any = {
       requisitoId: req.requisito.id,
       eventoId: this.eventoId,
       usuarioId: this.usuarioActivo?.id,
@@ -134,7 +145,7 @@ export class Evento implements OnInit {
           showError(this.messageService, 'Error al actualizar requisito:', err.error.message);
         }
       });
-    }else{
+    } else {
       this.eventoService.registrarEventoRequisito(this.eventoId, payload).subscribe({
         next: (res) => {
           this.onReloadRequisitos();
@@ -146,8 +157,8 @@ export class Evento implements OnInit {
       });
     }
   }
-  getType(req:any):string {
-    switch(req.requisito.tipo) {
+  getType(req: any): string {
+    switch (req.requisito.tipo) {
       case Tipo_requisito.text:
         return 'text';
       case Tipo_requisito.date:
@@ -185,7 +196,7 @@ export class Evento implements OnInit {
       finalize(() => this.cargandoEvento = false)
     ).subscribe(
       {
-        next: (res:any) => {
+        next: (res: any) => {
           this.evento = {
             ...res,
             evento: formatEventoNumero(res.tipo.codigo, res.numero)
@@ -199,7 +210,7 @@ export class Evento implements OnInit {
           }
           this.cdr.detectChanges();
         },
-        error: (err:any) => {
+        error: (err: any) => {
           console.error('Error fetching evento:', err);
         }
       }
@@ -209,17 +220,17 @@ export class Evento implements OnInit {
   onToggleObservador() {
     if (!this.usuarioActivo) return;
     this.togglingObservador = true;
-    this.eventoService.toggleObservador(this.eventoId, this.usuarioActivo.id).pipe(finalize(()=> this.togglingObservador = false)).subscribe({
-      next: (res:any) => {
+    this.eventoService.toggleObservador(this.eventoId, this.usuarioActivo.id).pipe(finalize(() => this.togglingObservador = false)).subscribe({
+      next: (res: any) => {
         // alternar estado local
         this.esObservador = !this.esObservador;
         // recargar actividad/opciones si es necesario
         this.getActividadEvento();
-        this.messageService.add({severity: 'success', summary: 'Éxito', detail: this.esObservador ? 'Ahora eres observador del evento' : 'Ya no eres observador del evento'});
+        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: this.esObservador ? 'Ahora eres observador del evento' : 'Ya no eres observador del evento' });
       },
-      error: (err:any) => {
+      error: (err: any) => {
         console.error('Error toggle observador:', err);
-        this.messageService.add({severity: 'error', summary: 'Error', detail: err?.error?.message || 'No se pudo alternar observador'});
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: err?.error?.message || 'No se pudo alternar observador' });
       }
     });
   }
@@ -229,13 +240,13 @@ export class Evento implements OnInit {
 
     this.eventoService.getAdjuntos(this.eventoId).subscribe(
       {
-        next: (res:any) => {
+        next: (res: any) => {
           // console.log(res)
           this.adjuntos = res;
           this.adjuntosReloading = false;
           this.cdr.detectChanges();
         },
-        error: (err:any) => {
+        error: (err: any) => {
           console.error('Error fetching adjuntos:', err);
         }
       }
@@ -247,10 +258,10 @@ export class Evento implements OnInit {
 
     this.eventoService.getRequisitos(this.eventoId).subscribe(
       {
-        next: (res:any) => {
+        next: (res: any) => {
           // console.log(res)
           // Inicializar cumplimiento si es null
-          this.requisitos = res.map((req:any) => {
+          this.requisitos = res.map((req: any) => {
             if (!req.cumplimiento) {
               req.cumplimiento = { valor: '' };
             }
@@ -259,7 +270,7 @@ export class Evento implements OnInit {
           this.requisitosReloading = false;
           this.cdr.detectChanges();
         },
-        error: (err:any) => {
+        error: (err: any) => {
           console.error('Error fetching requisitos:', err);
         }
       }
@@ -269,19 +280,38 @@ export class Evento implements OnInit {
   getActividadEvento() {
     this.eventoService.getActividad(this.eventoId).subscribe(
       {
-        next: (res:any) => {
+        next: (res: any) => {
           console.log(res)
           this.vidaEvento = res;
           this.cdr.detectChanges();
+
+          if (this.targetId) {
+            this.mostrarTodasLasActividades = true;
+            setTimeout(() => {
+              this.scrollToTarget();
+            }, 500);
+          }
         },
-        error: (err:any) => {
+        error: (err: any) => {
           console.error('Error fetching actividad evento:', err);
         }
       }
     );
   }
 
-  onEliminarAdjunto(event:any){
+  scrollToTarget() {
+    if (!this.targetId) return;
+    const element = document.getElementById(`actividad-adicion-${this.targetId}`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      element.classList.add('blink-target');
+      setTimeout(() => {
+        element.classList.remove('blink-target');
+      }, 3000);
+    }
+  }
+
+  onEliminarAdjunto(event: any) {
     console.log('Eliminar adjunto:', event);
     this.confirmationService.confirm({
       message: `¿Seguro que querés eliminar ${event.nameFile}?`,
@@ -320,13 +350,13 @@ export class Evento implements OnInit {
 
   onEnviarComentario() {
     if (!this.nuevoComentario.trim()) return;
-    
+
     console.log('Comentario enviado:', this.nuevoComentario);
     const formData = new FormData();
     formData.append('eventoId', this.eventoId);
     formData.append('usuarioId', this.usuarioActivo?.id || '');
     formData.append('tipo', "COMENTARIO");
-    formData.append('comentario', JSON.stringify({ "texto": this.nuevoComentario}));
+    formData.append('comentario', JSON.stringify({ "texto": this.nuevoComentario }));
     this.eventoService.agregarAdicional(this.eventoId, formData).subscribe({
       next: (res) => {
         console.log('Comentario guardado:', res);

@@ -17,6 +17,7 @@ import { DrawerModule } from 'primeng/drawer';
 export class UserNotes implements AfterViewInit {
   @Input() visible: boolean = false;
   @Input() eventoId: string | null = null;
+  @Input() targetId: string | null = null;
   @Output() closed = new EventEmitter<void>();
   @ViewChild('notasDrawerContainer', { read: ViewContainerRef }) notasDrawerContainer!: ViewContainerRef;
   notasComponentRef?: ComponentRef<Notas>;
@@ -34,6 +35,7 @@ export class UserNotes implements AfterViewInit {
     this.notasDrawerContainer.clear();
     this.notasComponentRef = this.notasDrawerContainer.createComponent(Notas);
     // this.notasComponentRef.instance.eventoIdParam = this.eventoId;
+    this.notasComponentRef.instance.targetId = this.targetId || undefined;
     this.notasComponentRef.changeDetectorRef.detectChanges();
   }
 

@@ -17,11 +17,12 @@ import { DrawerModule } from 'primeng/drawer';
   `,
   imports: [
     DrawerModule
-]
+  ]
 })
 export class EventoDrawerComponent implements AfterViewInit {
   @Input() visible: boolean = false;
   @Input() eventoId: string | null = null;
+  @Input() targetId: string | null = null;
   @Output() closed = new EventEmitter<void>();
   @ViewChild('eventoDrawerContainer', { read: ViewContainerRef }) eventoDrawerContainer!: ViewContainerRef;
   eventoComponentRef?: ComponentRef<EventoComponent>;
@@ -39,6 +40,7 @@ export class EventoDrawerComponent implements AfterViewInit {
     this.eventoDrawerContainer.clear();
     this.eventoComponentRef = this.eventoDrawerContainer.createComponent(EventoComponent);
     this.eventoComponentRef.instance.eventoIdParam = this.eventoId;
+    this.eventoComponentRef.instance.targetId = this.targetId || undefined;
     this.eventoComponentRef.changeDetectorRef.detectChanges();
   }
 

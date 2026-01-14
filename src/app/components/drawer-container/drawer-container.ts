@@ -17,13 +17,14 @@ import { UsuarioDrawerComponent } from '@views/usuario/usuario-drawer/usuario-dr
 export class DrawerContainerComponent implements OnInit, OnDestroy {
   showEventoDrawer = false;
   eventoSeleccionadoId: string | null = null;
-  
+  eventoSeleccionadoTargetId: string | null = null;
+
   showUsuarioDrawer = false;
   usuarioSeleccionadoId: string | null = null;
 
   private destroy$ = new Subject<void>();
 
-  constructor(private drawerService: DrawerService) {}
+  constructor(private drawerService: DrawerService) { }
 
   ngOnInit(): void {
     this.drawerService.eventoDrawer$
@@ -31,6 +32,7 @@ export class DrawerContainerComponent implements OnInit, OnDestroy {
       .subscribe(state => {
         this.showEventoDrawer = state.visible;
         this.eventoSeleccionadoId = state.id;
+        this.eventoSeleccionadoTargetId = state.targetId || null;
       });
 
     this.drawerService.usuarioDrawer$

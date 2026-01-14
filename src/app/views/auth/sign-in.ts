@@ -124,22 +124,22 @@ import { LayoutStoreService } from '@core/services/layout-store.service'
   styles: ``,
 })
 export class SignIn {
-  constructor(public layout: LayoutStoreService) {}
+  constructor(public layout: LayoutStoreService) { }
   private authService = inject(AuthService);
   private router = inject(Router);
   private rutActiva = inject(ActivatedRoute);
   private messageService = inject(MessageService);
 
   showPassword: boolean = false
-  cargando:boolean = false;
+  cargando: boolean = false;
 
   togglePassword(): void {
     this.showPassword = !this.showPassword
   }
 
   loginForm = new FormGroup({
-    usuario: new FormControl('', [ Validators.required ]),
-    password: new FormControl('', [ Validators.required ]),
+    usuario: new FormControl('', [Validators.required]),
+    password: new FormControl('', [Validators.required]),
   });
 
   login() {
@@ -164,7 +164,7 @@ export class SignIn {
 
   loginOk() {
     let returnUrl = this.rutActiva.snapshot.queryParams['returnUrl'];
-    console.log('returnUrl:', returnUrl);
+    // console.log('returnUrl:', returnUrl);
     this.router.navigateByUrl(returnUrl || '/');
   }
 
