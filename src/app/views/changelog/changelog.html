@@ -97,12 +97,12 @@
         <!-- Footer Button para vista modal -->
         @if (isModalView) {
         <div class="changelog-footer d-flex gap-2">
-            @if (hasMoreVersions) {
+            <!-- @if (hasMoreVersions) { -->
             <button type="button" class="btn btn-outline-primary flex-fill" (click)="navigateToFullChangelog()">
                 <i class="pi pi-history me-2"></i>
                 Ver anteriores
             </button>
-            }
+            <!-- } -->
             <button type="button" class="btn btn-primary flex-fill" (click)="closeModal()">
                 Entendido
             </button>
