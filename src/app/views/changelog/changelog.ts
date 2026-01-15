@@ -5,11 +5,13 @@ import { Router } from '@angular/router';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { VersionService } from '@core/services/version';
 import { UiCard } from '../../components/ui-card';
+import { NgIcon } from "@ng-icons/core";
+import { Tooltip } from "primeng/tooltip";
 
 @Component({
     selector: 'app-changelog',
     standalone: true,
-    imports: [CommonModule, UiCard],
+    imports: [CommonModule, UiCard, NgIcon, Tooltip],
     templateUrl: './changelog.html',
     styleUrl: './changelog.scss'
 })
@@ -142,5 +144,9 @@ export class ChangelogComponent implements OnInit {
                 type,
                 items: groups[type]
             }));
+    }
+
+    navigateToReport(url: string): void {
+        window.open(url, '_blank');
     }
 }

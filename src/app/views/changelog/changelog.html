@@ -79,8 +79,15 @@
                                 <p class="change-text" [class.mb-2]="!$last">
                                     - {{ item.text }}
                                     @if (item.link) {
-                                    <a class="ms-2 change-link" (click)="navigateToFeature(item.link)" role="button">
-                                        <i class="pi pi-external-link" style="font-size: 0.8rem"></i>
+                                    <a class="ms-2 change-link" (click)="navigateToFeature(item.link)" role="button"
+                                        pTooltip="Ver Funcionalidad">
+                                        <ng-icon name="lucideExternalLink"></ng-icon>
+                                    </a>
+                                    }
+                                    @if (item.urlReport) {
+                                    <a class="ms-2 change-link" (click)="navigateToReport(item.urlReport)" role="button"
+                                        pTooltip="Ver Reporte">
+                                        <ng-icon name="lucideFilePen"></ng-icon>
                                     </a>
                                     }
                                 </p>
