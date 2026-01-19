@@ -10,64 +10,75 @@
                         </ng-template>
                         <ng-template pTemplate="right">
                             @if (true) {
-                                <button class="btn btn-ghost-success btn-lg" (click)="mostrarModalCrud(null, 'A')" [appShortcut]="SHORTCUTS.NUEVO" (appShortcutTrigger)="mostrarModalCrud(null, 'A')"><ng-icon name="lucideCirclePlus"/></button>
+                            <button class="btn btn-ghost-success btn-lg" (click)="mostrarModalCrud(null, 'A')"
+                                [appShortcut]="SHORTCUTS.NUEVO"
+                                (appShortcutTrigger)="mostrarModalCrud(null, 'A')"><ng-icon
+                                    name="lucideCirclePlus" /></button>
                             }
                         </ng-template>
                     </p-toolbar>
-                    <p-table
-                        #dt
-                        [value]="registrosHorasFiltradas"
-                        [rows]="10"
-                        [paginator]="true"
+                    <p-table #dt [value]="registrosHorasFiltradas" [rows]="10" [paginator]="true"
                         [globalFilterFields]="['id', 'fecha', 'usuario.usuario', 'horasTotales']"
-                        [tableStyle]="{ 'min-width': '75rem' }"
-                        [rowHover]="true"
-                        dataKey="id"
+                        [tableStyle]="{ 'min-width': '75rem' }" [rowHover]="true" dataKey="id"
                         currentPageReportTemplate="Mostrando desde {first} a {last} de {totalRecords} registros"
-                        [showCurrentPageReport]="true"
-                        size="small"
-                        [scrollable]="false"
-                    >
+                        [showCurrentPageReport]="true" size="small" [scrollable]="true">
                         <ng-template pTemplate="caption">
                             <div class="flex align-items-center justify-content-between" style="display: flex;">
                                 <span class="p-input-icon-left">
                                     <i class="pi pi-search"></i>
-                                    <input pInputText style="padding-top: 0.4rem !important;padding-bottom: 0.4rem !important;margin-left: 10px;" class="p-component p-element p-inputtext"  type="text" (input)="dt.filterGlobal(getEventValue($event), 'contains')" placeholder="Buscar..." />
+                                    <input pInputText
+                                        style="padding-top: 0.4rem !important;padding-bottom: 0.4rem !important;margin-left: 10px;"
+                                        class="p-component p-element p-inputtext" type="text"
+                                        (input)="dt.filterGlobal(getEventValue($event), 'contains')"
+                                        placeholder="Buscar..." />
                                 </span>
                                 <div class="flex align-items-center gap-1" style="margin:auto 10px">
                                     <label for="filtroFechas" style="margin-right: 5px;">Fecha: </label>
-                                    <p-datepicker id="filtroFechas" [(ngModel)]="dateFilter" view="month" dateFormat="mm/yy" [readonlyInput]="true" (onClose)="consultarRegistros(dateFilter)"></p-datepicker>
+                                    <p-datepicker id="filtroFechas" [(ngModel)]="dateFilter" view="month"
+                                        dateFormat="mm/yy" [readonlyInput]="true"
+                                        (onClose)="consultarRegistros(dateFilter)"></p-datepicker>
                                 </div>
                             </div>
                         </ng-template>
                         <ng-template pTemplate="header">
                             <tr>
                                 <th style="width: 4rem">
-                                    
+
                                 </th>
-                                <th pSortableColumn="id" hidden>Id <p-sortIcon field="id" ></p-sortIcon></th>
-                                <th pSortableColumn="fecha">Fecha <p-sortIcon field="fecha" ></p-sortIcon><p-columnFilter type="text" field="fecha" display="menu" matchMode="contains" style="margin-left: 2px;"></p-columnFilter></th>
-                                <th pSortableColumn="usuario.usuario">Usuario <p-sortIcon field="usuario.usuario"></p-sortIcon><p-columnFilter type="text" field="usuario.usuario" display="menu" matchMode="contains" style="margin-left: 2px;"></p-columnFilter></th>
-                                <th pSortableColumn="horasTotales">Total Dia <p-sortIcon field="horasTotales"></p-sortIcon></th>
+                                <th pSortableColumn="id" hidden>Id <p-sortIcon field="id"></p-sortIcon></th>
+                                <th pSortableColumn="fecha">Fecha <p-sortIcon field="fecha"></p-sortIcon><p-columnFilter
+                                        type="text" field="fecha" display="menu" matchMode="contains"
+                                        style="margin-left: 2px;"></p-columnFilter></th>
+                                <th pSortableColumn="usuario.usuario">Usuario <p-sortIcon
+                                        field="usuario.usuario"></p-sortIcon><p-columnFilter type="text"
+                                        field="usuario.usuario" display="menu" matchMode="contains"
+                                        style="margin-left: 2px;"></p-columnFilter></th>
+                                <th pSortableColumn="horasTotales">Total Dia <p-sortIcon
+                                        field="horasTotales"></p-sortIcon></th>
                                 <th></th>
                             </tr>
                         </ng-template>
                         <ng-template pTemplate="body" let-registro let-expanded="expanded">
                             <tr style="min-height: 55px;">
                                 <td style="width: 10px">
-                                    <p-button type="button" pRipple [pRowToggler]="registro" [text]="true" severity="secondary" [rounded]="true" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" />
+                                    <p-button type="button" pRipple [pRowToggler]="registro" [text]="true"
+                                        severity="secondary" [rounded]="true"
+                                        [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" />
                                 </td>
                                 <td hidden>{{ registro.id }}</td>
                                 <td>{{ registro.fecha | date:'dd MMMM yy'}}</td>
                                 <td>{{ registro.usuario.usuario }}</td>
                                 <!-- <td>{{ registro.horasTotales | number:'.0-2' }} hs.</td> -->
                                 <td>{{ registro.horasTotalesFormateadas }} hs.</td>
-                                <td class="d-flex justify-content-end"  style="min-height: 55px;">
+                                <td class="d-flex justify-content-end" style="min-height: 55px;">
                                     @if (true) {
-                                        <button class="btn btn-ghost-warning" (click)="mostrarModalCrud(registro, 'M')"><ng-icon name="lucidePencil"/></button>
+                                    <button class="btn btn-ghost-warning"
+                                        (click)="mostrarModalCrud(registro, 'M')"><ng-icon
+                                            name="lucidePencil" /></button>
                                     }
                                     @if (true) {
-                                        <button class="btn btn-ghost-danger" (click)="delete(registro)"><ng-icon name="lucideTrash2"/></button>
+                                    <button class="btn btn-ghost-danger" (click)="delete(registro)"><ng-icon
+                                            name="lucideTrash2" /></button>
                                     }
                                 </td>
                             </tr>
@@ -78,49 +89,50 @@
                                     <div class="p-3">
                                         <p-table [value]="horas.horas" dataKey="id">
                                             <ng-template pTemplate="header">
-                                                <tr>
-                                                    <th pSortableColumn="id" hidden>Id </th>
-                                                    <th pSortableColumn="inicio" pFrozenColumn>Inicio </th>
-                                                    <th pSortableColumn="final" pFrozenColumn>Final </th>
-                                                    <th pSortableColumn="evento">Evento </th>
-                                                    <!-- <th pSortableColumn="total">Total </th> -->
-                                                    <th pSortableColumn="detalle">Detalle</th>
-                                                    <th pSortableColumn="diferencia">Diferencia</th>
-                                                </tr>
-                                            </ng-template>
-                                            <ng-template pTemplate="body" let-hora>
-                                                <tr>
-                                                    <td hidden>{{ hora.id }}</td>
-                                                    <td pFrozenColumn>{{ hora.inicio | date:'HH:mm'}}</td>
-                                                    <td pFrozenColumn>{{ hora.fin | date:'HH:mm'}}</td>
-                                                    <td>{{ hora.eventoTxt }} | {{hora.evento.titulo}}</td>
-                                                    <!-- <td>{{ hora.total | totalComoNumero}}</td> -->
-                                                    <td>{{ hora.detalle }}</td>
-                                                    <!-- <td>{{ hora.diferencia | number:'.0-2' }} hs.</td> -->
-                                                    <td>{{ hora.diferenciaFormateada }} hs.</td>
-                                                </tr>
-                                            </ng-template>
-                                        </p-table>
-                                    </div>
-                                </td>
-                            </tr>
-                        </ng-template>
-                        
-                        <ng-template #emptymessage>
                             <tr>
-                                <td colspan="5">No se encontraron registros de hora.</td>
+                                <th pSortableColumn="id" hidden>Id </th>
+                                <th pSortableColumn="inicio" pFrozenColumn>Inicio </th>
+                                <th pSortableColumn="final" pFrozenColumn>Final </th>
+                                <th pSortableColumn="evento">Evento </th>
+                                <!-- <th pSortableColumn="total">Total </th> -->
+                                <th pSortableColumn="detalle">Detalle</th>
+                                <th pSortableColumn="diferencia">Diferencia</th>
                             </tr>
                         </ng-template>
-
-
-                        <ng-template pTemplate="summary">
-                            <div class="flex align-items-center justify-content-between">En total hay {{ registrosHoras ? registrosHoras.length : 0 }} Registros de Hora.</div>
+                        <ng-template pTemplate="body" let-hora>
+                            <tr>
+                                <td hidden>{{ hora.id }}</td>
+                                <td pFrozenColumn>{{ hora.inicio | date:'HH:mm'}}</td>
+                                <td pFrozenColumn>{{ hora.fin | date:'HH:mm'}}</td>
+                                <td>{{ hora.eventoTxt }} | {{hora.evento.titulo}}</td>
+                                <!-- <td>{{ hora.total | totalComoNumero}}</td> -->
+                                <td>{{ hora.detalle }}</td>
+                                <!-- <td>{{ hora.diferencia | number:'.0-2' }} hs.</td> -->
+                                <td>{{ hora.diferenciaFormateada }} hs.</td>
+                            </tr>
                         </ng-template>
                     </p-table>
-
                 </div>
-            </app-ui-card>
+                </td>
+                </tr>
+                </ng-template>
+
+                <ng-template #emptymessage>
+                    <tr>
+                        <td colspan="5">No se encontraron registros de hora.</td>
+                    </tr>
+                </ng-template>
+
+
+                <ng-template pTemplate="summary">
+                    <div class="flex align-items-center justify-content-between">En total hay {{ registrosHoras ?
+                        registrosHoras.length : 0 }} Registros de Hora.</div>
+                </ng-template>
+                </p-table>
 
         </div>
+        </app-ui-card>
+
     </div>
+</div>
 </div>

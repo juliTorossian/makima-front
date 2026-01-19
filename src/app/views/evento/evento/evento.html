@@ -44,7 +44,7 @@
 
                                     @if (requisitos && requisitos.length > 0) {
                                     <p-table [value]="requisitos" dataKey="requisito.id"
-                                        [tableStyle]="{ 'min-width': '30rem' }"
+                                        [tableStyle]="{ 'min-width': '30rem' }" [scrollable]="true"
                                         styleClass="p-datatable-sm p-datatable-gridlines">
                                         <ng-template #header>
                                             <tr>

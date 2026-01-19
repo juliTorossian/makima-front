@@ -5,7 +5,7 @@ import { DrawerModule } from 'primeng/drawer';
 @Component({
   selector: 'app-evento-drawer',
   template: `
-    <p-drawer [(visible)]="visible" position="right" [style]="{width: '50vw'}" [modal]="true" (onHide)="onClose()">
+    <p-drawer [(visible)]="visible" position="right" styleClass="evento-drawer-responsive" [modal]="true" (onHide)="onClose()">
       <ng-template #eventoDrawerContainer></ng-template>
     </p-drawer>
   `,
@@ -14,6 +14,21 @@ import { DrawerModule } from 'primeng/drawer';
         padding: 1rem;
     }
 
+    ::ng-deep .evento-drawer-responsive {
+        width: 50vw !important;
+    }
+
+    @media screen and (max-width: 960px) {
+        ::ng-deep .evento-drawer-responsive {
+            width: 75vw !important;
+        }
+    }
+
+    @media screen and (max-width: 640px) {
+        ::ng-deep .evento-drawer-responsive {
+            width: 100vw !important;
+        }
+    }
   `,
   imports: [
     DrawerModule

@@ -1,13 +1,13 @@
 <p-toast></p-toast>
 @if (loading) {
-  <app-loading-spinner></app-loading-spinner>
+<app-loading-spinner></app-loading-spinner>
 }
 <div class="container">
   <form class="row g-3 needs-validation" [formGroup]="form" (ngSubmit)="accion($event)" novalidate>
     <!-- Campos de TipoEvento -->
     <div class="col-md-3" hidden>
       <label for="id" class="form-label">Id</label>
-      <input id="id" type="text" formControlName="id" class="form-control" placeholder="id"/>
+      <input id="id" type="text" formControlName="id" class="form-control" placeholder="id" />
     </div>
 
     <div class="col-md-3">
@@ -36,76 +36,72 @@
           </div>
         </div>
         @for (hora of horasFormArray.controls; track $index) {
-          <div [formGroupName]="$index" class="row g-3 mb-2 ">
+        <div [formGroupName]="$index" class="row g-3 mb-2 ">
 
-            <div class="col-md-4">
-              <!-- <label>Evento</label> -->
-              <div class="row">
-                <div class="col-10">
-                  <select class="form-control" formControlName="eventoId">
-                    <option [ngValue]="null">-- Seleccionar --</option>
-                    @for (e of eventos; track e.id) {
-                      <!-- ngValue preserva el tipo (number si e.id es number) -->
-                      <option [ngValue]="e.id">{{ e.titulo }}</option>
-                    }
-                  </select>
-                </div>
-                <div class="col-2">
-                  <button card-actions class="btn btn-icon btn-outline-info" 
-                    (click)="modalSelEvento(hora, $event)"
-                  >
-                    <ng-icon name="lucideSearch" />
-                  </button>
-                </div>
+          <div class="col-12 col-md-4 mb-2 mb-md-0">
+            <!-- <label>Evento</label> -->
+            <div class="row">
+              <div class="col-10">
+                <select class="form-control" formControlName="eventoId">
+                  <option [ngValue]="null">-- Seleccionar --</option>
+                  @for (e of eventos; track e.id) {
+                  <!-- ngValue preserva el tipo (number si e.id es number) -->
+                  <option [ngValue]="e.id">{{ e.titulo }}</option>
+                  }
+                </select>
+              </div>
+              <div class="col-2">
+                <button card-actions class="btn btn-icon btn-outline-info" (click)="modalSelEvento(hora, $event)">
+                  <ng-icon name="lucideSearch" />
+                </button>
               </div>
             </div>
-
-            <div class="col-md-2">
-              <!-- <label>Secuencia</label> -->
-              <input type="time" class="form-control" 
-                formControlName="inicio" 
-                [class.is-invalid]="hora.errors?.['overlap'] || hora.errors?.['invalidTimeRange']" />
-              @if (hora.errors?.['overlap']) {
-                <div class="invalid-feedback">
-                  Horario superpuesto
-                </div>
-              }
-              @if (hora.errors?.['invalidTimeRange']) {
-                <div class="invalid-feedback">
-                  Hora inválida
-                </div>
-              }
-            </div>
-
-            <div class="col-md-2">
-              <!-- <label>Secuencia</label> -->
-              <input type="time" class="form-control" 
-                formControlName="fin" 
-                [class.is-invalid]="hora.errors?.['overlap'] || hora.errors?.['invalidTimeRange']" />
-              @if (hora.errors?.['overlap']) {
-                <div class="invalid-feedback">
-                  Horario superpuesto
-                </div>
-              }
-              @if (hora.errors?.['invalidTimeRange']) {
-                <div class="invalid-feedback">
-                  Fin debe ser mayor que inicio
-                </div>
-              }
-            </div>
-
-            <div class="col-md-3">
-              <!-- <label>Secuencia</label> -->
-              <input type="text" class="form-control" formControlName="detalle" />
-            </div>
-
-            <div class="col-md-1 d-flex align-items-end">
-              <button type="button" class="btn btn-danger w-100 h-100" (click)="removeHora($index)">
-                <ng-icon name="lucideTrash"/>
-              </button>
-            </div>
-
           </div>
+
+          <div class="col-6 col-md-2 mb-2 mb-md-0">
+            <!-- <label>Secuencia</label> -->
+            <input type="time" class="form-control" formControlName="inicio"
+              [class.is-invalid]="hora.errors?.['overlap'] || hora.errors?.['invalidTimeRange']" />
+            @if (hora.errors?.['overlap']) {
+            <div class="invalid-feedback">
+              Horario superpuesto
+            </div>
+            }
+            @if (hora.errors?.['invalidTimeRange']) {
+            <div class="invalid-feedback">
+              Hora inválida
+            </div>
+            }
+          </div>
+
+          <div class="col-6 col-md-2 mb-2 mb-md-0">
+            <!-- <label>Secuencia</label> -->
+            <input type="time" class="form-control" formControlName="fin"
+              [class.is-invalid]="hora.errors?.['overlap'] || hora.errors?.['invalidTimeRange']" />
+            @if (hora.errors?.['overlap']) {
+            <div class="invalid-feedback">
+              Horario superpuesto
+            </div>
+            }
+            @if (hora.errors?.['invalidTimeRange']) {
+            <div class="invalid-feedback">
+              Fin debe ser mayor que inicio
+            </div>
+            }
+          </div>
+
+          <div class="col-10 col-md-3 mb-2 mb-md-0">
+            <!-- <label>Secuencia</label> -->
+            <input type="text" class="form-control" formControlName="detalle" placeholder="Detalle" />
+          </div>
+
+          <div class="col-2 col-md-1 d-flex align-items-end mb-2 mb-md-0">
+            <button type="button" class="btn btn-danger w-100 h-100" (click)="removeHora($index)">
+              <ng-icon name="lucideTrash" />
+            </button>
+          </div>
+
+        </div>
         }
       </div>
       <button type="button" class="btn btn-success mt-2" (click)="addHora()">Agregar hora</button>
@@ -116,9 +112,9 @@
     <div class="col-12 mb-5">
       <button class="btn btn-primary" type="submit">
         @if (modo === 'A') {
-          Crear
+        Crear
         } @else if (modo === 'M') {
-          Modificar
+        Modificar
         }
       </button>
     </div>

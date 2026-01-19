@@ -1,6 +1,6 @@
 <p-toast></p-toast>
 @if (loading) {
-  <app-loading-spinner></app-loading-spinner>
+<app-loading-spinner></app-loading-spinner>
 }
 <div class="container">
   <form class="row g-3 needs-validation" [formGroup]="form" (ngSubmit)="accion($event)" novalidate>
@@ -10,40 +10,31 @@
       <div class="col-md-12">
 
         <div class="row">
-          
+
           @if (modo === 'A') {
 
-            <div class="col-md-4">
-              <label for="tipoCodigo" class="form-label">Tipo</label>
-              <p-select
-                id="tipoCodigo"
-                class="form-control" 
-                [options]="tiposEvento"
-                formControlName="tipoEvento"
-                [class.ng-invalid]="get('tipoEvento')?.invalid && get('tipoEvento')?.touched"
-                [class.ng-touched]="get('tipoEvento')?.touched"
-                placeholder="Seleccionar tipo..."
-                [editable]="true"
-                optionLabel="label"
-                style="max-height: 37.5px;"
-                size="small"
-              />
-              @if (get('tipoEvento')?.invalid && get('tipoEvento')?.touched) {
-                <div class="invalid-feedback d-block">Debe seleccionar un tipo de evento.</div>
-              }
-            </div>
+          <div class="col-12 col-md-4">
+            <label for="tipoCodigo" class="form-label">Tipo</label>
+            <p-select id="tipoCodigo" styleClass="w-100" class="w-100" [options]="tiposEvento"
+              formControlName="tipoEvento" [class.ng-invalid]="get('tipoEvento')?.invalid && get('tipoEvento')?.touched"
+              [class.ng-touched]="get('tipoEvento')?.touched" placeholder="Seleccionar tipo..." [editable]="true"
+              optionLabel="label" style="max-height: 37.5px;" size="small" />
+            @if (get('tipoEvento')?.invalid && get('tipoEvento')?.touched) {
+            <div class="invalid-feedback d-block">Debe seleccionar un tipo de evento.</div>
+            }
+          </div>
           } @else {
-            <div class="col-md-4">
-              <label for="tipoCodigoEvento" class="form-label">Evento</label>
-              <input id="tipoCodigoEvento" type="text" [value]="tipoNumero" class="form-control" [disabled]="true" />
-            </div>
+          <div class="col-12 col-md-4 mb-3 mb-md-0">
+            <label for="tipoCodigoEvento" class="form-label">Evento</label>
+            <input id="tipoCodigoEvento" type="text" [value]="tipoNumero" class="form-control" [disabled]="true" />
+          </div>
           }
 
           <div class="col-md-8">
             <label for="titulo" class="form-label">Titulo</label>
-            <input id="titulo" type="text" formControlName="titulo" 
-              [class.is-invalid]="get('titulo')?.invalid && get('titulo')?.touched"
-              class="form-control" placeholder="Titulo del evento" />
+            <input id="titulo" type="text" formControlName="titulo"
+              [class.is-invalid]="get('titulo')?.invalid && get('titulo')?.touched" class="form-control"
+              placeholder="Titulo del evento" />
             @if (get('titulo')?.invalid && get('titulo')?.touched) {
             <div class="invalid-feedback d-block">Debe ingresar un titulo.</div>
             }
@@ -53,16 +44,14 @@
 
         <div class="row">
 
-          <div class="col-md-6">
+          <div class="col-12 col-md-6">
             <label for="clienteId" class="form-label">Cliente</label>
             <div class="row">
               <div class="col-md-10">
                 <input id="cliente" type="text" formControlName="cliente"
-                  [class.is-invalid]="get('cliente')?.invalid && get('cliente')?.touched"
-                  class="form-control mb-2"
+                  [class.is-invalid]="get('cliente')?.invalid && get('cliente')?.touched" class="form-control mb-2"
                   [ngbTypeahead]="searchCliente" [inputFormatter]="formatterCliente"
-                  [resultFormatter]="formatterCliente" placeholder="Buscar cliente..."
-                  (blur)="onClienteBlur()" />
+                  [resultFormatter]="formatterCliente" placeholder="Buscar cliente..." (blur)="onClienteBlur()" />
               </div>
               <div class="col-md-2">
                 <div class="btn-group" role="group">
@@ -76,30 +65,28 @@
               </div>
             </div>
             @if (get('cliente')?.invalid && get('cliente')?.touched) {
-              @if (get('cliente')?.errors?.['required']) {
-                <div class="invalid-feedback d-block">Debe ingresar un cliente.</div>
-              } @else if (get('cliente')?.errors?.['invalidObject']) {
-                <div class="invalid-feedback d-block">Debe seleccionar una opción válida de la lista.</div>
-              }
+            @if (get('cliente')?.errors?.['required']) {
+            <div class="invalid-feedback d-block">Debe ingresar un cliente.</div>
+            } @else if (get('cliente')?.errors?.['invalidObject']) {
+            <div class="invalid-feedback d-block">Debe seleccionar una opción válida de la lista.</div>
+            }
             }
             @if (get('proyecto')?.errors?.['sinProyectos']) {
-              <div class="text-warning small mt-1">
-                <ng-icon name="lucideAlertTriangle" size="14"></ng-icon>
-                El Cliente no tiene asociado un Proyecto.
-              </div>
+            <div class="text-warning small mt-1">
+              <ng-icon name="lucideAlertTriangle" size="14"></ng-icon>
+              El Cliente no tiene asociado un Proyecto.
+            </div>
             }
           </div>
 
-          <div class="col-md-6">
+          <div class="col-12 col-md-6">
             <label for="proyecto" class="form-label">Proyecto</label>
             <div class="row">
               <div class="col-md-10">
                 <input id="proyecto" type="text" formControlName="proyecto"
                   [class.is-invalid]="get('proyecto')?.invalid && get('proyecto')?.touched && get('proyecto')?.errors?.['required']"
-                  class="form-control mb-2"
-                  [ngbTypeahead]="searchProyecto" [inputFormatter]="formatterProyecto"
-                  [resultFormatter]="formatterProyecto" placeholder="Buscar proyecto..."
-                  (blur)="onProyectoBlur()" />
+                  class="form-control mb-2" [ngbTypeahead]="searchProyecto" [inputFormatter]="formatterProyecto"
+                  [resultFormatter]="formatterProyecto" placeholder="Buscar proyecto..." (blur)="onProyectoBlur()" />
               </div>
               <div class="col-md-2">
                 <div class="btn-group" role="group">
@@ -113,10 +100,10 @@
               </div>
             </div>
             @if (get('proyecto')?.touched && get('proyecto')?.errors?.['required']) {
-              <div class="invalid-feedback d-block">Debe ingresar un proyecto.</div>
+            <div class="invalid-feedback d-block">Debe ingresar un proyecto.</div>
             }
             @if (get('proyecto')?.touched && get('proyecto')?.errors?.['invalidObject']) {
-              <div class="invalid-feedback d-block">Debe seleccionar una opción válida de la lista.</div>
+            <div class="invalid-feedback d-block">Debe seleccionar una opción válida de la lista.</div>
             }
           </div>
 
@@ -124,16 +111,14 @@
 
         <div class="row">
 
-          <div class="col-md-6">
+          <div class="col-12 col-md-6">
             <label for="producto" class="form-label">Producto</label>
             <div class="row">
               <div class="col-md-10">
                 <input id="producto" type="text" formControlName="producto"
-                  [class.is-invalid]="get('producto')?.invalid && get('producto')?.touched"
-                  class="form-control mb-2"
+                  [class.is-invalid]="get('producto')?.invalid && get('producto')?.touched" class="form-control mb-2"
                   [ngbTypeahead]="searchProducto" [inputFormatter]="formatterProducto"
-                  [resultFormatter]="formatterProducto" placeholder="Buscar producto..."
-                  (blur)="onProductoBlur()" />
+                  [resultFormatter]="formatterProducto" placeholder="Buscar producto..." (blur)="onProductoBlur()" />
               </div>
               <div class="col-md-2">
                 <div class="btn-group" role="group">
@@ -147,24 +132,22 @@
               </div>
             </div>
             @if (get('producto')?.invalid && get('producto')?.touched) {
-              @if (get('producto')?.errors?.['required']) {
-                <div class="invalid-feedback d-block">Debe ingresar un producto.</div>
-              } @else if (get('producto')?.errors?.['invalidObject']) {
-                <div class="invalid-feedback d-block">Debe seleccionar una opción válida de la lista.</div>
-              }
+            @if (get('producto')?.errors?.['required']) {
+            <div class="invalid-feedback d-block">Debe ingresar un producto.</div>
+            } @else if (get('producto')?.errors?.['invalidObject']) {
+            <div class="invalid-feedback d-block">Debe seleccionar una opción válida de la lista.</div>
+            }
             }
           </div>
 
-          <div class="col-md-6">
+          <div class="col-12 col-md-6">
             <label for="modulo" class="form-label">Modulo</label>
             <div class="row">
               <div class="col-md-10">
                 <input id="modulo" type="text" formControlName="modulo"
-                  [class.is-invalid]="get('modulo')?.invalid && get('modulo')?.touched"
-                  class="form-control mb-2"
+                  [class.is-invalid]="get('modulo')?.invalid && get('modulo')?.touched" class="form-control mb-2"
                   [ngbTypeahead]="searchModulo" [inputFormatter]="formatterModulo" [resultFormatter]="formatterModulo"
-                  placeholder="Buscar modulo..."
-                  (blur)="onModuloBlur()" />
+                  placeholder="Buscar modulo..." (blur)="onModuloBlur()" />
               </div>
               <div class="col-md-2">
                 <div class="btn-group" role="group">
@@ -178,35 +161,34 @@
               </div>
             </div>
             @if (get('modulo')?.invalid && get('modulo')?.touched) {
-              @if (get('modulo')?.errors?.['required']) {
-                <div class="invalid-feedback d-block">Debe ingresar un módulo.</div>
-              } @else if (get('modulo')?.errors?.['invalidObject']) {
-                <div class="invalid-feedback d-block">Debe seleccionar una opción válida de la lista.</div>
-              }
+            @if (get('modulo')?.errors?.['required']) {
+            <div class="invalid-feedback d-block">Debe ingresar un módulo.</div>
+            } @else if (get('modulo')?.errors?.['invalidObject']) {
+            <div class="invalid-feedback d-block">Debe seleccionar una opción válida de la lista.</div>
+            }
             }
           </div>
         </div>
 
         <div class="row">
 
-          <div class="col-md-6">
+          <div class="col-12 col-md-6">
             <label for="prioridadUsu" class="form-label">Prioridad</label>
-            <p-select id="prioridadUsu" [options]="[1,2,3,4,5]" formControlName="prioridadUsu" 
+            <p-select id="prioridadUsu" [options]="[1,2,3,4,5]" formControlName="prioridadUsu"
               [class.ng-invalid]="get('prioridadUsu')?.invalid && get('prioridadUsu')?.touched"
-              [class.ng-touched]="get('prioridadUsu')?.touched"
-              class="form-control p-0" size="small">
-                <ng-template #selectedItem let-selectedOption>
-                    <div class="d-flex align-items-center p-0">
-                      <app-prioridad-icon [nivel]="selectedOption"></app-prioridad-icon>
-                      <div style="margin-left: 10px;">{{ getPrioridadDesc(selectedOption) }}</div>
-                    </div>
-                </ng-template>
-                <ng-template let-prioridad #item>
-                    <div class="d-flex align-items-center p-0">
-                      <app-prioridad-icon [nivel]="prioridad"></app-prioridad-icon>
-                      <div style="margin-left: 10px;">{{ getPrioridadDesc(prioridad) }}</div>
-                    </div>
-                </ng-template>
+              [class.ng-touched]="get('prioridadUsu')?.touched" class="form-control p-0" size="small">
+              <ng-template #selectedItem let-selectedOption>
+                <div class="d-flex align-items-center p-0">
+                  <app-prioridad-icon [nivel]="selectedOption"></app-prioridad-icon>
+                  <div style="margin-left: 10px;">{{ getPrioridadDesc(selectedOption) }}</div>
+                </div>
+              </ng-template>
+              <ng-template let-prioridad #item>
+                <div class="d-flex align-items-center p-0">
+                  <app-prioridad-icon [nivel]="prioridad"></app-prioridad-icon>
+                  <div style="margin-left: 10px;">{{ getPrioridadDesc(prioridad) }}</div>
+                </div>
+              </ng-template>
             </p-select>
             @if (get('prioridadUsu')?.invalid && get('prioridadUsu')?.touched) {
             <div class="invalid-feedback d-block">Debe seleccionar una prioridad.</div>
@@ -215,17 +197,17 @@
 
           <div class="col-md-6">
             @if (can(PermisoAccion.TPO_FACTURABLE)) {
-              <label for="facEventoCerr" class="form-label">Tipo de facturacion</label>
-              <div class="mb-2">
-                <input id="facEventoCerr" type="checkbox" formControlName="facEventoCerr" class="btn-check" />
-                <label class="btn btn-outline-primary" for="facEventoCerr" style="min-width: 160px;">
-                  @if (get('facEventoCerr')?.value){
-                  EVENTO CERRADO
-                  } @else {
-                  POR HORAS
-                  }
-                </label>
-              </div>
+            <label for="facEventoCerr" class="form-label">Tipo de facturacion</label>
+            <div class="mb-2">
+              <input id="facEventoCerr" type="checkbox" formControlName="facEventoCerr" class="btn-check" />
+              <label class="btn btn-outline-primary" for="facEventoCerr" style="min-width: 160px;">
+                @if (get('facEventoCerr')?.value){
+                EVENTO CERRADO
+                } @else {
+                POR HORAS
+                }
+              </label>
+            </div>
             }
           </div>
 
@@ -236,9 +218,9 @@
 
           <div class="col-12">
             <label for="comentario" class="form-label">Comentario</label>
-            <textarea formControlName="comentario" 
-              [class.is-invalid]="get('comentario')?.invalid && get('comentario')?.touched"
-              class="form-control" id="comentario" rows="3"></textarea>
+            <textarea formControlName="comentario"
+              [class.is-invalid]="get('comentario')?.invalid && get('comentario')?.touched" class="form-control"
+              id="comentario" rows="3"></textarea>
             @if (get('comentario')?.invalid && get('comentario')?.touched) {
             <div class="invalid-feedback d-block">Debe ingresar un comentario.</div>
             }
@@ -254,10 +236,8 @@
           <!-- <FileUploader
             (fileAdded)="onFileAdded($event)"
           ></FileUploader> -->
-          <FileUploader 
-            style="--dropzone-min-height: 80px; --dropzone-max-height: 100px;"
-            (fileAdded)="onFileAdded($event)"
-          />
+          <FileUploader style="--dropzone-min-height: 80px; --dropzone-max-height: 100px;"
+            (fileAdded)="onFileAdded($event)" />
         </div>
       </div>
 
