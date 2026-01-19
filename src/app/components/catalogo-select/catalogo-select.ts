@@ -8,6 +8,7 @@ import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { DialogModule } from 'primeng/dialog';
 import { TooltipModule } from 'primeng/tooltip';
+import { HelpTooltip } from '@app/components/help-tooltip';
 import { Catalogo } from '@core/interfaces/catalogo';
 import { CatalogoService } from '@core/services/catalogo';
 import { getDescripcionByTipoCatalogo } from '@/app/constants/catalogo-config';
@@ -37,6 +38,8 @@ import { finalize } from 'rxjs';
     ToastModule,
     DialogModule,
     TooltipModule
+    ,
+    HelpTooltip
   ],
   providers: [
     {

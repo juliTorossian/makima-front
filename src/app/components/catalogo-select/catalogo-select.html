@@ -42,12 +42,7 @@
       </p-select>
     </div>
     @if (descripcion) {
-      <i 
-        class="pi pi-question-circle text-muted" 
-        style="font-size: 1rem; cursor: help;"
-        [pTooltip]="descripcion"
-        tooltipPosition="top"
-      ></i>
+      <app-help-tooltip [text]="descripcion" position="top" size="1rem" iconClass="pi pi-question-circle text-muted"></app-help-tooltip>
     }
   </div>
 </div>

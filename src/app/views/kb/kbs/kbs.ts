@@ -233,6 +233,7 @@ export class Kbs extends TrabajarCon<kb> {
   }
 
   getDeploysInactivos(kb: kb): number {
+    console.log(kb.deploys);
     return kb.deploys?.filter(d => !d.activo)?.length || 0;
   }
 

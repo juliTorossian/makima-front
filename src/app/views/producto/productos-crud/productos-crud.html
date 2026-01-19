@@ -49,17 +49,17 @@
     </div>
 
     <div class="col-md-2">
-      <label for="activo" class="form-label">Activo</label>
-      <div class="mb-2">
-        <input id="activo" type="checkbox" formControlName="activo" class="btn-check" />
-        <label class="btn btn-outline-primary" for="activo">
-          @if (get('activo')?.value){
-          SI
-          } @else {
-          NO
-          }
-        </label>
-      </div>
+        <label for="activo" class="form-label">Activo</label>
+        <div class="mb-2">
+          <input id="activo" type="checkbox" formControlName="activo" class="btn-check" />
+          <label class="btn btn-outline-primary" for="activo">
+            @if (get('activo')?.value){
+            ACTIVO
+            } @else {
+            DESACTIVO
+            }
+          </label>
+        </div>
     </div>
 
     <div class="col-12 mb-5">

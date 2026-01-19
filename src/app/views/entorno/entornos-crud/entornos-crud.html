@@ -33,15 +33,16 @@
     </div>
 
     <div class="col-md-4">
-        <div class="form-check form-switch">
-            <input
-                id="activo"
-                type="checkbox"
-                formControlName="activo"
-                class="form-check-input"
-                role="switch"
-            >
-            <label class="form-check-label" for="activo">Activo</label>
+        <label for="activo" class="form-label">Activo</label>
+        <div class="mb-2">
+          <input id="activo" type="checkbox" formControlName="activo" class="btn-check" />
+          <label class="btn btn-outline-primary" for="activo">
+            @if (get('activo')?.value){
+            ACTIVO
+            } @else {
+            DESACTIVO
+            }
+          </label>
         </div>
     </div>
 

@@ -82,6 +82,7 @@ export class ModalSel implements OnInit{
         // tap((res: any) => console.log('getByRol', res))
       ).subscribe({
         next: (res: any) => {
+          // console.log(res)
           this.usuarios = res || [];
           // si no hay resultados para el rol, cargar todos
           if (!this.usuarios.length) {

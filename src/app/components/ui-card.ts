@@ -1,10 +1,11 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core'
 import { NgIcon } from '@ng-icons/core'
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap'
+import { HelpTooltip } from '@app/components/help-tooltip';
 
 @Component({
   selector: 'app-ui-card',
-  imports: [NgIcon, NgbCollapse],
+  imports: [NgIcon, NgbCollapse, HelpTooltip],
   template: `
     @if (isVisible) {
       <div
@@ -17,9 +18,19 @@ import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap'
           [class]="isCollapsed ? 'border-0' : ''"
         >
           <div class="d-flex w-100 justify-content-between align-items-center">
-            <h5 class="card-title mb-0">
-              {{ title }}
-              <ng-content select="[badge-text]"></ng-content>
+            <h5 class="card-title mb-0 d-flex align-items-center">
+              @if (titleIcon && titleIconPosition === 'left') {
+                <ng-icon [name]="titleIcon" class="me-2" />
+              }
+              <span class="flex-grow-1">{{ title }} <ng-content select="[badge-text]"></ng-content></span>
+              @if (helperText) {
+                <app-help-tooltip [text]="helperText" position="top" size="1rem" iconClass="pi pi-question-circle text-muted ms-2"></app-help-tooltip>
+              } @else {
+                <ng-content select="[helper-text]"></ng-content>
+              }
+              @if (titleIcon && titleIconPosition === 'right') {
+                <ng-icon [name]="titleIcon" class="ms-2" />
+              }
             </h5>
             <div class="d-flex align-items-center gap-2">
               <ng-content select="[card-actions]"></ng-content>
@@ -75,7 +86,10 @@ import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap'
 })
 export class UiCard implements OnChanges {
   @Input() withTitle: boolean = true;
+  @Input() titleIcon?: string
+  @Input() titleIconPosition: 'left' | 'right' = 'left'
   @Input() title!: string
+  @Input() helperText?: string
   @Input() isTogglable?: boolean
   @Input() isReloadable?: boolean
   @Input() isCloseable?: boolean

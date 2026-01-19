@@ -64,7 +64,14 @@
                                 <td><span class="badge " style="min-width: 40%;" [ngClass]="tipoEvento.activo ? 'text-bg-success' : 'text-bg-danger'">{{ tipoEvento.activo | booleanLabel }}</span></td>
                                 <td><span class="badge " style="min-width: 40%;" [ngClass]="tipoEvento.propio ? 'text-bg-success' : 'text-bg-danger'">{{ tipoEvento.propio | booleanLabel:'si-no' }}</span></td>
                                 <td><span class="badge " style="min-width: 40%;" [ngClass]="tipoEvento.facturable ? 'text-bg-success' : 'text-bg-danger'">{{ tipoEvento.facturable | booleanLabel:'si-no' }}</span></td>
-                                <td><input type="color" name="color" value="{{ tipoEvento.color }}" disabled></td>
+                                <!-- <td><input type="color" name="color" value="{{ tipoEvento.color }}" disabled></td> -->
+                                <td>
+                                    <app-badge-click
+                                        [backgroundColor]="tipoEvento.color"
+                                        width="2.5rem"
+                                        height="inherit"
+                                    ></app-badge-click>
+                                </td>
                                 <td class="d-flex justify-content-end">
                                     @if (can(PermisoAccion.MODIFICAR)) {
                                         <button class="btn btn-ghost-info" (click)="mostrarModalPrioridadReglas(tipoEvento)"><ng-icon name="lucidePencilRuler"/></button>

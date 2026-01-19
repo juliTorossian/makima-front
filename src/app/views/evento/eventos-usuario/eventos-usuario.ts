@@ -187,7 +187,7 @@ export class EventosUsuario extends TrabajarCon<Evento> {
 
     this.eventoService.getAllCompleteByUsuario(this.usuarioActivo?.id ?? '', params).subscribe({
       next: (res) => {
-        console.log(res);
+        // console.log(res);
         setTimeout(() => {
           this.eventos = res.map(e => ({
             ...e,

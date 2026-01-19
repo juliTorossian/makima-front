@@ -23,6 +23,7 @@ import { PrioridadRegla } from '@core/interfaces/prioridad-reglas';
 import { ControlTrabajarCon } from '@app/components/trabajar-con/components/control-trabajar-con';
 import { getTimestamp } from '@/app/utils/time-utils';
 import { PermisoAccion } from '@/app/types/permisos';
+import { BadgeClickComponent } from "@app/components/badge-click";
 
 @Component({
   selector: 'app-tipo-evento',
@@ -36,6 +37,7 @@ import { PermisoAccion } from '@/app/types/permisos';
     BooleanLabelPipe,
     CommonModule,
     ControlTrabajarCon,
+    BadgeClickComponent
 ],
   providers: [
     DialogService,

@@ -9,8 +9,17 @@
 @import "@milkdown/crepe/theme/common/style.css";
 // @import "@milkdown/crepe/theme/frame.css";
 
-// Los temas nord.css y nord-dark.css se cargan dinámicamente desde el componente
-// para soportar cambio de tema en tiempo real
+// var(--ins-card-bg)
+:root {
+  /* Asegura que exista --ins-card-bg; usa --ins-secondary-bg si no está definida por el tema */
+  --ins-card-bg: var(--ins-card-bg, var(--ins-secondary-bg));
+  --p-toolbar-background: var(--ins-card-bg);
+  --p-datatable-header-background: var(--ins-card-bg);
+  --p-paginator-background: var(--ins-card-bg);
+
+  --p-datatable-header-cell-background: var(--ins-card-bg);
+  --p-datatable-row-background: var(--ins-card-bg);
+}
 
 // Forzar que el slash-menu y otros popovers se rendericen en z-index alto
 .milkdown-slash-menu,

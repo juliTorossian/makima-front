@@ -51,7 +51,11 @@
                         </a>
                         <ng-template ngbNavContent>
                             @if (usuario) {
-                                <app-tab-perfil [usuarioId]="usuario.id!" [eventosActuales]="eventosActuales" />
+                                <app-tab-perfil
+                                    [usuarioId]="usuario.id!"
+                                    [eventosActuales]="eventosActuales"
+                                    [rolesUsuario]="rolesUsuario"
+                                />
                             }
                         </ng-template>
                     </li>

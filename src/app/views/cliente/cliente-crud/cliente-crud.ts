@@ -58,7 +58,7 @@ export class ClienteCrud extends CrudFormModal<Cliente> {
       sigla: new FormControl('', [Validators.required]),
       nombre: new FormControl('', [Validators.required]),
       activo: new FormControl(true),
-      proyectoIds: new FormControl([], [Validators.required]),
+      proyectoIds: new FormControl([]),
     });
   }
 

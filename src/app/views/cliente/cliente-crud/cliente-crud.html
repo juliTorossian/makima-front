@@ -67,9 +67,7 @@
           </div>
         </ng-template>
       </p-multiSelect>
-      @if (get('proyectoIds')?.invalid && get('proyectoIds')?.touched) {
-        <div class="invalid-feedback d-block">Debe seleccionar al menos un proyecto.</div>
-      }
+      <!-- El campo proyectos ya no es obligatorio -->
     </div>
 
     <div class="col-md-4">

@@ -12,6 +12,7 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { NgIcon } from '@ng-icons/core';
 import { TableModule } from 'primeng/table';
 import { UiCard } from '@app/components/ui-card';
+import { BadgeClickComponent } from '@app/components/badge-click';
 import { ShortcutDirective } from '@core/directive/shortcut';
 import { finalize } from 'rxjs';
 import { BooleanLabelPipe } from '@core/pipes/boolean-label.pipe';
@@ -21,17 +22,18 @@ import { FiltroActivo } from '@/app/constants/filtros_activo';
 import { ControlTrabajarCon } from '@app/components/trabajar-con/components/control-trabajar-con';
 import { getTimestamp } from '@/app/utils/time-utils';
 import { PermisoAccion } from '@/app/types/permisos';
+import { getColor } from '@/app/utils/color-utils';
 
 @Component({
   selector: 'app-roles',
   imports: [
     UiCard,
+    BadgeClickComponent,
     TableModule,
     NgIcon,
     ToolbarModule,
     ConfirmDialogModule,
     ToastModule,
-    BooleanLabelPipe,
     CommonModule,
     FiltroRadioGroupComponent,
     ControlTrabajarCon,
@@ -50,6 +52,7 @@ export class Roles extends TrabajarCon<Rol> {
   ref!: DynamicDialogRef | null;
 
   roles!:Rol[];
+  primaryColor: string = getColor('primary');
 
  constructor() {
     super(

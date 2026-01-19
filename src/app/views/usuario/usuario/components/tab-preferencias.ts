@@ -1,50 +1,131 @@
 import { ChangeDetectorRef, Component, inject, Input, OnInit } from "@angular/core";
 import { Preferencia, UsuarioCompleto } from "@core/interfaces/usuario";
 import { NgIcon } from "@ng-icons/core";
-import { USUARIO_PREFERENCIAS_GRUPOS, getDescripcionUsuarioPref } from "@/app/constants/preferencias_usuario";
+import { NotificationGroup, PREFERENCIAS_GENERALES, PREFERENCIAS_NOTIFICACIONES, PREFERENCIAS_OTROS, PREFERENCIAS_RECORDATORIOS, PreferenceItem, USUARIO_PREFERENCIAS_GRUPOS, getDescripcionUsuarioPref } from "@/app/constants/preferencias_usuario";
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { UsuarioService } from "@core/services/usuario";
+import { UiCard } from "@app/components/ui-card";
 
 @Component({
     selector: 'app-tab-preferencias',
     imports: [
-        NgIcon,
-        CommonModule
+        CommonModule,
+        UiCard,
+        FormsModule
     ],
     template: `
-        @for(grupo of grupos; track grupo) {
-            <div class="row">
-                <div class="col-12">
-                    <h4><ng-icon name="{{grupo.icono}}"/> {{ grupo.titulo }}</h4>
+
+        <app-ui-card title="Notificaciones" titleIcon="lucideBell" helperText="Notificación vía Aplicación">
+            <div card-body class="container">
+                <div class="row">
+                    @for (pref_n of pref_notificaciones; track pref_n.agrupacion) {
+                        <div class="col-md card m-2 pt-1">
+                            <h5 class="fw-bold ms-1">{{ pref_n.agrupacion }}</h5>
+                            @for (noti of pref_n.items; track noti.clave) {
+                                
+                                <div class="form-check form-check-info form-switch mb-2 ms-3">
+                                    <input
+                                    type="checkbox"
+                                    class="form-check-input"
+                                    id="switchInfo"
+                                    [checked]="isPreferenciaActiva(noti)"
+                                    (change)="togglePreferencia(noti, $event)"
+                                    />
+                                    <label class="form-check-label" for="switchInfo">
+                                        &nbsp;&nbsp;{{ noti.descripcion }}
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                    }
                 </div>
             </div>
-            @for(pref of grupo.pref; track pref) {
-                <div class="row">
-                    <div class="form-check form-check-info form-switch mb-2">
-                        <input
-                            type="checkbox"
-                            class="form-check-input"
-                            id="switchInfo"
-                            [checked]="isPreferenciaActiva(pref)"
-                            (change)="togglePreferencia(pref, $event)"
-                        />
-                        <label class="form-check-label" for="switchInfo">
-                            &nbsp;&nbsp;{{ pref.descripcion }}
-                        </label>
-                    </div>
-                    <!-- <div class="col-8">
-                        <label>
-                            {{ pref.descripcion }}
-                        </label>
-                    </div>
-                    <div class="col-4">
-                        <input type="checkbox"
-                            [checked]="isPreferenciaActiva(pref)"
-                            (change)="togglePreferencia(pref, $event)" />
-                    </div> -->
-                </div>
-            }
-        }
+        </app-ui-card>
+
+        <app-ui-card title="Generales" titleIcon="lucideSettings">
+            <div card-body class="d-flex align-items-center flex-wrap">
+                @for (pref_g of pref_general; track pref_g.clave) {
+                    @switch (pref_g.tipo) {
+                        @case ('select') {
+                            <div class="me-2">
+                                <label for="select{{pref_g.clave}}">{{ pref_g.label }}</label>
+                                <select
+                                    id="select{{pref_g.clave}}"
+                                    class="form-select"
+                                    [ngModel]="getPreferenciaValor(pref_g)"
+                                    (ngModelChange)="setPreferenciaValor(pref_g, $event)"
+                                >
+                                    @for (opt of pref_g.opciones; track opt.valor) {
+                                        <option value="{{ opt.valor }}">{{ opt.label }}</option>
+                                    }
+                                </select>
+                            </div>
+                        }
+                        @case ('toggle') {
+                            <div class="form-check form-check-info form-switch mb-2 me-2">
+                                <label class="form-check-label" for="toggle{{pref_g.clave}}">
+                                    &nbsp;&nbsp;{{ pref_g.label }}
+                                </label>
+                                <input
+                                type="checkbox"
+                                class="form-check-input"
+                                id="toggle{{pref_g.clave}}"
+                                [checked]="isPreferenciaActiva(pref_g)"
+                                (change)="togglePreferencia(pref_g, $event)"
+                                />
+                            </div>
+                        }
+                    }
+                }
+            </div>
+        </app-ui-card>
+
+        <app-ui-card title="Recordatorios" titleIcon="lucideMessageCircleWarning" helperText="Recordatorios vía email.">
+            <div card-body class="">
+                @for (pref_r of pref_recordatorios; track pref_r.clave) {
+                    @switch (pref_r.tipo) {
+                        @case ('toggle') {
+                            <div class="form-check form-check-info form-switch mb-2">
+                                <input
+                                type="checkbox"
+                                class="form-check-input"
+                                id="switchInfo"
+                                [checked]="isPreferenciaActiva(pref_r)"
+                                (change)="togglePreferencia(pref_r, $event)"
+                                />
+                                <label class="form-check-label" for="switchInfo">
+                                    &nbsp;&nbsp;{{ pref_r.descripcion }}
+                                </label>
+                            </div>
+                        }
+                    }
+                }
+            </div>
+        </app-ui-card>
+
+        <app-ui-card title="Otros" titleIcon="lucideShell">
+            <div card-body class="">
+                @for (pref_o of pref_otros; track pref_o.clave) {
+                    @switch (pref_o.tipo) {
+                        @case ('toggle') {
+                            <div class="form-check form-check-info form-switch mb-2">
+                                <input
+                                type="checkbox"
+                                class="form-check-input"
+                                id="switchInfo"
+                                [checked]="isPreferenciaActiva(pref_o)"
+                                (change)="togglePreferencia(pref_o, $event)"
+                                />
+                                <label class="form-check-label" for="switchInfo">
+                                    &nbsp;&nbsp;{{ pref_o.descripcion }}
+                                </label>
+                            </div>
+                        }
+                    }
+                }
+            </div>
+        </app-ui-card>
     `,
 })
 export class TabPreferencias implements OnInit {
@@ -53,6 +134,10 @@ export class TabPreferencias implements OnInit {
     @Input() usuario!: UsuarioCompleto;
 
     grupos:any = USUARIO_PREFERENCIAS_GRUPOS;
+    pref_notificaciones:NotificationGroup[] = PREFERENCIAS_NOTIFICACIONES;
+    pref_general:PreferenceItem[] = PREFERENCIAS_GENERALES;
+    pref_otros:PreferenceItem[] = PREFERENCIAS_OTROS;
+    pref_recordatorios:PreferenceItem[] = PREFERENCIAS_RECORDATORIOS;
 
     ngOnInit(): void {
         // console.log(this.usuario);
@@ -83,6 +168,31 @@ export class TabPreferencias implements OnInit {
                 console.error('Error al actualizar preferencias:', err);
             }
         });
+    }
+
+    setPreferenciaValor(pref: any, valor: string) {
+        if (!this.usuario) return;
+        if (!this.usuario.preferencias) this.usuario.preferencias = [];
+        const existingPrefIndex = this.usuario.preferencias.findIndex((p: any) => p.clave === pref.clave);
+        if (existingPrefIndex !== -1) {
+            this.usuario.preferencias[existingPrefIndex].descripcion = valor;
+        } else {
+            this.usuario.preferencias.push({ usuarioId: this.usuario.id!, clave: pref.clave, descripcion: valor });
+        }
+        this.usuarioService.setPreferencias(this.usuario.id!, this.usuario.preferencias).subscribe({
+            next: (res) => {
+                this.cdr.detectChanges();
+            },
+            error: (err) => {
+                console.error('Error al actualizar preferencias:', err);
+            }
+        });
+    }
+
+    getPreferenciaValor(pref: any): string {
+        if (!this.usuario || !this.usuario.preferencias) return '';
+        const foundPref = this.usuario.preferencias.find((p: any) => p.clave === pref.clave);
+        return foundPref ? foundPref.descripcion : '';
     }
 
 }

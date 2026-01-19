@@ -16,4 +16,9 @@ export const USUARIOS_ROUTES: Routes = [
     component: Usuario,
     data: { title: 'Perfil de Usuario', isPublic: true },
   },
+  {
+    path: 'usuario/perfil',
+    component: Usuario,
+    data: { title: 'Mi Perfil', isPublic: true },
+  },
 ]

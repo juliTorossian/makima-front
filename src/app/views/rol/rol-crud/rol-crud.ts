@@ -9,6 +9,7 @@ import { finalize } from 'rxjs';
 import { TableModule } from 'primeng/table';
 import { LoadingSpinnerComponent } from '@app/components/loading-spinner/loading-spinner';
 import { ContextMenuModule } from 'primeng/contextmenu';
+import { getRandomColor } from '@/app/utils/color-utils';
 
 @Component({
   selector: 'app-rol-crud',
@@ -106,7 +107,7 @@ export class RolCrud extends CrudFormModal<Rol> implements OnInit {
     return new FormGroup({
       codigo: new FormControl('', [Validators.required]),
       descripcion: new FormControl('', [Validators.required]),
-      color: new FormControl('#AF342A'),
+      color: new FormControl(getRandomColor()),
       esAdmin: new FormControl(false),
       permisos: new FormArray([])
     });
