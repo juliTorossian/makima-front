@@ -1,0 +1,45 @@
+@if (loading) {
+    <app-loading-spinner></app-loading-spinner>
+}
+
+<div class="card">
+    <p-table
+        [value]="paginasLibres"
+        [(selection)]="paginasSeleccionadas"
+        [tableStyle]="{ 'min-width': '50rem' }"
+        [size]="'small'"
+        
+    >
+        <ng-template #header>
+            <tr>
+                <th style="width: 4rem">
+                    <p-tableHeaderCheckbox />
+                </th>
+                <th hidden>Id</th>
+                <th>Titulo</th>
+                <th>Proveedor</th>
+                <th>Link</th>
+            </tr>
+        </ng-template>
+        <ng-template #body let-pagina>
+            <tr>
+                <td>
+                    <p-tableCheckbox [value]="pagina" />
+                </td>
+                <td hidden>{{ pagina.pageId }}</td>
+                <td>{{ pagina.title }}</td>
+                <td>Notion</td>
+                <td><a class="btn btn-ghost-primary" placement="top" ngbTooltip="Ver" [href]="pagina.url" target="_blank"> <ng-icon name="lucideSquareArrowOutUpRight" /> </a></td>
+            </tr>
+        </ng-template>
+        <ng-template #emptymessage>
+            <tr>
+                <td colspan="5" class="text-center">No existen paginas sin asociar.</td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+    <button type="button" class="btn btn-primary flex-fill mt-3 text-center" (click)="seleccionar()">
+        Asociar páginas seleccionadas
+    </button>
+</div>

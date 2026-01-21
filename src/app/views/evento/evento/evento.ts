@@ -3,7 +3,7 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectorRef, Component, inject, Input, OnInit } from '@angular/core';
 import { UiCard } from '@app/components/ui-card';
 import { ShortcutDirective } from '@core/directive/shortcut';
-import { Evento_requisito, Evento_requisito_completo, EventoCompleto, formatEventoNumero, VidaEvento } from '@core/interfaces/evento';
+import { Evento_requisito, Evento_requisito_completo, EventoCompleto, EventoDocumentacion, formatEventoNumero, VidaEvento } from '@core/interfaces/evento';
 import { EventoService } from '@core/services/evento';
 import { NgIcon } from '@ng-icons/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -20,7 +20,7 @@ import { FileUploader } from '@app/components/file-uploader/file-uploader';
 import { modalConfig } from '@/app/types/modals';
 import { UserStorageService, UsuarioLogeado } from '@core/services/user-storage';
 import { FormsModule } from '@angular/forms';
-import { finalize } from 'rxjs';
+import { finalize, firstValueFrom } from 'rxjs';
 import { LoadingService } from '@core/services/loading.service';
 import { LoadingSpinnerComponent } from '@app/components/index';
 import { Tipo_requisito } from '@core/interfaces/etapa';
@@ -31,6 +31,9 @@ import { PermisoClave } from '@core/interfaces/rol';
 import { buildPermiso } from '@/app/utils/permiso-utils';
 import { getEstadoDescCorto } from '@/app/constants/evento_estados';
 import { PadZeroPipe } from '@core/pipes/pad-zero.pipe';
+import { ItemDocumentacion } from "./components/item-documentacion/item-documentacion";
+import { PaginasLibresModal } from './components/paginas-libres-modal/paginas-libres-modal';
+import { ParametroService } from '@core/services/parametros';
 
 
 @Component({
@@ -48,7 +51,8 @@ import { PadZeroPipe } from '@core/pipes/pad-zero.pipe';
     NgIcon,
     FormsModule,
     LoadingSpinnerComponent,
-  ],
+    ItemDocumentacion
+],
   providers: [
     DialogService,
     MessageService,
@@ -69,6 +73,7 @@ export class Evento implements OnInit {
   private rutActiva = inject(ActivatedRoute);
   private cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
   private userStorageService = inject(UserStorageService);
+  private parametroService = inject(ParametroService);
 
   readonly PermisoAccion = PermisoAccion;
   getEstadoDescCorto = getEstadoDescCorto;
@@ -88,6 +93,10 @@ export class Evento implements OnInit {
 
   adjuntosReloading = false;
   adjuntos!: any[];
+
+  documentacionReloading = false;
+  documentacion!: EventoDocumentacion[];
+  documentacionActiva: boolean = false;
 
   requisitosReloading = false;
   requisitos!: Evento_requisito_completo[];
@@ -175,7 +184,7 @@ export class Evento implements OnInit {
 
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     if (this.eventoIdParam) {
       this.eventoId = this.eventoIdParam;
     } else {
@@ -183,8 +192,10 @@ export class Evento implements OnInit {
     }
     // console.log(this.eventoId)
 
+    this.documentacionActiva = await this.getDocumentacionActiva();
     this.getEvento();
     this.onReloadAdjuntos();
+    this.onReloadDocumentacion();
     this.onReloadRequisitos();
     this.getActividadEvento();
   }
@@ -197,6 +208,7 @@ export class Evento implements OnInit {
     ).subscribe(
       {
         next: (res: any) => {
+          console.log(res);
           this.evento = {
             ...res,
             evento: formatEventoNumero(res.tipo.codigo, res.numero)
@@ -220,7 +232,9 @@ export class Evento implements OnInit {
   onToggleObservador() {
     if (!this.usuarioActivo) return;
     this.togglingObservador = true;
-    this.eventoService.toggleObservador(this.eventoId, this.usuarioActivo.id).pipe(finalize(() => this.togglingObservador = false)).subscribe({
+    this.eventoService.toggleObservador(this.eventoId, this.usuarioActivo.id)
+    .pipe(finalize(() => {this.togglingObservador = false; this.cdr.detectChanges();}))
+    .subscribe({
       next: (res: any) => {
         // alternar estado local
         this.esObservador = !this.esObservador;
@@ -248,6 +262,29 @@ export class Evento implements OnInit {
         },
         error: (err: any) => {
           console.error('Error fetching adjuntos:', err);
+        }
+      }
+    );
+  }
+
+  onReloadDocumentacion() {
+    this.documentacionReloading = true;
+
+    this.eventoService.getDocumentacion(this.eventoId)
+    .pipe(finalize(() => { this.documentacionReloading = false; this.cdr.detectChanges(); }))
+    .subscribe(
+      {
+        next: (res: any) => {
+          // console.log(res)
+          this.documentacion = res.sort((a: EventoDocumentacion, b: EventoDocumentacion) => {
+            // Ordenar primero por esPrincipal, luego por fecha descendente
+            if (a.esPrincipal && !b.esPrincipal) return -1;
+            if (!a.esPrincipal && b.esPrincipal) return 1;
+            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+          });
+        },
+        error: (err: any) => {
+          console.error('Error fetching docs:', err);
         }
       }
     );
@@ -281,7 +318,7 @@ export class Evento implements OnInit {
     this.eventoService.getActividad(this.eventoId).subscribe(
       {
         next: (res: any) => {
-          console.log(res)
+          // console.log(res)
           this.vidaEvento = res;
           this.cdr.detectChanges();
 
@@ -331,6 +368,39 @@ export class Evento implements OnInit {
     });
   }
 
+  onEliminarDocumento(documento: any) {
+    console.log('Eliminar documento:', documento);
+    this.confirmationService.confirm({
+      message: `¿Seguro que querés desasociar ${documento.title}?`,
+      header: 'Confirmar desasociación',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.eventoService.desasociarPaginaNotion(documento.id).subscribe({
+          next: (res) => {
+            console.log('Documento desasociado:', res);
+            this.onReloadDocumentacion();
+          },
+          error: (err) => {
+            console.error('Error al desasociar documento:', err);
+          }
+        });
+      }
+    });
+  }
+  onTogglePrincipalDocumento(documento: any) {
+    this.eventoService.togglePaginaPrincipal(documento.id)
+    .pipe(finalize(() => { this.cdr.detectChanges(); }))
+    .subscribe({
+      next: (res) => {
+        console.log('Documento desasociado:', res);
+        this.onReloadDocumentacion();
+      },
+      error: (err) => {
+        console.error('Error al desasociar documento:', err);
+      }
+    });
+  }
+
   onUploadAdjunto() {
     this.ref = this.dialogService.open(FileUploader, {
       ...modalConfig,
@@ -348,10 +418,27 @@ export class Evento implements OnInit {
     });
   }
 
+  onLinkDocumentacion() {
+    // console.error('No desarrollado aún: subir documentación');
+    this.ref = this.dialogService.open(PaginasLibresModal, {
+      ...modalConfig,
+      header: "Adjuntar Documentación",
+      data: {
+        eventoId: this.eventoId,
+      }
+    });
+
+    if (!this.ref) return;
+
+    this.ref.onClose.subscribe((result: any) => {
+      this.onReloadDocumentacion();
+      if (!result) return;
+    });
+  }
+
   onEnviarComentario() {
     if (!this.nuevoComentario.trim()) return;
 
-    console.log('Comentario enviado:', this.nuevoComentario);
     const formData = new FormData();
     formData.append('eventoId', this.eventoId);
     formData.append('usuarioId', this.usuarioActivo?.id || '');
@@ -359,7 +446,6 @@ export class Evento implements OnInit {
     formData.append('comentario', JSON.stringify({ "texto": this.nuevoComentario }));
     this.eventoService.agregarAdicional(this.eventoId, formData).subscribe({
       next: (res) => {
-        console.log('Comentario guardado:', res);
         this.getActividadEvento();
       },
       error: (err) => {
@@ -383,6 +469,10 @@ export class Evento implements OnInit {
       this.evento.etapaActualData.id < req.etapa.id ||
       this.evento.usuarioActual.id !== this.usuarioActivo?.id
     );
+  }
+
+  async getDocumentacionActiva(): Promise<boolean> {
+    return await firstValueFrom(this.parametroService.getParametroActivo('NOTION_ENABLED'));
   }
 
 }

@@ -101,6 +101,31 @@
                                 </div>
                             </app-ui-card>
 
+                            @if (documentacionActiva) {
+                                <app-ui-card title="Documentacion" [isTogglable]="true" [initialCollapsed]="true"
+                                    [isReloadable]="true" [reloading]="documentacionReloading" (reloadCard)="onReloadDocumentacion()">
+    
+                                    <button card-actions class="btn btn-icon btn-outline-info" (click)="onLinkDocumentacion()"
+                                        [disabled]="documentacionReloading">
+                                        <ng-icon name="lucideLink" />
+                                    </button>
+    
+                                    <div card-body>
+                                        @if (documentacion && documentacion.length > 0) {
+                                            @for (documento of documentacion; track $index) {
+                                                <app-item-documentacion [documento]="documento"
+                                                    [puedeEliminar]="can(PermisoAccion.DOC_ELIMINAR)"
+                                                    (eliminar)="onEliminarDocumento($event)"
+                                                    (togglePrincipal)="onTogglePrincipalDocumento($event)"
+                                                ></app-item-documentacion>
+                                            }
+                                        } @else {
+                                            <p>No hay documentacion asociada.</p>
+                                        }
+                                    </div>
+                                </app-ui-card>
+                            }
+
                             <app-ui-card title="Adjuntos" [isTogglable]="true" [initialCollapsed]="true"
                                 [isReloadable]="true" [reloading]="adjuntosReloading" (reloadCard)="onReloadAdjuntos()">
                                 <button card-actions class="btn btn-icon btn-outline-info" (click)="onUploadAdjunto()"

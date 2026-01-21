@@ -59,6 +59,7 @@ export interface EventoCompleto extends Evento {
   eventosAdicion: EventoAdicion[];
   requisitos: Evento_requisito[];
   observadores: UsuarioEvento[];
+  documentacion: EventoDocumentacion[];
 
   etapaActualData: EventoEtapa;
   etapaSiguiente: EventoEtapa | null;
@@ -67,6 +68,20 @@ export interface EventoCompleto extends Evento {
   registroTiempo?: RegistroHora;
 }
 
+export interface EventoDocumentacion {
+  id: string;
+  eventoId: string;
+  proveedor: string;
+  externalId: string;
+  externalUrl: string;
+  titulo: string;
+  tipo?: string;
+  esPrincipal: boolean;
+  estado?: string;
+  metadata?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 /** Cliente enriquecido para EventoCompleto */
 export interface EventoCliente {
@@ -382,4 +397,11 @@ export const eventoFromEventoCompleto = (evento: EventoCompleto): Evento => {
     // deletedAt: evento.deletedAt,
     comentario: evento.comentario
   }
+}
+
+export interface NotionPageResult {
+  pageId: string;
+  url: string;
+  properties?: Record<string, any>;
+  title?: string;
 }

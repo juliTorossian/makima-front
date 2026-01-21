@@ -2,8 +2,8 @@ import { FiltroActivo } from '@/app/constants/filtros_activo';
 import { environment } from '@/environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Evento, Evento_requisito, Evento_requisito_completo, EventoCompleto, VidaEvento } from '@core/interfaces/evento';
-import { Observable } from 'rxjs';
+import { Evento, Evento_requisito, Evento_requisito_completo, EventoCompleto, EventoDocumentacion, NotionPageResult, VidaEvento } from '@core/interfaces/evento';
+import { Observable, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -62,6 +62,10 @@ export class EventoService {
 
   getAdjuntos(eventoId: string): Observable<any[]> {
     return this.http.get<any[]>(`${this.URL_COMPLETA}/evento/${eventoId}/adjuntos`);
+  }
+
+  getDocumentacion(eventoId: string): Observable<EventoDocumentacion[]> {
+    return this.http.get<EventoDocumentacion[]>(`${this.URL_COMPLETA}/eventos/documentacion/evento/${eventoId}`);
   }
 
   getRequisitos(eventoId: string): Observable<Evento_requisito_completo[]> {
@@ -140,6 +144,21 @@ export class EventoService {
 
   removeEventoRequisito(eventoId: string, requisitoId: string): Observable<any> {
     return this.http.delete<any>(`${this.URL_COMPLETA}/evento/requisito/${eventoId}/${requisitoId}`);
+  }
+
+  // documentacion
+
+  getPaginasLibres(): Observable<NotionPageResult[]> {
+    return this.http.get<NotionPageResult[]>(`${this.URL_COMPLETA}/eventos/documentacion/disponibles/notion`);
+  }
+  asociarPaginaNotion(eventoId: string, pages:NotionPageResult[]): Observable<EventoDocumentacion> {
+    return this.http.post<EventoDocumentacion>(`${this.URL_COMPLETA}/eventos/documentacion/asociar/notion/${eventoId}`, pages );
+  }
+  desasociarPaginaNotion(docuId: string): Observable<EventoDocumentacion> {
+    return this.http.delete<EventoDocumentacion>(`${this.URL_COMPLETA}/eventos/documentacion/desasociar/${docuId}` );
+  }
+  togglePaginaPrincipal(docuId: string): Observable<EventoDocumentacion> {
+    return this.http.patch<EventoDocumentacion>(`${this.URL_COMPLETA}/eventos/documentacion/toggle-principal/${docuId}`, {} );
   }
 
 }

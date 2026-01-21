@@ -3,7 +3,7 @@
     <ng-icon [name]="getIcon()" class="text-secondary fs-4" size="24"></ng-icon>
   </span>
   <div class="flex-grow-1 min-width-0">
-    <span class="fw-medium text-truncate text-decoration-underline text-dark" style="cursor:pointer;" (click)="abrirAdjunto()">{{adjunto.nameFile}}</span>
+    <span class="fw-medium text-truncate text-decoration-underline text-dark" style="cursor:pointer;" (click)="abrirAdjunto()">{{adjunto.archivo.name}}</span>
     <div class="small text-muted mt-1 d-flex gap-2">
       <span>{{getFecha()}}</span>
       <span>{{getTipo()}}</span>

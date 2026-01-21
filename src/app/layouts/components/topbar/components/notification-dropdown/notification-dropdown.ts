@@ -126,6 +126,7 @@ export class NotificationDropdown implements OnInit {
   }
 
   navigateToTarget(notificacion: Notificacion) {
+    console.log(notificacion)
     if (!notificacion.targetType || !notificacion.targetId) {
       return;
     }
