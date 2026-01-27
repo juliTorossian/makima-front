@@ -1,25 +1,49 @@
-import { environment } from "@/environments/environment";
-import { HttpClient } from "@angular/common/http";
-import { inject, Injectable } from "@angular/core";
-import { DashboardEventosPorCliente, DashboardEventosPorEtapa, DashboardEventosPorTipo } from "@core/interfaces/dashboard";
-import { Observable } from "rxjs";
+import { inject, Injectable } from '@angular/core'
+import { HttpClient } from '@angular/common/http'
+import { Observable } from 'rxjs'
+import { DashboardResponse, EventosPorEtapa, EventosPorTipo, TendenciaEventos } from '@core/interfaces/dashboard'
+import { environment } from '@/environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class DashboardService {
+  // private readonly baseUrl = '/api/dashboard'
   private http = inject(HttpClient);
-  URL_COMPLETA = environment.BASE_URL;
+  URL_COMPLETA = environment.BASE_URL + '/dashboard';
 
-  getEventosPorEtapa(): Observable<DashboardEventosPorEtapa> {
-    return this.http.get<DashboardEventosPorEtapa>(`${this.URL_COMPLETA}/dashboard/eventos-por-etapa`);
+  /**
+   * Dashboard completo (KPIs + gráficos)
+   */
+  getDashboard(): Observable<DashboardResponse> {
+    return this.http.get<DashboardResponse>(this.URL_COMPLETA)
   }
 
-  getEventosPorTipo(): Observable<DashboardEventosPorTipo> {
-    return this.http.get<DashboardEventosPorTipo>(`${this.URL_COMPLETA}/dashboard/eventos-por-tipo`);
+  /**
+   * Eventos agrupados por etapa
+   */
+  getEventosPorEtapa(): Observable<EventosPorEtapa[]> {
+    return this.http.get<EventosPorEtapa[]>(
+      `${this.URL_COMPLETA}/eventos-por-etapa`,
+    )
   }
 
-  getEventosPorCliente(): Observable<DashboardEventosPorCliente> {
-    return this.http.get<DashboardEventosPorCliente>(`${this.URL_COMPLETA}/dashboard/eventos-por-cliente`);
+
+  /**
+   * Eventos agrupados por tipo
+   */
+  getEventosPorTipo(): Observable<EventosPorTipo[]> {
+    return this.http.get<EventosPorTipo[]>(
+      `${this.URL_COMPLETA}/eventos-por-tipo`,
+    )
+  }
+
+  /**
+   * Tendencia creados vs cerrados
+   */
+  getTendenciaEventos(): Observable<TendenciaEventos[]> {
+    return this.http.get<TendenciaEventos[]>(
+      `${this.URL_COMPLETA}/tendencia-eventos`,
+    )
   }
 }

@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router'
-import { Dashboard } from './dashboard/dashboard'
 import { PermisoVerGuard } from '@core/guards/permiso-ver.guard'
 import { PermisoClave } from '@core/interfaces/rol'
+import { Dashboard } from './dashboard/dashboard'
 
 export const VIEWS_ROUTES: Routes = [
   {
@@ -89,6 +89,13 @@ export const VIEWS_ROUTES: Routes = [
     loadChildren: () =>
       import('./reporte/reporte.route').then((mod) => mod.REPORTES_ROUTES),
     data: { permisoClave: PermisoClave.REPORTE },
+    canActivate: [PermisoVerGuard]
+  },
+  {
+    path: '',
+    loadChildren: () =>
+      import('./parametro/parametro.route').then((mod) => mod.PARAMETROS_ROUTES),
+    data: { permisoClave: PermisoClave.SISTEMA },
     canActivate: [PermisoVerGuard]
   },
   {

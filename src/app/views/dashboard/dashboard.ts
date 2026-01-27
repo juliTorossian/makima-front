@@ -1,28 +1,22 @@
-import { ChangeDetectorRef, Component, inject, ChangeDetectionStrategy, OnInit } from '@angular/core'
-import { EventosPorEtapa } from './components/eventos-por-etapa'
-import { UiCard } from '@app/components/ui-card'
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core'
+import { DashboardKpis } from './components/dashboard-kpis'
 import { EventosPorCliente } from './components/eventos-por-cliente'
+import { TendenciaEventos } from './components/tendencia-eventos'
 import { EventosPorTipo } from './components/eventos-por-tipo'
+import { EventosPorEtapa } from './components/eventos-por-etapas'
+import { ActividadReciente } from './components/actividad-reciente'
 
 @Component({
   selector: 'app-dashboard',
+  standalone: true,
   imports: [
-    // PromptsUsage,
-    // ActiveUsers,
-    // ResponseAccuracy,
-    // TokenUsage,
-    // RequestStatistics,
-    // RecentSessions,
-    // ModelUsageSummary,
-    // ApiPerformanceMetrics,
-    EventosPorEtapa,
-    EventosPorCliente,
+    DashboardKpis,
+    TendenciaEventos,
     EventosPorTipo,
-    UiCard,
+    EventosPorEtapa,
+    ActividadReciente,
   ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './dashboard.html',
-  styles: ``,
 })
 export class Dashboard implements OnInit {
   private cdr = inject(ChangeDetectorRef);
@@ -34,18 +28,14 @@ export class Dashboard implements OnInit {
       this.reloadActividad();
     }, 500);
   }
+  actividadLoading = false
 
-  actividadLoading = false;
   reloadActividad() {
-    this.actividadLoading = true;
-    this.cdr.markForCheck();
-    this.cdr.detectChanges();
-
+    this.actividadLoading = true
     setTimeout(() => {
       this.actividadLoading = false;
       this.cdr.markForCheck();
       this.cdr.detectChanges();
-    }, 0);
+    }, 800)
   }
-
 }

@@ -140,6 +140,12 @@ export const menuItems: MenuItemType[] = [
   },
   { label: '', isTitle: true },
   {
+    label: 'Parametros Sistema',
+    icon: 'lucideSlidersHorizontal',
+    url: '/parametro/parametros',
+    permisoClave: PermisoClave.SISTEMA
+  },
+  {
     label: 'Reportes',
     icon: 'tablerReport',
     url: '/reporte/reportes',

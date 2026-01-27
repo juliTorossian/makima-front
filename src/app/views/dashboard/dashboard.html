@@ -1,45 +1,40 @@
 <div class="container-fluid">
 
+  <!-- KPIs -->
+  <div class="row mb-3">
+    <app-dashboard-kpis />
+  </div>
+
   <div class="row">
 
-    <div class="col-md-9">
+    <!-- Columna izquierda -->
+    <div class="col-xl-9">
 
       <div class="row">
-
-        <div class="row">
-          <div class="col-12">
-            <app-eventos-por-cliente />
-          </div>
+        <div class="col-xl-6">
+          <app-eventos-por-tipo />
         </div>
 
-        <div class="row">
-          <div class="col-6">
-            <app-eventos-por-etapa />
-          </div>
-
-          <div class="col-6">
-            <app-eventos-por-tipo />
-          </div>
+        <div class="col-xl-6">
+          <app-eventos-por-etapa />
         </div>
-
       </div>
-    </div>
 
-
-    <div class="col-md-3">
-
-      <div class="row">
-
-        <app-ui-card title="" [isReloadable]="true" [reloading]="actividadLoading" (reload)="reloadActividad()">
-          <div card-body>
-            <p>Contenido del card</p>
-
-          </div>
-        </app-ui-card>
-
+      <div class="row mb-3">
+        <div class="col-12">
+          <app-tendencia-eventos />
+        </div>
       </div>
 
     </div>
 
+    <!-- Columna derecha -->
+    <div class="col-xl-3">
+      <app-actividad-reciente
+        [loading]="actividadLoading"
+        (reload)="reloadActividad()"
+      />
+    </div>
 
   </div>
+</div>
