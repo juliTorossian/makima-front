@@ -31,10 +31,15 @@ export class TendenciaEventos implements OnInit {
 
   ngOnInit(): void {
     this.dashboardService.getDashboard().subscribe(res => {
-      this.labels = res.tendenciaEventos.map(e => e.periodo)
-      this.creados = res.tendenciaEventos.map(e => e.creados)
-      this.cerrados = res.tendenciaEventos.map(e => e.cerrados)
-      this.rechazados = res.tendenciaEventos.map(e => e.rechazados)
+      console.log(res.tendenciaEventos)
+
+      // Ordenar por periodo de más viejo a más nuevo
+      const sorted = res.tendenciaEventos.sort((a, b) => a.periodo.localeCompare(b.periodo))
+
+      this.labels = sorted.map(e => e.periodo)
+      this.creados = sorted.map(e => e.creados)
+      this.cerrados = sorted.map(e => e.cerrados)
+      this.rechazados = sorted.map(e => e.rechazados)
 
       this.cdr.detectChanges()
       setTimeout(() => this.chartComp?.refresh(), 60)
