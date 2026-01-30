@@ -9,6 +9,8 @@ import { MessageService } from 'primeng/api'
 import { LoadingSpinnerComponent } from '@app/components/index'
 import { finalize } from 'rxjs'
 import { LayoutStoreService } from '@core/services/layout-store.service'
+import { UsuarioService } from '@core/services/usuario'
+import { UserStorageService } from '@core/services/user-storage'
 
 @Component({
   selector: 'app-sign-in',
@@ -124,22 +126,23 @@ import { LayoutStoreService } from '@core/services/layout-store.service'
   styles: ``,
 })
 export class SignIn {
-  constructor(public layout: LayoutStoreService) {}
+  constructor(public layout: LayoutStoreService) { }
   private authService = inject(AuthService);
   private router = inject(Router);
   private rutActiva = inject(ActivatedRoute);
   private messageService = inject(MessageService);
+  private userStorage = inject(UserStorageService);
 
   showPassword: boolean = false
-  cargando:boolean = false;
+  cargando: boolean = false;
 
   togglePassword(): void {
     this.showPassword = !this.showPassword
   }
 
   loginForm = new FormGroup({
-    usuario: new FormControl('', [ Validators.required ]),
-    password: new FormControl('', [ Validators.required ]),
+    usuario: new FormControl('', [Validators.required]),
+    password: new FormControl('', [Validators.required]),
   });
 
   login() {
@@ -164,8 +167,10 @@ export class SignIn {
 
   loginOk() {
     let returnUrl = this.rutActiva.snapshot.queryParams['returnUrl'];
-    console.log('returnUrl:', returnUrl);
-    this.router.navigateByUrl(returnUrl || '/');
+    let inicio_default = this.userStorage.getUsuario()?.pagina_inicio;
+    // console.log('returnUrl:', returnUrl);
+
+    this.router.navigateByUrl(returnUrl || inicio_default || '/');
   }
 
 }

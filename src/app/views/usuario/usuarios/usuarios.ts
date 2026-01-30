@@ -19,9 +19,13 @@ import { PermisoClave } from '@core/interfaces/rol';
 import { finalize } from 'rxjs';
 import { FiltroActivo } from '@/app/constants/filtros_activo';
 import { FiltroRadioGroupComponent } from '@app/components/filtro-check';
-import { UsuarioDrawerComponent } from '../usuario-drawer/usuario-drawer';
+import { DrawerService } from '@core/services/drawer.service';
 import { ControlTrabajarCon } from '@app/components/trabajar-con/components/control-trabajar-con';
 import { getTimestamp } from '@/app/utils/time-utils';
+import { FormsModule } from '@angular/forms';
+import { SelectModule } from 'primeng/select';
+import { RolService } from '@core/services/rol';
+import { PermisoAccion } from '@/app/types/permisos';
 
 @Component({
   selector: 'app-usuarios',
@@ -34,8 +38,9 @@ import { getTimestamp } from '@/app/utils/time-utils';
     ConfirmDialogModule,
     ToastModule,
     FiltroRadioGroupComponent,
-    UsuarioDrawerComponent,
     ControlTrabajarCon,
+    SelectModule,
+    FormsModule,
   ],
   providers: [
     DialogService,
@@ -47,14 +52,14 @@ import { getTimestamp } from '@/app/utils/time-utils';
 })
 export class Usuarios extends TrabajarCon<Usuario> {
   private usuarioService = inject(UsuarioService);
+  private rolService = inject(RolService);
   private dialogService = inject(DialogService);
-  ref!: DynamicDialogRef;
-
-  // Estado para el usuario drawer
-  showUsuarioDrawer = false;
-  usuarioSeleccionadoId: string | null = null;
+  ref!: DynamicDialogRef | null;
+  private drawerService = inject(DrawerService);
 
   usuarios!:Usuario[];
+  roles: any[] = [];
+  rolSeleccionado: string | null = null;
 
  constructor() {
     super(
@@ -63,11 +68,31 @@ export class Usuarios extends TrabajarCon<Usuario> {
       inject(ConfirmationService)
     );
     this.permisoClave = PermisoClave.USUARIO;
+    this.cargarRoles();
+  }
+
+  cargarRoles(): void {
+    this.rolService.getAll().subscribe({
+      next: (roles) => {
+        this.roles = roles;
+        this.cdr.detectChanges();
+      },
+      error: () => this.showError('Error al cargar los roles.')
+    });
+  }
+
+  filtrarPorRol(): void {
+    this.loadItems();
   }
 
   protected loadItems(): void {
     this.loadingService.show();
-    this.usuarioService.getAll(this.filtroActivo).pipe(
+    
+    const request$ = this.rolSeleccionado 
+      ? this.usuarioService.getByRol(this.rolSeleccionado)
+      : this.usuarioService.getAll(this.filtroActivo);
+
+    request$.pipe(
       finalize(() => this.loadingService.hide())
     ).subscribe({
       next: (res) => {
@@ -119,6 +144,8 @@ export class Usuarios extends TrabajarCon<Usuario> {
       data
     });
 
+    if (!this.ref) return;
+
     this.ref.onClose.subscribe((usuarioCrud: Usuario) => {
       if (!usuarioCrud) return;
       modo === 'M' ? this.editar(usuarioCrud) : this.alta(usuarioCrud);
@@ -126,15 +153,7 @@ export class Usuarios extends TrabajarCon<Usuario> {
   }
 
   abrirUsuarioDrawer(usuarioId: string) {
-    this.usuarioSeleccionadoId = usuarioId;
-    this.showUsuarioDrawer = true;
-    this.cdr.detectChanges();
-  }
-
-  cerrarUsuarioDrawer() {
-    this.showUsuarioDrawer = false;
-    this.usuarioSeleccionadoId = null;
-    this.cdr.detectChanges();
+    this.drawerService.abrirUsuarioDrawer(usuarioId);
   }
 
   descargarPlantilla() {

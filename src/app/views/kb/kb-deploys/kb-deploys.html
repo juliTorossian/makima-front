@@ -1,0 +1,276 @@
+<p-toast></p-toast>
+
+<div class="kb-deploys-container">
+
+  <!-- Formulario (solo visible cuando está editando) -->
+  @if (editando) {
+    <div class="form-section border rounded p-3 mb-3 bg-light">
+      <form [formGroup]="form" (ngSubmit)="guardar()">
+        <div class="row g-3">
+
+          <div class="col-md-4">
+            <label class="form-label fw-bold">Nombre</label>
+            <input
+              type="text"
+              class="form-control"
+              id="deploy-nombre"
+              formControlName="nombre"
+              placeholder="Nombre descriptivo"
+            />
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label fw-bold">
+              Hosting <span class="text-danger">*</span>
+            </label>
+            <app-catalogo-select
+              [tipoCatalogo]="TipoCatalogo.DEPLOY_HOSTING"
+              formControlName="hosting"
+              placeholder="-- Seleccionar --"
+              [required]="true"
+            ></app-catalogo-select>
+          </div>
+          
+          <div class="col-md-4">
+            <label class="form-label fw-bold">Cliente</label>
+            <select class="form-select" formControlName="clienteId">
+              <option [ngValue]="null">-- Ninguno --</option>
+              @for (cliente of clientes; track cliente) {
+                <option [ngValue]="cliente.id">{{ cliente.sigla }} - {{ cliente.nombre }}</option>
+              }
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-bold">
+              Ambiente <span class="text-danger">*</span>
+            </label>
+            <app-catalogo-select
+              [tipoCatalogo]="TipoCatalogo.DEPLOY_AMBIENTE"
+              formControlName="ambiente"
+              placeholder="-- Seleccionar --"
+              [required]="true"
+            ></app-catalogo-select>
+          </div>
+
+          <div class="col-md-12">
+            <label class="form-label fw-bold">URL</label>
+            <input
+              type="text"
+              class="form-control"
+              formControlName="url"
+              placeholder="https://..."
+            />
+          </div>
+
+          <div class="col-md-10">
+            <label class="form-label fw-bold">Observaciones</label>
+            <input
+              type="text"
+              class="form-control"
+              formControlName="observaciones"
+              placeholder="Observaciones adicionales"
+            />
+          </div>
+
+          <div class="col-md-2">
+            <label class="form-label fw-bold">Estado</label>
+            <div class="d-flex align-items-center" style="height: 38px;">
+              <input
+                id="activo"
+                type="checkbox"
+                formControlName="activo"
+                class="btn-check"
+              />
+              <label class="btn btn-sm btn-outline-primary" for="activo" style="min-width: 100px;">
+                @if (form.get('activo')?.value) {
+                  ACTIVO
+                } @else {
+                  INACTIVO
+                }
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex gap-2 mt-3">
+          <button type="submit" class="btn btn-primary btn-sm" [disabled]="form.invalid">
+            <i class="pi pi-check me-1"></i>
+            Guardar
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm" (click)="cancelar()">
+            <i class="pi pi-times me-1"></i>
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <!-- Botón Nuevo (solo visible cuando NO está editando) -->
+  @if (!editando) {
+    <div class="mb-3">
+      <button class="btn btn-primary btn-sm" (click)="nuevo()">
+        <i class="pi pi-plus me-1"></i>
+        Nuevo Deploy
+      </button>
+    </div>
+  }
+
+  <!-- Filtros -->
+  <p-panel header="Filtros" [toggleable]="true" [collapsed]="true" styleClass="mb-3">
+    <div class="row g-3 align-items-end">
+      <div class="col-md-3">
+        <label class="form-label fw-bold">Ambiente</label>
+        <select 
+          class="form-select" 
+          [(ngModel)]="filtroAmbiente"
+          (ngModelChange)="aplicarFiltros()"
+        >
+          <option value="">-- Todos --</option>
+          @for (ambiente of opcionesAmbiente; track ambiente) {
+            <option [value]="ambiente">{{ ambiente }}</option>
+          }
+        </select>
+      </div>
+      
+      <div class="col-md-3">
+        <label class="form-label fw-bold">Cliente</label>
+        <select
+          class="form-select"
+          [(ngModel)]="filtroCliente"
+          (ngModelChange)="aplicarFiltros()"
+        >
+          <option [ngValue]="null">-- Todos --</option>
+          @for (cliente of clientes; track cliente) {
+            <option [ngValue]="cliente.id">{{ cliente.sigla }} - {{ cliente.nombre }}</option>
+          }
+        </select>
+      </div>
+      
+      <div class="col-md-3">
+        <label class="form-label fw-bold">Hosting</label>
+        <select 
+          class="form-select" 
+          [(ngModel)]="filtroHosting"
+          (ngModelChange)="aplicarFiltros()"
+        >
+          <option value="">-- Todos --</option>
+          @for (hosting of opcionesHosting; track hosting) {
+            <option [value]="hosting">{{ hosting }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label fw-bold">Estado</label>
+        <select 
+          class="form-select" 
+          [(ngModel)]="filtroEstado"
+          (ngModelChange)="aplicarFiltros()"
+        >
+          <option value="">-- Todos --</option>
+          <option value="activo">ACTIVO</option>
+          <option value="inactivo">INACTIVO</option>
+        </select>
+      </div>
+
+      <div class="col-md-3">
+        <button class="btn btn-secondary btn-sm w-100" (click)="limpiarFiltros()">
+          <i class="pi pi-filter-slash me-1"></i>
+          Limpiar Filtros
+        </button>
+      </div>
+    </div>
+  </p-panel>
+
+  <!-- Tabla de Deploys -->
+  <div class="table-section">
+    <p-table
+      [value]="deploysFiltrados"
+      [loading]="loading"
+      [rows]="10"
+      [paginator]="deploysFiltrados.length > 10"
+      dataKey="id"
+      styleClass="p-datatable-sm"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Ambiente</th>
+          <th>Cliente</th>
+          <th>Hosting</th>
+          <th>Nombre</th>
+          <th>URL</th>
+          <th>Observaciones</th>
+          <th>Estado</th>
+          <th style="width: 120px;">Acciones</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-deploy>
+        <tr>
+          <td>
+            <span class="badge text-bg-primary">{{ deploy.ambiente }}</span>
+          </td>
+          <td>{{ getClienteLabel(deploy) }}</td>
+          <td>{{ deploy.hosting }}</td>
+          <td>{{ deploy.nombre || '-' }}</td>
+          <td>
+            @if (deploy.url) {
+              <a [href]="deploy.url" target="_blank" class="text-decoration-none">
+                {{ deploy.url }}
+                <i class="pi pi-external-link ms-1" style="font-size: 0.75rem;"></i>
+              </a>
+            } @else {
+              -
+            }
+          </td>
+          <td>{{ deploy.observaciones || '-' }}</td>
+          <td>
+            <span
+              class="badge"
+              [ngClass]="deploy.activo ? 'text-bg-success' : 'text-bg-danger'"
+            >
+              {{ deploy.activo ? 'ACTIVO' : 'INACTIVO' }}
+            </span>
+          </td>
+          <td>
+            <div class="d-flex gap-1">
+              <button
+                class="btn btn-ghost-warning btn-sm"
+                (click)="editar(deploy)"
+                title="Editar"
+              >
+                <ng-icon name="lucidePencil" size="16" />
+              </button>
+              <button
+                class="btn btn-ghost-danger btn-sm"
+                (click)="delete(deploy)"
+                title="Eliminar"
+              >
+                <ng-icon name="lucideTrash2" size="16" />
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7" class="text-center text-muted py-4">
+            <i class="pi pi-inbox" style="font-size: 2rem;"></i>
+            <p class="mb-0 mt-2">No hay deploys registrados</p>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="summary">
+        <div class="text-muted">
+          Total: {{ deploysFiltrados.length }} deploy(s)
+          @if (deploysFiltrados.length !== deploys.length) {
+            <span class="text-muted"> ({{ deploys.length }} en total)</span>
+          }
+        </div>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

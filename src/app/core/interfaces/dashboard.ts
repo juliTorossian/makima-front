@@ -1,27 +1,45 @@
+/* =========================
+   KPIs
+========================= */
 
-export interface DashboardEventosPorEtapa {
-	etapas: {
-            etapaId: number;
-            etapaNombre: string;
-            cantidad: number;
-        }[];
-	total: number;
+export interface DashboardKpis {
+  eventosActivos: number;
+  eventosEnRiesgo: number;
+  eventosCreadosPeriodo: number;
+  eventosRechazadosPeriodo: number;
+  eventosCompletadosPeriodo: number;
 }
 
-export interface DashboardEventosPorTipo {
-	tipos: {
-            tipoCodigo: string;
-            tipoDescripcion: string;
-            cantidad: number;
-        }[];
-	total: number;
+/* =========================
+   Gráficos
+========================= */
+
+export interface EventosPorEtapa {
+  etapaId: number;
+  etapaNombre: string;
+  cantidad: number;
 }
 
-export interface DashboardEventosPorCliente {
-	clientes: {
-            clienteId: number;
-            clienteNombre: string;
-            cantidad: number;
-        }[];
-	total: number;
+export interface EventosPorTipo {
+  tipo: string;
+  cantidad: number;
+  color: string; // hex, rgb o var css
+}
+
+export interface TendenciaEventos {
+  periodo: string; // ej: 2026-W03
+  creados: number;
+  cerrados: number;
+  rechazados: number;
+}
+
+/* =========================
+   Dashboard completo
+========================= */
+
+export interface DashboardResponse {
+  kpis: DashboardKpis;
+  eventosPorEtapa: EventosPorEtapa[];
+  eventosPorTipo: EventosPorTipo[];
+  tendenciaEventos: TendenciaEventos[];
 }

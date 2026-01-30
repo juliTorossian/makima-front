@@ -15,6 +15,8 @@ import { menuItems } from '@layouts/components/data'
 import { LayoutStoreService } from '@core/services/layout-store.service'
 import { scrollToElement } from '@/app/utils/layout-utils'
 import { PermisosService } from '@core/services/permisos'
+import { buildPermiso } from '@/app/utils/permiso-utils'
+import { PermisoAccion } from '@/app/types/permisos'
 
 @Component({
   selector: 'app-menu',
@@ -35,7 +37,7 @@ export class AppMenuComponent implements OnInit {
 
   filtrarMenu(items: MenuItemType[]): MenuItemType[] {
     return items
-      .filter(item => !item.permisoClave || this.permisosService.can(item.permisoClave, 'V'))
+      .filter(item => !item.permisoClave || this.permisosService.can(buildPermiso(item.permisoClave, item.permisoAccion || PermisoAccion.LEER)))
       .map(item => ({
         ...item,
         children: item.children ? this.filtrarMenu(item.children) : undefined

@@ -1,0 +1,347 @@
+// Changelog Page Styles
+// Usando variables del proyecto (_variables.scss y _variables-dark.scss)
+
+.changelog-page {
+  min-height: 100vh;
+  background-color: var(--ins-body-bg);
+
+  &.changelog-modal-view {
+    min-height: auto;
+    max-height: 70vh;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+// Header (solo para vista de página completa)
+// Header (solo para vista de página completa)
+.changelog-header {
+  // background-color: var(--ins-body-secondary-bg); // Removed for card integration
+  // border-bottom: 1px solid var(--ins-border-color); // Removed for card integration
+  // padding: 2rem 0; // Removed/Adjusted via utility classes
+  // margin-bottom: 2rem; // Handled by utility classes
+
+  .page-title {
+    font-size: 1.5rem; // Slightly smaller to fit inside card better
+    font-weight: 700;
+    color: var(--ins-body-color);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+
+    i {
+      color: var(--ins-primary);
+    }
+  }
+
+  .page-subtitle {
+    font-size: 1rem;
+    color: var(--ins-body-secondary-color);
+    margin: 0;
+  }
+}
+
+// Container
+.changelog-container {
+  padding: 1.5rem 0;
+
+  .changelog-modal-view & {
+    padding: 1rem;
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+// Timeline Container
+.changelog-timeline {
+  position: relative;
+  padding: 0 1rem;
+
+  .changelog-modal-view & {
+    overflow-y: auto;
+    flex: 1;
+    padding-right: 0.5rem;
+  }
+
+  // Scrollbar personalizado
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--ins-gray-300);
+    border-radius: 10px;
+  }
+}
+
+// Línea vertical del timeline
+.timeline-line {
+  position: absolute;
+  left: 2.5rem;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--ins-border-color);
+}
+
+// Version Details (collapsible)
+.version-details {
+  position: relative;
+  padding: 0 0.5rem;
+  margin-bottom: 0;
+
+  // Ocultar el marker por defecto
+  &::-webkit-details-marker,
+  &::marker {
+    display: none;
+  }
+}
+
+// Version Summary (header clickable)
+.version-summary {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 0.5rem 1rem 3.5rem; // Padding izquierdo mayor para dejar espacio a la línea y puntos
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: var(--ins-sidenav-item-hover-bg);
+    border-radius: 0.5rem;
+  }
+
+  // Timeline dot
+  .timeline-dot {
+  position: absolute;
+  left: 1.125rem; // Centrado en la línea (1.5rem - 0.75rem/2)
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background-color: var(--ins-border-color);
+  border: 2px solid var(--ins-card-bg);
+  box-shadow: 0 0 0 2px var(--ins-border-color);
+  z-index: 1;
+  margin-top: 0.25rem; // Alineado con el inicio del texto
+  transition: all 0.3s ease;
+
+  &-active {
+    background-color: var(--ins-primary);
+    box-shadow: 0 0 0 4px rgba(var(--ins-primary-rgb), 0.2);
+  }
+  
+  &-future {
+    background-color: var(--ins-info);
+    box-shadow: 0 0 0 4px rgba(var(--ins-info-rgb), 0.2);
+  }
+
+  &-current {
+    background-color: var(--ins-success);
+    box-shadow: 0 0 0 4px rgba(var(--ins-success-rgb), 0.2);
+  }
+}
+
+  // Version Info
+  .version-info {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .version-header-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+  }
+
+  .version-number {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--ins-body-color);
+    margin: 0;
+    letter-spacing: -0.02em;
+  }
+
+  .version-date {
+    font-size: 0.75rem;
+    color: var(--ins-body-secondary-color);
+    font-weight: 400;
+  }
+
+  .expand-icon {
+    color: var(--ins-body-secondary-color);
+    transition: transform 0.2s ease;
+    font-size: 0.875rem;
+  }
+}
+
+// Rotación del ícono cuando está abierto
+.version-details[open] .expand-icon {
+  transform: rotate(180deg);
+}
+
+// Version Content (collapsible content)
+.version-content {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease-out;
+  overflow: hidden;
+}
+
+.version-details[open] .version-content {
+  grid-template-rows: 1fr;
+}
+
+// Changes List
+.changes-list {
+  min-height: 0;
+  margin-top: 1rem;
+  padding-left: 2.5rem;
+  padding-right: 0.5rem;
+  padding-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+// Change Item
+.change-item {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+// Change Icon Wrapper
+.change-icon-wrapper {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.875rem;
+
+  &.change-icon-feature {
+    background-color: var(--ins-primary-bg-subtle);
+    color: var(--ins-primary);
+  }
+
+  &.change-icon-improvement {
+    background-color: var(--ins-success-bg-subtle);
+    color: var(--ins-success);
+  }
+
+  &.change-icon-fix {
+    background-color: var(--ins-warning-bg-subtle);
+    color: var(--ins-warning);
+  }
+}
+
+// Change Content
+.change-content {
+  flex: 1;
+  padding-bottom: 0.5rem;
+}
+
+.change-badge {
+  margin-bottom: 0.5rem;
+
+  .badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+
+    &.badge-feature {
+      background-color: var(--ins-primary);
+      color: var(--ins-white);
+    }
+
+    &.badge-improvement {
+      background-color: var(--ins-success-bg-subtle);
+      color: var(--ins-success-text-emphasis);
+    }
+
+    &.badge-fix {
+      background-color: var(--ins-warning-bg-subtle);
+      color: var(--ins-warning-text-emphasis);
+    }
+  }
+}
+
+.change-text {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--ins-body-secondary-color);
+  
+  .change-link {
+    color: var(--ins-primary);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+    
+    &:hover {
+      color: var(--ins-link-hover-color);
+      transform: scale(1.1);
+    }
+  }
+}
+
+// Changelog Footer (para vista modal)
+.changelog-footer {
+  padding: 1rem;
+  border-top: 1px solid var(--ins-border-color);
+  background-color: var(--ins-body-bg);
+}
+
+// Dark mode adjustments usando [data-bs-theme="dark"]
+[data-bs-theme="dark"] {
+  .version-summary:hover {
+    background-color: var(--ins-body-tertiary-bg);
+  }
+
+  .timeline-dot {
+    box-shadow: 0 0 0 4px var(--ins-body-bg);
+  }
+
+  .changelog-timeline::-webkit-scrollbar-thumb {
+    background: var(--ins-gray-700);
+  }
+
+  .change-icon-wrapper {
+    &.change-icon-feature {
+      background-color: var(--ins-primary-bg-subtle);
+    }
+
+    &.change-icon-improvement {
+      background-color: var(--ins-success-bg-subtle);
+    }
+
+    &.change-icon-fix {
+      background-color: var(--ins-warning-bg-subtle);
+    }
+  }
+
+  .change-badge .badge {
+    &.badge-improvement {
+      background-color: var(--ins-success-bg-subtle);
+      color: var(--ins-success-text-emphasis);
+    }
+
+    &.badge-fix {
+      background-color: var(--ins-warning-bg-subtle);
+      color: var(--ins-warning-text-emphasis);
+    }
+  }
+}

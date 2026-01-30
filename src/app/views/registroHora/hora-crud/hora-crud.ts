@@ -30,7 +30,7 @@ import { FiltroActivo } from '@/app/constants/filtros_activo';
   styleUrl: './hora-crud.scss'
 })
 export class HoraCrud extends CrudFormModal<RegistroHora> {
-  protected modalSel = inject(DynamicDialogRef);
+  protected modalSel!: DynamicDialogRef | null;
   private eventoService = inject(EventoService)
   private userStorageService = inject(UserStorageService);
   private dialogService = inject(DialogService);
@@ -150,7 +150,7 @@ export class HoraCrud extends CrudFormModal<RegistroHora> {
       detalle: new FormControl<string | null>(
         hora?.detalle != null ? String(hora.detalle) : null,
       ),
-    });
+    }, { validators: this.timeRangeValidator });
 
     // Agregar validación cuando cambian los valores de tiempo
     horaForm.get('inicio')?.valueChanges.subscribe(() => {
@@ -227,6 +227,28 @@ export class HoraCrud extends CrudFormModal<RegistroHora> {
     return hours * 60 + minutes;
   }
 
+  // Validador para verificar que fin sea mayor que inicio
+  private timeRangeValidator(group: AbstractControl): ValidationErrors | null {
+    const inicio = group.get('inicio')?.value;
+    const fin = group.get('fin')?.value;
+
+    if (!inicio || !fin) {
+      return null;
+    }
+
+    const inicioMinutes = inicio.split(':').map(Number);
+    const finMinutes = fin.split(':').map(Number);
+    
+    const inicioTotal = inicioMinutes[0] * 60 + inicioMinutes[1];
+    const finTotal = finMinutes[0] * 60 + finMinutes[1];
+
+    if (finTotal <= inicioTotal) {
+      return { invalidTimeRange: true };
+    }
+
+    return null;
+  }
+
   modalSelEvento(hora:any, event: Event) {
     event.preventDefault();
     this.modalSel = this.dialogService.open(EventoSelect, {
@@ -236,6 +258,8 @@ export class HoraCrud extends CrudFormModal<RegistroHora> {
         filtroEvento: FiltroActivo.FALSE
       }
     });
+
+    if (!this.modalSel) return;
 
     this.modalSel.onClose.subscribe((result: any) => {
       if (!result) return;

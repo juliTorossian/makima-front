@@ -40,12 +40,14 @@ export class ModuloSelect extends SelectBase<Modulo> {
     loadItems() {
         this.loadingSelect = true;
         this.moduloService.getAll().pipe(
-            finalize(() => this.loadingSelect = false)
+            finalize(() => {
+                this.loadingSelect = false;
+                this.cdr.detectChanges();
+            })
         ).subscribe({
             next: (res: Modulo[]) => {
                 // console.log(res);
                 this.modulos = res;
-                this.cdr.detectChanges();
             },
             error: () => {
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron cargar los modulos' });

@@ -47,31 +47,6 @@
     </div>
 
     <div class="col-md-4">
-      <label for="cliente" class="form-label">Cliente</label>
-      <div class="row">
-        <div class="col-md-10">
-          <input
-            id="cliente"
-            class="form-control mb-2"
-            type="text"
-            formControlName="cliente"
-            [ngbTypeahead]="searchCliente"
-            [inputFormatter]="formatterCliente"
-            [resultFormatter]="formatterCliente"
-            placeholder="Buscar cliente..."
-          />
-        </div>
-        <div class="col-md-2">
-          <button card-actions class="btn btn-icon btn-outline-info" 
-            (click)="modalSelCliente($event)"
-          >
-            <ng-icon name="lucideSearch" />
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-4">
         <label for="activo" class="form-label">Activo</label>
         <div class="mb-2">
           <input id="activo" type="checkbox" formControlName="activo" class="btn-check" />

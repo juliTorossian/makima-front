@@ -12,9 +12,13 @@
   box-shadow: $card-box-shadow;
   border-right: $card-border-width solid $sidenav-border-color;
   transition: width .25s ease-in-out;
+  display: flex;
+  flex-direction: column;
 
   [data-simplebar] {
-    height: calc(100% - 41px);
+    flex: 1;
+    height: auto !important;
+    min-height: 0;
   }
 }
 

@@ -1,4 +1,5 @@
 import { MenuItemType } from '@/app/types/layout'
+import { PermisoAccion } from '@/app/types/permisos'
 import { inject } from '@angular/core'
 import { PermisoClave } from '@core/interfaces/rol'
 import { Usuario } from '@core/interfaces/usuario'
@@ -131,12 +132,31 @@ export const menuItems: MenuItemType[] = [
       { label: 'Roles', url: '/rol/roles', permisoClave: PermisoClave.ROL },
     ],
   },
+  {
+    label: 'Kbs',
+    icon: 'lucideBrainCircuit',
+    url: '/kb/kbs',
+    permisoClave: PermisoClave.KB
+  },
   { label: '', isTitle: true },
+  {
+    label: 'Parametros Sistema',
+    icon: 'lucideSlidersHorizontal',
+    url: '/parametro/parametros',
+    permisoClave: PermisoClave.SISTEMA
+  },
   {
     label: 'Reportes',
     icon: 'tablerReport',
     url: '/reporte/reportes',
     permisoClave: PermisoClave.REPORTE
+  },
+  {
+    label: 'Archivos',
+    icon: 'tablerFile',
+    url: '/archivos/',
+    permisoClave: PermisoClave.SISTEMA,
+    permisoAccion: PermisoAccion.LOG_LEER
   },
 
 ]

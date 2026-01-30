@@ -1,6 +1,10 @@
 import { EstadosEvento } from "@/app/constants/evento_estados";
 import { Etapa_requisito, Etapa } from "./etapa";
 
+export function formatEventoNumero(tipoCodigo: string, numero: number, pad: number = 3): string {
+  return `${tipoCodigo}-${numero.toString().padStart(pad, '0')}`;
+}
+
 // Evento completo con datos enriquecidos
 // export interface EventoCompleto {
 //   id: string;
@@ -55,10 +59,28 @@ export interface EventoCompleto extends Evento {
   eventosAdicion: EventoAdicion[];
   requisitos: Evento_requisito[];
   observadores: UsuarioEvento[];
+  documentacion: EventoDocumentacion[];
 
   etapaActualData: EventoEtapa;
   etapaSiguiente: EventoEtapa | null;
   etapaAnterior: EventoEtapa | null;
+
+  registroTiempo?: RegistroHora;
+}
+
+export interface EventoDocumentacion {
+  id: string;
+  eventoId: string;
+  proveedor: string;
+  externalId: string;
+  externalUrl: string;
+  titulo: string;
+  tipo?: string;
+  esPrincipal: boolean;
+  estado?: string;
+  metadata?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 /** Cliente enriquecido para EventoCompleto */
@@ -76,8 +98,8 @@ export interface EventoProyecto {
   nombre: string;
   activo: boolean;
   critico: boolean;
-  clienteId?: number;
-  cliente?: EventoCliente;
+  clienteIds?: number[];
+  clientes?: EventoCliente[];
 }
 
 /** Módulo enriquecido para EventoCompleto */
@@ -122,12 +144,21 @@ export interface EventoCount {
   eventosAdicion: number;
 }
 
+export enum TipoRequisito {
+  Text = 'text',
+  Numeric = 'numeric',
+  File = 'file',
+  Boolean = 'boolean',
+  Date = 'date'
+}
+
 /** Etapa enriquecida para EventoCompleto */
-export interface RequisitoFaltante {
+export interface Requisito {
   id: number;
-  tipo: string;
+  tipo: TipoRequisito;
   codigo: string;
   descripcion: string;
+  obligatorio?: boolean;
 }
 
 export interface EventoEtapa {
@@ -139,7 +170,8 @@ export interface EventoEtapa {
   deAutoriza?: boolean;
   puedeContinuar?: boolean;
   etapaFinal?: boolean;
-  requisitosFaltantes?: RequisitoFaltante[];
+  requisitosFaltantes?: Requisito[];
+  requisitos?: Requisito[];
 }
 
 // Evento base
@@ -175,10 +207,57 @@ export interface Evento {
   deletedAt?: string;
 
   comentario?:string
+  evento?: string;
 }
 
 /** Registro de horas asociadas a un evento */
 export interface RegistroHora {}
+
+/*
+{
+    "id": 15,
+    "eventoId": "df3156c7-4a22-45a4-b425-4205f0c21abf",
+    "etapaNumero": 5,
+    "usuarioId": "a0ae084e-2631-4a13-9c68-7f69fc0e5b6a",
+    "fecha": "2026-01-09T16:04:57.233Z",
+    "adicionId": 2,
+    "accion": "COMENTARIO",
+    "adicion": {
+      "id": 2,
+      "eventoId": "df3156c7-4a22-45a4-b425-4205f0c21abf",
+      "tipo": "COMENTARIO",
+      "activo": true,
+      "createdAt": "2026-01-09T16:04:55.350Z",
+      "comentario": {
+        "id": 2,
+        "eventoAdicionId": 2,
+        "texto": "Hola @frossi, necesito que revises esto con @admin."
+      },
+      "archivo": null,
+      "menciones": [
+        {
+          "id": 2,
+          "eventoAdicionId": 2,
+          "usuarioId": "6eeb1e21-05f9-4c82-a9bc-7ae2044830d9",
+          "fecha": "2026-01-09T16:04:56.436Z",
+          "usuario": {
+            "id": "6eeb1e21-05f9-4c82-a9bc-7ae2044830d9",
+            "nombre": "Florencia Abigail",
+            "apellido": "Rossi",
+            "usuario": "FROSSI",
+            "color": "#AA7B38"
+          }
+        }
+      ]
+    },
+    "usuario": {
+      "nombre": "Julian",
+      "apellido": "Torossian",
+      "usuario": "Jtorossian",
+      "color": "#DF43A2"
+    }
+  }
+*/
 
 /** Auditoría de vida de un evento */
 export interface VidaEvento {
@@ -193,18 +272,65 @@ export interface VidaEvento {
   usuario?: EventoUsuario;
 }
 
+/*
+"adicion": {
+  "id": 2,
+  "eventoId": "df3156c7-4a22-45a4-b425-4205f0c21abf",
+  "tipo": "COMENTARIO",
+  "activo": true,
+  "createdAt": "2026-01-09T16:04:55.350Z",
+  "comentario": {
+    "id": 2,
+    "eventoAdicionId": 2,
+    "texto": "Hola @frossi, necesito que revises esto con @admin."
+  },
+  "archivo": null,
+  "menciones": [
+    {
+      "id": 2,
+      "eventoAdicionId": 2,
+      "usuarioId": "6eeb1e21-05f9-4c82-a9bc-7ae2044830d9",
+      "fecha": "2026-01-09T16:04:56.436Z",
+      "usuario": {
+        "id": "6eeb1e21-05f9-4c82-a9bc-7ae2044830d9",
+        "nombre": "Florencia Abigail",
+        "apellido": "Rossi",
+        "usuario": "FROSSI",
+        "color": "#AA7B38"
+      }
+    }
+  ]
+},
+*/
+
 /** Adición de información o archivos a un evento */
 export interface EventoAdicion {
   id?: number;
   eventoId: string;
   tipo: string;
-  comentario?: string;
-  adjFile?: boolean;
-  pathFile?: string;
-  mimeType?: string;
-  nameFile?: string;
+  comentario?: {
+    id?: number;
+    eventoAdicionId?: number;
+    texto: string;
+  };
+  archivo?: {
+    adjFile?: boolean;
+    pathFile?: string;
+    mimeType?: string;
+    nameFile?: string;
+  }
   activo?: boolean;
+
   auditorias?: VidaEvento[];
+  menciones?: ComentarioMencion[]
+}
+
+export interface ComentarioMencion {
+  id: number,
+  eventoAdicionId: number,
+  usuarioId: string,
+  fecha: string,
+  usuario: EventoUsuario
 }
 
 /** Comentario circular entre usuarios y eventos */
@@ -271,4 +397,11 @@ export const eventoFromEventoCompleto = (evento: EventoCompleto): Evento => {
     // deletedAt: evento.deletedAt,
     comentario: evento.comentario
   }
+}
+
+export interface NotionPageResult {
+  pageId: string;
+  url: string;
+  properties?: Record<string, any>;
+  title?: string;
 }

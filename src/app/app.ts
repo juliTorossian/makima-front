@@ -9,9 +9,12 @@ import { provideIcons } from '@ng-icons/core';
 import { filter, map, mergeMap } from 'rxjs';
 import { Title } from '@angular/platform-browser';
 import { Toast, ToastModule } from "primeng/toast";
+import { DialogService } from 'primeng/dynamicdialog';
 import { MessageService } from 'primeng/api';
 import { appTitle } from './constants';
 import Clarity from '@microsoft/clarity';
+import { PrimeNG } from 'primeng/config';
+import { PRIMENG_ES } from './constants/primeng-es';
 
 @Component({
   selector: 'app-root',
@@ -21,7 +24,8 @@ import Clarity from '@microsoft/clarity';
     ToastModule
   ],
   providers: [
-    MessageService
+    MessageService,
+    DialogService
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
@@ -34,10 +38,14 @@ export class App implements OnInit {
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
   private loadingService = inject(LoadingService);
+  private dialogService = inject(DialogService);
   private cdr = inject(ChangeDetectorRef);
+  private primeng = inject(PrimeNG);
   isLoading = false;
 
   ngOnInit(): void {
+    // Configuración de idioma español para PrimeNG
+    this.primeng.setTranslation(PRIMENG_ES);
 
     // Clarity.init("tcuivyetkx");
 

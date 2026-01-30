@@ -1,0 +1,213 @@
+<p-toast></p-toast>
+<div class="container">
+  <form class="row g-3 needs-validation" [formGroup]="form" (ngSubmit)="accion($event)" novalidate>
+
+    <!-- Información básica -->
+    <div class="row">
+      <div class="col-12">
+        <h5>Información Básica</h5>
+      </div>
+
+      <div class="col-md-6">
+        <label for="nombre" class="form-label">Nombre <span class="text-danger">*</span></label>
+        <input 
+          id="nombre" 
+          type="text" 
+          formControlName="nombre" 
+          class="form-control" 
+          placeholder="Nombre de la KB" 
+          required 
+        />
+        @if (get('nombre')?.invalid && get('nombre')?.touched) {
+          <div class="invalid-feedback">Debe ingresar un nombre.</div>
+        }
+      </div>
+
+      <div class="col-md-6">
+        <label for="descripcion" class="form-label">Descripción</label>
+        <input 
+          id="descripcion" 
+          type="text" 
+          formControlName="descripcion" 
+          class="form-control" 
+          placeholder="Descripción de la KB" 
+        />
+      </div>
+    </div>
+
+    <!-- Clasificación técnica -->
+    <div class="row mt-3">
+      <div class="col-12">
+        <h5>Clasificación Técnica</h5>
+      </div>
+
+      <div class="col-md-3">
+        <label for="plataforma" class="form-label">Plataforma <span class="text-danger">*</span></label>
+        <app-catalogo-select
+          [tipoCatalogo]="TipoCatalogo.KB_PLATAFORMA"
+          formControlName="plataforma"
+          placeholder="-- Seleccionar --"
+          [required]="true"
+        ></app-catalogo-select>
+        @if (get('plataforma')?.invalid && get('plataforma')?.touched) {
+          <div class="invalid-feedback d-block">Debe seleccionar una plataforma.</div>
+        }
+      </div>
+
+      <div class="col-md-3">
+        <label for="tecnologia" class="form-label">Tecnología <span class="text-danger">*</span></label>
+        <app-catalogo-select
+          [tipoCatalogo]="TipoCatalogo.KB_TECNOLOGIA"
+          formControlName="tecnologia"
+          placeholder="-- Seleccionar --"
+          [required]="true"
+        ></app-catalogo-select>
+        @if (get('tecnologia')?.invalid && get('tecnologia')?.touched) {
+          <div class="invalid-feedback d-block">Debe seleccionar una tecnología.</div>
+        }
+      </div>
+
+      <div class="col-md-3">
+        <label for="version_plataforma" class="form-label">Versión Plataforma</label>
+        <input 
+          id="version_plataforma" 
+          type="text" 
+          formControlName="version_plataforma" 
+          class="form-control" 
+          placeholder="Ej: 8.0" 
+        />
+      </div>
+
+      <div class="col-md-3">
+        <label for="compilador" class="form-label">Compilador <span class="text-danger">*</span></label>
+        <app-catalogo-select
+          [tipoCatalogo]="TipoCatalogo.KB_COMPILADOR"
+          formControlName="compilador"
+          placeholder="-- Seleccionar --"
+          [required]="true"
+        ></app-catalogo-select>
+        @if (get('compilador')?.invalid && get('compilador')?.touched) {
+          <div class="invalid-feedback d-block">Debe seleccionar un compilador.</div>
+        }
+      </div>
+    </div>
+
+    <!-- Estado / Uso -->
+    <div class="row mt-3">
+      <div class="col-12">
+        <h5>Estado y Uso</h5>
+      </div>
+
+      <div class="col-md-4">
+        <label for="tipo" class="form-label">Tipo <span class="text-danger">*</span></label>
+        <app-catalogo-select
+          [tipoCatalogo]="TipoCatalogo.KB_TIPO"
+          formControlName="tipo"
+          placeholder="-- Seleccionar --"
+          [required]="true"
+        ></app-catalogo-select>
+        @if (get('tipo')?.invalid && get('tipo')?.touched) {
+          <div class="invalid-feedback d-block">Debe seleccionar un tipo.</div>
+        }
+      </div>
+
+      <div class="col-md-4">
+        <label for="estado" class="form-label">Estado <span class="text-danger">*</span></label>
+        <app-catalogo-select
+          [tipoCatalogo]="TipoCatalogo.KB_ESTADO"
+          formControlName="estado"
+          placeholder="-- Seleccionar --"
+          [required]="true"
+        ></app-catalogo-select>
+        @if (get('estado')?.invalid && get('estado')?.touched) {
+          <div class="invalid-feedback d-block">Debe seleccionar un estado.</div>
+        }
+      </div>
+
+      <div class="col-md-4">
+        <label for="uso_actual" class="form-label">Uso Actual <span class="text-danger">*</span></label>
+        <app-catalogo-select
+          [tipoCatalogo]="TipoCatalogo.KB_USO"
+          formControlName="uso_actual"
+          placeholder="-- Seleccionar --"
+          [required]="true"
+        ></app-catalogo-select>
+        @if (get('uso_actual')?.invalid && get('uso_actual')?.touched) {
+          <div class="invalid-feedback d-block">Debe seleccionar el uso actual.</div>
+        }
+      </div>
+    </div>
+
+    <!-- Migraciones -->
+    <div class="row mt-3">
+      <div class="col-12">
+        <h5>Migraciones</h5>
+      </div>
+
+      <div class="col-md-6">
+        <label for="migrada" class="form-label">¿Es migrada?</label>
+        <div class="mb-2">
+          <input 
+            id="migrada" 
+            type="checkbox" 
+            formControlName="migrada" 
+            class="btn-check"
+          />
+          <label class="btn btn-outline-primary" for="migrada" style="min-width: 160px;">
+            @if (get('migrada')?.value) {
+              SÍ, ES MIGRADA
+            } @else {
+              NO ES MIGRADA
+            }
+          </label>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <label for="migradaDesdeKbId" class="form-label">Migrada desde KB</label>
+        <select 
+          class="form-control" 
+          formControlName="migradaDesdeKbId" 
+          id="migradaDesdeKbId"
+        >
+          <option [value]="null">-- Seleccionar --</option>
+          @for (kb of kbsDisponibles; track kb.id) {
+            @if (kb.id !== get('id')?.value) {
+              <option [value]="kb.id">{{ kb.nombre }}</option>
+            }
+          }
+        </select>
+      </div>
+    </div>
+
+    <!-- Estado general -->
+    <div class="row mt-3">
+      <div class="col-md-6">
+        <label for="activo" class="form-label">Estado</label>
+        <div class="mb-2">
+          <input id="activo" type="checkbox" formControlName="activo" class="btn-check" />
+          <label class="btn btn-outline-primary" for="activo" style="min-width: 160px;">
+            @if (get('activo')?.value) {
+              ACTIVO
+            } @else {
+              INACTIVO
+            }
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botones -->
+    <div class="row mt-4">
+      <div class="col-12 mb-5">
+        <button class="btn btn-primary" type="submit">
+          @if (modo === 'A') {
+          Crear
+          } @else if (modo === 'M') {
+          Modificar
+          }
+        </button>
+      </div>
+    </div>
+  </form>
+</div>

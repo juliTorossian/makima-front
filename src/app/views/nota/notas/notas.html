@@ -1,0 +1,40 @@
+<p-confirmDialog></p-confirmDialog>
+<p-toast></p-toast>
+<div class="notas-container">
+  <div class="notas-header">
+    <h2>Notas rápidas</h2>
+    <button class="btn-nueva-nota" (click)="nuevaNota()">Nueva nota</button>
+  </div>
+
+  <div class="notas-lista">
+    @for (nota of notas; track $index) {
+    <div class="nota-item" [attr.id]="'nota-item-' + nota.id">
+      <div class="nota-contenido">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <h3 class="nota-titulo mb-0" (click)="abrirNota(nota)">{{ nota.titulo }}</h3>
+          @if (esCompartida(nota)) {
+          <span class="badge bg-info text-white">Compartida</span>
+          }
+        </div>
+        <div class="nota-descripcion" [innerHTML]="renderMarkdown(nota.descripcion)"></div>
+        <span class="nota-fecha">{{ getRelativeTime(nota.creadaEn) }}</span>
+      </div>
+      <div class="nota-acciones">
+        @if (!esCompartida(nota)) {
+        <button class="btn-accion" title="Compartir" (click)="compartirNota(nota)">
+          <ng-icon name="lucideShare2" />
+        </button>
+        }
+        <button class="btn-accion" title="Editar" (click)="editarNota(nota)">
+          <ng-icon name="lucidePencil" />
+        </button>
+        @if (!esCompartida(nota)) {
+        <button class="btn-accion" title="Eliminar" (click)="eliminarNota(nota)">
+          <ng-icon name="lucideTrash2" />
+        </button>
+        }
+      </div>
+    </div>
+    }
+  </div>
+</div>

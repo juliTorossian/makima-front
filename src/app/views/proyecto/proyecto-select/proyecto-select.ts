@@ -42,20 +42,45 @@ export class ProyectoSelect extends SelectBase<Proyecto> {
     }
 
     override ngOnInit(): void {
-        // Obtener el clienteId de la configuración del diálogo
+        super.ngOnInit();
+        
+        // Obtener el clienteId si viene en la configuración
         this.clienteId = this.config?.data?.clienteId ?? null;
         
-        super.ngOnInit();
+        // Siempre cargar items (el filtrado se hace localmente)
+        this.loadItems();
     }
 
     loadItems() {
         this.loadingSelect = true;
-        this.proyectoService.getAll(FiltroActivo.TRUE, this.clienteId).pipe(
-            finalize(() => this.loadingSelect = false)
+        // Cargar todos los proyectos y filtrar localmente por clienteId
+        this.proyectoService.getAll(FiltroActivo.TRUE).pipe(
+            finalize(() => {
+                this.loadingSelect = false
+                this.cdr.detectChanges();
+            })
         ).subscribe({
             next: (res: Proyecto[]) => {
-                this.proyectos = res;
-                this.cdr.detectChanges();
+                // Transformar la estructura si viene con la relación 'clientes' en lugar de 'clienteIds'
+                const proyectosTransformados = res.map((p: any) => {
+                    if (!p.clienteIds && p.clientes && Array.isArray(p.clientes)) {
+                        // Extraer los clienteId desde el array de relaciones
+                        return {
+                            ...p,
+                            clienteIds: p.clientes.map((c: any) => c.clienteId)
+                        };
+                    }
+                    return p;
+                });
+                
+                // Si hay clienteId, filtrar los proyectos que incluyen ese cliente
+                if (this.clienteId !== null) {
+                    this.proyectos = proyectosTransformados.filter(p => 
+                        p.clienteIds && Array.isArray(p.clienteIds) && p.clienteIds.includes(this.clienteId!)
+                    );
+                } else {
+                    this.proyectos = proyectosTransformados;
+                }
             },
             error: () => {
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron cargar los proyectos' });

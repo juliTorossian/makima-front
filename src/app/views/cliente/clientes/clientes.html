@@ -15,7 +15,7 @@
                             ></app-filtro-radio-group>
                         </ng-template>
                         <ng-template pTemplate="right">
-                            @if (can('A')) {
+                            @if (can(PermisoAccion.CREAR)) {
                                 <app-control-trabajar-con
                                     (nuevo)="mostrarModalCrud(null, 'A')"
                                     (plantilla)="getPlantilla()"
@@ -54,6 +54,7 @@
                                 <th pSortableColumn="id" hidden>Id <p-sortIcon field="id" ></p-sortIcon></th>
                                 <th pSortableColumn="sigla">Sigla <p-sortIcon field="sigla"></p-sortIcon><p-columnFilter type="text" field="sigla" display="menu" matchMode="contains" style="margin-left: 2px;"></p-columnFilter></th>
                                 <th pSortableColumn="nombre">Nombre <p-sortIcon field="nombre" ></p-sortIcon><p-columnFilter type="text" field="nombre" display="menu" matchMode="contains" style="margin-left: 2px;"></p-columnFilter></th>
+                                <th>Proyectos</th>
                                 <th pSortableColumn="activo">Activo <p-sortIcon field="activo"></p-sortIcon></th>
                                 <th></th>
                             </tr>
@@ -66,12 +67,23 @@
                                 <td hidden>{{ cliente.id }}</td>
                                 <td>{{ cliente.sigla }}</td>
                                 <td>{{ cliente.nombre }}</td>
+                                <td>
+                                    @if (cliente.proyectos && cliente.proyectos.length > 0) {
+                                        <div class="d-flex flex-wrap gap-1">
+                                            @for (cp of cliente.proyectos; track cp.proyectoId) {
+                                                <span class="badge text-bg-primary">{{ cp.proyecto?.sigla }}</span>
+                                            }
+                                        </div>
+                                    } @else {
+                                        <span class="text-muted">Sin proyectos</span>
+                                    }
+                                </td>
                                 <td><span class="badge " style="min-width: 40%;" [ngClass]="cliente.activo ? 'text-bg-success' : 'text-bg-danger'">{{ cliente.activo | booleanLabel }}</span></td>
                                 <td class="d-flex justify-content-end">
-                                    @if (can('M')) {
+                                    @if (can(PermisoAccion.MODIFICAR)) {
                                         <button class="btn btn-ghost-warning" (click)="mostrarModalCrud(cliente, 'M')"><ng-icon name="lucidePencil"/></button>
                                     }
-                                    @if (can('B')) {
+                                    @if (can(PermisoAccion.ELIMINAR)) {
                                         <button class="btn btn-ghost-danger" (click)="delete(cliente)"><ng-icon name="lucideTrash2"/></button>
                                     }
                                 </td>

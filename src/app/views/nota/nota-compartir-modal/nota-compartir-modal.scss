@@ -1,0 +1,51 @@
+.modal-container {
+  padding: 1rem;
+
+  h3 {
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+  }
+
+  .usuarios-compartidos, .agregar-usuario {
+    margin-bottom: 2rem;
+
+    h4 {
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+    }
+    
+    // Añade separación entre botones dentro de la sección de usuarios compartidos
+    p-button {
+      margin-right: 0.5rem;
+    }
+
+    td {
+      p-button + p-button {
+        margin-left: 0.5rem;
+      }
+    }
+  }
+
+  .form-row {
+    display: flex;
+    gap: 1rem;
+    align-items: end;
+
+    .form-field {
+      flex: 1;
+
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+      }
+    }
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 2rem;
+  }
+}

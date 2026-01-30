@@ -21,6 +21,7 @@ import { FiltroRadioGroupComponent } from '@app/components/filtro-check';
 import { FiltroActivo } from '@/app/constants/filtros_activo';
 import { ControlTrabajarCon } from '@app/components/trabajar-con/components/control-trabajar-con';
 import { getTimestamp } from '@/app/utils/time-utils';
+import { PermisoAccion } from '@/app/types/permisos';
 
 @Component({
   selector: 'app-proyectos',
@@ -47,7 +48,7 @@ import { getTimestamp } from '@/app/utils/time-utils';
 export class Proyectos extends TrabajarCon<Proyecto> {
   private proyectoService = inject(ProyectoService);
   private dialogService = inject(DialogService);
-  ref!: DynamicDialogRef;
+  ref!: DynamicDialogRef | null;
   proyectos!: Proyecto[];
 
   constructor() {
@@ -113,6 +114,8 @@ export class Proyectos extends TrabajarCon<Proyecto> {
       header,
       data
     });
+
+    if (!this.ref) return;
 
     this.ref.onClose.subscribe((proyectoCrud: Proyecto) => {
       if (!proyectoCrud) return;

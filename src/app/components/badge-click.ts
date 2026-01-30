@@ -1,6 +1,7 @@
 
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { getContrastYIQ } from '../utils/color-utils';
 
 @Component({
   selector: 'app-badge-click',
@@ -14,6 +15,8 @@ import { CommonModule } from '@angular/common';
         'color': textColor,
         'cursor': link ? 'pointer' : 'default',
         'min-width': width,
+        'height': height,
+        'line-height': height,
         'text-align': 'center'
       }"
       (click)="redirect()"
@@ -40,10 +43,11 @@ import { CommonModule } from '@angular/common';
 export class BadgeClickComponent {
   @Input() link: string | null = null;
   @Input() backgroundColor: string = '#3E47F6';
-  @Input() width: string = '100%';
+  @Input() width: string = 'auto';
+  @Input() height: string = 'auto';
 
   get textColor(): string {
-    return this.getContrastYIQ(this.backgroundColor);
+    return getContrastYIQ(this.backgroundColor);
   }
 
   redirect() {

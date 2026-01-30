@@ -1,5 +1,5 @@
 import { Component, inject, ChangeDetectorRef } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators, ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
 import { CrudFormModal } from '@app/components/crud-form-modal/crud-form-modal';
 import { Cliente } from '@core/interfaces/cliente';
 import { Evento } from '@core/interfaces/evento';
@@ -29,12 +29,14 @@ import { ProductoSelect } from '../../producto/producto-select/producto-select';
 import { PermisoAccion } from '@/app/types/permisos';
 import { PermisosService } from '@core/services/permisos';
 import { PermisoClave } from '@core/interfaces/rol';
+import { buildPermiso } from '@/app/utils/permiso-utils';
 import { SelectModule } from 'primeng/select';
 import { PrioridadIconComponent } from '@app/components/priority-icon';
 import { getPrioridadDesc } from '@/app/constants/prioridad';
 import { LoadingService } from '@core/services/loading.service';
 import { LoadingSpinnerComponent } from '@app/components/index';
 import { FiltroActivo } from '@/app/constants/filtros_activo';
+import { map } from 'rxjs';
 
 
 @Component({
@@ -64,16 +66,34 @@ export class EventoCrud extends CrudFormModal<Evento> {
   private proyectoService = inject(ProyectoService);
   private userStorageService = inject(UserStorageService);
   private dialogService = inject(DialogService);
-  private selCliente = inject(DynamicDialogRef);
-  private selProyecto = inject(DynamicDialogRef);
-  private selProducto = inject(DynamicDialogRef);
-  private selModulo = inject(DynamicDialogRef);
+  private selCliente!: DynamicDialogRef | null;
+  private selProyecto!: DynamicDialogRef | null;
+  private selProducto!: DynamicDialogRef | null;
+  private selModulo!: DynamicDialogRef | null;
   private cdr = inject(ChangeDetectorRef);
   private loadingService = inject(LoadingService);
 
+  readonly PermisoAccion = PermisoAccion;
   getPrioridadDesc = getPrioridadDesc
 
   usuarioActivo: UsuarioLogeado | null = this.userStorageService.getUsuario();
+
+  // Validador personalizado para campos de typeahead
+  static objectValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) {
+        return null; // Si está vacío, dejar que 'required' lo maneje
+      }
+      // Verificar que sea un objeto con id o codigo
+      if (typeof control.value === 'string') {
+        return { invalidObject: true };
+      }
+      if (typeof control.value === 'object' && !control.value.id && !control.value.codigo) {
+        return { invalidObject: true };
+      }
+      return null;
+    };
+  }
 
   uploadedFiles: File[] = [];
 
@@ -82,6 +102,7 @@ export class EventoCrud extends CrudFormModal<Evento> {
   clientes!: Cliente[];
   productos!: Producto[];
   proyectos!: Proyecto[];
+  proyectosCompletos!: Proyecto[]; // Todos los proyectos sin filtrar
 
   loading: boolean = false;
 
@@ -112,17 +133,63 @@ export class EventoCrud extends CrudFormModal<Evento> {
   );
   modalSelModulo(event: Event) {
     event.preventDefault();
+    event.stopPropagation();
+    
     this.selModulo = this.dialogService.open(ModuloSelect, {
       ...modalConfig,
-      header: "Seleccionar Modulo"
+      header: "Seleccionar Modulo",
+      focusOnShow: false
     });
 
+    if (!this.selModulo) return;
+
     this.selModulo.onClose.subscribe((result: any) => {
-      if (!result) return;
-      this.form.patchValue({
-        modulo: result
-      });
+      if (result) {
+        this.form.patchValue({
+          modulo: result
+        });
+      }
+      // Prevenir el comportamiento por defecto y mantener foco
+      setTimeout(() => {
+        const moduloInput = document.getElementById('modulo') as HTMLInputElement;
+        if (moduloInput) {
+          moduloInput.focus();
+          moduloInput.select();
+        }
+      }, 200);
     });
+  }
+
+  limpiarCliente(event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.form.patchValue({ cliente: null });
+    const proyectoCtrl = this.form.get('proyecto');
+    if (proyectoCtrl?.hasError('sinProyectos')) {
+      proyectoCtrl.setErrors(null);
+    }
+  }
+
+  limpiarProyecto(event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.form.patchValue({ proyecto: null });
+    const proyectoCtrl = this.form.get('proyecto');
+    if (proyectoCtrl?.hasError('sinProyectos')) {
+      proyectoCtrl.setErrors(null);
+    }
+  }
+
+  limpiarProducto(event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.form.patchValue({ producto: null });
+  }
+
+  limpiarModulo(event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.form.patchValue({ modulo: null });
   }
 
   searchCliente = createTypeaheadSearch<Cliente>(
@@ -134,16 +201,30 @@ export class EventoCrud extends CrudFormModal<Evento> {
   );
   modalSelCliente(event: Event) {
     event.preventDefault();
+    event.stopPropagation();
+    
     this.selCliente = this.dialogService.open(ClienteSelect, {
       ...modalConfig,
-      header: "Seleccionar Cliente"
+      header: "Seleccionar Cliente",
+      focusOnShow: false
     });
 
+    if (!this.selCliente) return;
+
     this.selCliente.onClose.subscribe((result: any) => {
-      if (!result) return;
-      this.form.patchValue({
-        cliente: result
-      });
+      if (result) {
+        this.form.patchValue({
+          cliente: result
+        });
+      }
+      // Prevenir el comportamiento por defecto y mantener foco
+      setTimeout(() => {
+        const clienteInput = document.getElementById('cliente') as HTMLInputElement;
+        if (clienteInput) {
+          clienteInput.focus();
+          clienteInput.select();
+        }
+      }, 200);
     });
   }
 
@@ -156,20 +237,34 @@ export class EventoCrud extends CrudFormModal<Evento> {
   );
   modalSelProyecto(event: Event) {
     event.preventDefault();
+    event.stopPropagation();
+    
     const clienteId = this.form.get('cliente')?.value?.id ?? null;
     this.selProyecto = this.dialogService.open(ProyectoSelect, {
       ...modalConfig,
       header: "Seleccionar Proyecto",
+      focusOnShow: false,
       data: {
         clienteId: clienteId
       }
     });
 
+    if (!this.selProyecto) return;
+
     this.selProyecto.onClose.subscribe((result: any) => {
-      if (!result) return;
-      this.form.patchValue({
-        proyecto: result
-      });
+      if (result) {
+        this.form.patchValue({
+          proyecto: result
+        });
+      }
+      // Prevenir el comportamiento por defecto y mantener foco
+      setTimeout(() => {
+        const proyectoInput = document.getElementById('proyecto') as HTMLInputElement;
+        if (proyectoInput) {
+          proyectoInput.focus();
+          proyectoInput.select();
+        }
+      }, 200);
     });
   }
 
@@ -182,16 +277,30 @@ export class EventoCrud extends CrudFormModal<Evento> {
   );
   modalSelProducto(event: Event) {
     event.preventDefault();
+    event.stopPropagation();
+    
     this.selProducto = this.dialogService.open(ProductoSelect, {
       ...modalConfig,
-      header: "Seleccionar Producto"
+      header: "Seleccionar Producto",
+      focusOnShow: false
     });
 
+    if (!this.selProducto) return;
+
     this.selProducto.onClose.subscribe((result: any) => {
-      if (!result) return;
-      this.form.patchValue({
-        producto: result
-      });
+      if (result) {
+        this.form.patchValue({
+          producto: result
+        });
+      }
+      // Prevenir el comportamiento por defecto y mantener foco
+      setTimeout(() => {
+        const productoInput = document.getElementById('producto') as HTMLInputElement;
+        if (productoInput) {
+          productoInput.focus();
+          productoInput.select();
+        }
+      }, 200);
     });
   }
 
@@ -218,33 +327,50 @@ export class EventoCrud extends CrudFormModal<Evento> {
 
     this.moduloService.getAll().subscribe({
       next: (res: any) => {
-        this.modulos = res;
-        this.searchModulo = createTypeaheadSearch(this.modulos, m => `${m.codigo} - ${m.nombre}`);
-        this.checkAndSetupEditMode();
+        setTimeout(() => {
+          this.modulos = res;
+          this.searchModulo = createTypeaheadSearch(this.modulos, m => `${m.codigo} - ${m.nombre}`);
+          this.checkAndSetupEditMode();
+          this.cdr.detectChanges();
+        });
       }
     });
 
-    this.tipoEventoService.getAll().subscribe({
+    this.tipoEventoService.getAll().pipe(
+      map((tipos: TipoEvento[]) => tipos.map(te => ({
+        ...te,
+        label: `${te.codigo} - ${te.descripcion}`
+      })))
+    ).subscribe({
       next: (res: any) => {
-        this.tiposEvento = res;
-        this.searchTipoEvento = createTypeaheadSearch(this.tiposEvento, te => `${te.codigo} - ${te.descripcion}`);
-        this.checkAndSetupEditMode();
+        setTimeout(() => {
+          this.tiposEvento = res;
+          this.searchTipoEvento = createTypeaheadSearch(this.tiposEvento, te => `${te.codigo} - ${te.descripcion}`);
+          this.checkAndSetupEditMode();
+          this.cdr.detectChanges();
+        });
       }
     });
 
     this.clienteService.getAll().subscribe({
       next: (res: any) => {
-        this.clientes = res;
-        this.searchCliente = createTypeaheadSearch(this.clientes, c => `${c.sigla} - ${c.nombre}`);
-        this.checkAndSetupEditMode();
+        setTimeout(() => {
+          this.clientes = res;
+          this.searchCliente = createTypeaheadSearch(this.clientes, c => `${c.sigla} - ${c.nombre}`);
+          this.checkAndSetupEditMode();
+          this.cdr.detectChanges();
+        });
       }
     });
 
     this.productoService.getAll().subscribe({
       next: (res: any) => {
-        this.productos = res;
-        this.searchProducto = createTypeaheadSearch(this.productos, p => `${p.sigla} - ${p.nombre} | ${p.entornoCodigo}`);
-        this.checkAndSetupEditMode();
+        setTimeout(() => {
+          this.productos = res;
+          this.searchProducto = createTypeaheadSearch(this.productos, p => `${p.sigla} - ${p.nombre} | ${p.entornoCodigo}`);
+          this.checkAndSetupEditMode();
+          this.cdr.detectChanges();
+        });
       }
     });
 
@@ -256,14 +382,51 @@ export class EventoCrud extends CrudFormModal<Evento> {
       this.applyTipoPropioValidators(te);
     });
 
-    // Suscribirse a cambios en cliente para recargar proyectos filtrados
+    // Suscribirse a cambios en cliente para filtrar proyectos localmente
     this.form.get('cliente')?.valueChanges.subscribe((cliente: Cliente | null) => {
-      // Solo recargar proyectos si es un objeto Cliente válido, no un string
+      // Solo filtrar proyectos si es un objeto Cliente válido, no un string
       if (cliente && typeof cliente === 'object' && cliente.id) {
-        const clienteId = cliente.id;
-        this.getProyectos(clienteId);
+        
+        // Asegurarse de que proyectosCompletos esté inicializado
+        if (!this.proyectosCompletos || this.proyectosCompletos.length === 0) {
+          return;
+        }
+        
+        // Filtrar localmente los proyectos usando la relación inversa (cliente.proyectoIds)
+        const proyectosFiltrados = this.proyectosCompletos.filter(p => 
+          cliente.proyectoIds && Array.isArray(cliente.proyectoIds) && cliente.proyectoIds.includes(p.id!)
+        );
+        
+        // Actualizar la lista de proyectos y el typeahead search
+        this.proyectos = proyectosFiltrados;
+        this.searchProyecto = createTypeaheadSearch(
+          this.proyectos, 
+          p => `${p.sigla} - ${p.nombre}`
+        );
+        
         // Limpiar el proyecto seleccionado cuando cambia el cliente
         this.form.patchValue({ proyecto: null }, { emitEvent: false });
+        
+        // Validar si hay proyectos disponibles
+        const proyectoCtrl = this.form.get('proyecto');
+        if (proyectosFiltrados.length === 0) {
+          proyectoCtrl?.setErrors({ sinProyectos: true });
+          this.showWarn(
+            'Formulario incompleto',
+            `El cliente seleccionado no tiene proyectos asociados. Por favor seleccione otro cliente o cree un proyecto para este cliente.`
+          );
+        } else {
+          if (proyectoCtrl?.hasError('sinProyectos')) {
+            proyectoCtrl.setErrors(null);
+          }
+        }
+      } else if (!cliente) {
+        // Si se limpia el cliente, restaurar todos los proyectos
+        this.proyectos = this.proyectosCompletos || [];
+        this.searchProyecto = createTypeaheadSearch(
+          this.proyectos, 
+          p => `${p.sigla} - ${p.nombre}`
+        );
       }
     });
 
@@ -276,12 +439,29 @@ export class EventoCrud extends CrudFormModal<Evento> {
     });
   }
 
-  getProyectos(clienteId: number | null = null) {
-    this.proyectoService.getAll(FiltroActivo.TRUE, clienteId).subscribe({
+  getProyectos() {
+    // Cargar todos los proyectos activos una sola vez
+    this.proyectoService.getAll(FiltroActivo.TRUE).subscribe({
       next: (res: any) => {
-        this.proyectos = res;
-        this.searchProyecto = createTypeaheadSearch(this.proyectos, p => `${p.sigla} - ${p.nombre}`);
-        this.checkAndSetupEditMode();
+        setTimeout(() => {
+          // Transformar la estructura si viene con la relación 'clientes' en lugar de 'clienteIds'
+          const proyectosTransformados = res.map((p: any) => {
+            if (!p.clienteIds && p.clientes && Array.isArray(p.clientes)) {
+              // Extraer los clienteId desde el array de relaciones
+              return {
+                ...p,
+                clienteIds: p.clientes.map((c: any) => c.clienteId)
+              };
+            }
+            return p;
+          });
+          
+          this.proyectosCompletos = proyectosTransformados;
+          this.proyectos = proyectosTransformados;
+          this.searchProyecto = createTypeaheadSearch(this.proyectos, p => `${p.sigla} - ${p.nombre}`);
+          this.checkAndSetupEditMode();
+          this.cdr.detectChanges();
+        });
       }
     });
   }
@@ -297,61 +477,116 @@ export class EventoCrud extends CrudFormModal<Evento> {
       estimacion: new FormControl(0),
       prioridadUsu: new FormControl(1),
       facEventoCerr: new FormControl(false),
-      cliente: new FormControl(null, [Validators.required]),
-      proyecto: new FormControl(null, [Validators.required]),
-      producto: new FormControl(null, [Validators.required]),
+      cliente: new FormControl(null, [Validators.required, EventoCrud.objectValidator()]),
+      proyecto: new FormControl(null, [Validators.required, EventoCrud.objectValidator()]),
+      producto: new FormControl(null, [Validators.required, EventoCrud.objectValidator()]),
       usuarioAltaId: new FormControl(this.usuarioActivo?.id),
-      modulo: new FormControl(null, [Validators.required]),
+      modulo: new FormControl(null, [Validators.required, EventoCrud.objectValidator()]),
       comentario: new FormControl(''),
     });
+  }
+
+  private validateClienteProyectoRelation(): boolean {
+    const clienteCtrl = this.form.get('cliente');
+    const proyectoCtrl = this.form.get('proyecto');
+    
+    const cliente = clienteCtrl?.value;
+    const proyecto = proyectoCtrl?.value;
+
+    // Si no hay cliente válido seleccionado
+    if (!cliente || typeof cliente !== 'object' || !cliente.id) {
+      return false;
+    }
+
+    // Verificar si el cliente tiene proyectos asociados usando la relación inversa
+    const proyectosDelCliente = this.proyectosCompletos?.filter(p => 
+      cliente.proyectoIds && Array.isArray(cliente.proyectoIds) && cliente.proyectoIds.includes(p.id!)
+    ) || [];
+    
+    return proyectosDelCliente.length > 0;
+  }
+
+  onProyectoBlur(): void {
+    this.validateTypeaheadField('proyecto', this.proyectos);
+  }
+
+  onClienteBlur(): void {
+    this.validateTypeaheadField('cliente', this.clientes);
+  }
+
+  onProductoBlur(): void {
+    this.validateTypeaheadField('producto', this.productos);
+  }
+
+  onModuloBlur(): void {
+    this.validateTypeaheadField('modulo', this.modulos);
+  }
+
+  private validateTypeaheadField(fieldName: string, sourceArray: any[]): void {
+    const ctrl = this.form.get(fieldName);
+    if (!ctrl) return;
+
+    ctrl.markAsTouched();
+    const value = ctrl.value;
+
+    // Si está vacío, dejar que el validador 'required' lo maneje
+    if (!value) {
+      return;
+    }
+
+    // Si es un string o no tiene id ni codigo, es inválido
+    if (typeof value === 'string' || (typeof value === 'object' && !value.id && !value.codigo)) {
+      ctrl.setValue(null);
+      ctrl.markAsTouched();
+      this.showError('Selección inválida', `Por favor seleccione una opción válida de la lista.`);
+    }
   }
 
   protected populateForm(data: Evento): void {
     // Buscar los objetos completos para los typeahead
     const tipoEventoObj = this.tiposEvento?.find(te => te.codigo === data.tipoCodigo) || null;
     const clienteObj = this.clientes?.find(c => c.id === data.clienteId) || null;
-    const proyectoObj = this.proyectos?.find(p => p.id === data.proyectoId) || null;
+    const proyectoObj = this.proyectosCompletos?.find(p => p.id === data.proyectoId) || null;
     const productoObj = this.productos?.find(p => p.id === data.productoId) || null;
     const moduloObj = this.modulos?.find(m => m.codigo === data.moduloCodigo) || null;
 
-    setTimeout(() => {
-      this.form.patchValue({
-        id: data.id ?? '',
-        tipoEvento: tipoEventoObj,
-        numero: data.numero,
-        titulo: data.titulo,
-        cerrado: data.cerrado,
-        facEventoCerr: data.facEventoCerr,
-        etapaActual: data.etapaActual,
-        cliente: clienteObj,
-        proyecto: proyectoObj,
-        producto: productoObj,
-        usuarioAltaId: data.usuarioAltaId,
-        estimacion: data.estimacion,
-        modulo: moduloObj,
-        prioridadUsu: data.prioridadUsu,
-        comentario: data.comentario ?? ''
-      });
-      // Aplicar validadores según el tipo (propio o no) después de poblar el formulario
-      this.applyTipoPropioValidators(tipoEventoObj);
-
-      this.cdr.detectChanges();
-    }, 0);
+    this.form.patchValue({
+      id: data.id ?? '',
+      tipoEvento: tipoEventoObj,
+      numero: data.numero,
+      titulo: data.titulo,
+      cerrado: data.cerrado,
+      facEventoCerr: data.facEventoCerr,
+      etapaActual: data.etapaActual,
+      cliente: clienteObj,
+      proyecto: proyectoObj,
+      producto: productoObj,
+      usuarioAltaId: data.usuarioAltaId,
+      estimacion: data.estimacion,
+      modulo: moduloObj,
+      prioridadUsu: data.prioridadUsu,
+      comentario: data.comentario ?? ''
+    });
+    // Aplicar validadores según el tipo (propio o no) después de poblar el formulario
+    this.applyTipoPropioValidators(tipoEventoObj);
   }
 
   protected override setupEditMode(): void {
     // Solo llamamos a populateForm cuando todos los datos están cargados
     if (this.config?.data?.item) {
-      this.populateForm(this.config.data.item);
+      setTimeout(() => {
+        this.populateForm(this.config.data.item);
+        this.cdr.detectChanges();
+      });
     }
   }
   private checkAndSetupEditMode() {
     this.dataLoadedCount++;
     if (this.dataLoadedCount === this.totalDataToLoad) {
       if (this.modo === 'M') {
-        this.setupEditMode();
-        // Usar setTimeout para evitar el error NG0100
         setTimeout(() => {
+          this.setupEditMode();
+          // Ocultar loading después de cargar
           this.loading = false;
           this.cdr.detectChanges();
         });
@@ -404,11 +639,72 @@ export class EventoCrud extends CrudFormModal<Evento> {
 
   accion(event: Event) {
     event.preventDefault();
+    
+    // Marcar todos los controles como touched para mostrar errores
+    Object.keys(this.form.controls).forEach(key => {
+      this.form.get(key)?.markAsTouched();
+    });
+
+    // Si el formulario es inválido, mostrar mensaje con campos faltantes
+    if (this.form.invalid) {
+      const camposFaltantes = this.getCamposFaltantes();
+      if (camposFaltantes.length > 0) {
+        this.showError(
+          'Formulario incompleto',
+          `Por favor complete los siguientes campos: ${camposFaltantes.join(', ')}`
+        );
+      }
+      return;
+    }
+
     this.submit();
   }
 
+  private getCamposFaltantes(): string[] {
+    const campos: { [key: string]: string } = {
+      tipoEvento: 'Tipo de evento',
+      titulo: 'Título',
+      cliente: 'Cliente',
+      proyecto: 'Proyecto',
+      producto: 'Producto',
+      modulo: 'Módulo',
+      prioridadUsu: 'Prioridad',
+      comentario: 'Comentario'
+    };
+
+    const faltantes: string[] = [];
+    
+    Object.keys(campos).forEach(key => {
+      const control = this.form.get(key);
+      if (control?.invalid) {
+        if (control?.errors?.['required']) {
+          faltantes.push(campos[key]);
+        } else if (control?.errors?.['invalidObject']) {
+          faltantes.push(`${campos[key]} (selección inválida)`);
+        }
+      }
+    });
+
+    // Validar relación cliente-proyecto al enviar
+    const proyectoCtrl = this.form.get('proyecto');
+    if (proyectoCtrl?.errors?.['sinProyectos']) {
+      // Ya tiene el error, no agregarlo a la lista
+    } else if (!proyectoCtrl?.errors?.['required'] && !this.validateClienteProyectoRelation()) {
+      const tipoEventoCtrl = this.form.get('tipoEvento');
+      const tipoEvento = tipoEventoCtrl?.value;
+      const esPropio = !!tipoEvento?.propio;
+      
+      if (!esPropio) {
+        proyectoCtrl?.setErrors({ sinProyectos: true });
+        proyectoCtrl?.markAsTouched();
+      }
+    }
+
+    return faltantes;
+  }
+
   can(accion: PermisoAccion): boolean {
-    return this.permisosService.can(PermisoClave.EVENTO_TIPO_FAC, accion);
+    return this.permisosService.can(buildPermiso(PermisoClave.EVENTO_TIPO_FAC, accion));
   }
 
   private applyTipoPropioValidators(tipo: TipoEvento | null) {
@@ -420,11 +716,11 @@ export class EventoCrud extends CrudFormModal<Evento> {
       if (!ctrl) return;
 
       if (propio) {
-        // quitar required si es propio
-        ctrl.clearValidators();
+        // quitar required si es propio, pero mantener validador de objeto
+        ctrl.setValidators([EventoCrud.objectValidator()]);
       } else {
-        // volver a poner required si no es propio
-        ctrl.setValidators([Validators.required]);
+        // volver a poner required si no es propio, más el validador de objeto
+        ctrl.setValidators([Validators.required, EventoCrud.objectValidator()]);
       }
       ctrl.updateValueAndValidity({ emitEvent: false });
     });
@@ -457,11 +753,18 @@ export class EventoCrud extends CrudFormModal<Evento> {
       return;
     }
 
-    // Si hay cliente y proyecto válidos, validar que coincidan
-    if (proyecto.clienteId !== cliente.id) {
+    // Si hay cliente y proyecto válidos, validar que coincidan (relación muchos a muchos)
+    const clienteId = cliente.id;
+    const proyectoClienteIds = proyecto.clienteIds;
+    
+    if (!proyectoClienteIds || !Array.isArray(proyectoClienteIds) || !proyectoClienteIds.includes(clienteId)) {
       this.showError('Error', 'El proyecto seleccionado no pertenece al cliente seleccionado.');
       this.form.patchValue({ proyecto: null }, { emitEvent: false });
     }
   }
 
+  get tipoNumero(): string {
+    const str = String(this.form.get('numero')?.value);
+    return this.form.get('tipoEvento')?.value?.codigo +"-" + str.padStart(3, '0');
+  }
 }

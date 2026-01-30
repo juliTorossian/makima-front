@@ -20,6 +20,7 @@ export class ItemAdjuntoComponent {
   iconosTipo: Record<string, string> = {
     pdf: 'lucideFile-text',
     png: 'lucideImage',
+    svg: 'lucideImage',
     jpg: 'lucideImage',
     jpeg: 'lucideImage',
     xlsx: 'lucideFile-spreadsheet',
@@ -30,11 +31,13 @@ export class ItemAdjuntoComponent {
   };
 
   getIcon(): string {
-    const mime = this.adjunto?.mimeType || '';
+    const mime = this.adjunto?.archivo.mimeType || '';
     if (mime.includes('pdf')) return this.iconosTipo['pdf'];
-    if (mime.includes('png')) return this.iconosTipo['png'];
-    if (mime.includes('jpg')) return this.iconosTipo['jpg'];
-    if (mime.includes('jpeg')) return this.iconosTipo['jpeg'];
+    // if (mime.includes('png')) return this.iconosTipo['png'];
+    // if (mime.includes('jpg')) return this.iconosTipo['jpg'];
+    // if (mime.includes('svg')) return this.iconosTipo['svg'];
+    // if (mime.includes('jpeg')) return this.iconosTipo['jpeg'];
+    if (mime.includes('image')) return this.iconosTipo['png'];
     if (mime.includes('xlsx')) return this.iconosTipo['xlsx'];
     if (mime.includes('docx')) return this.iconosTipo['docx'];
     if (mime.includes('doc')) return this.iconosTipo['doc'];
@@ -43,14 +46,15 @@ export class ItemAdjuntoComponent {
   }
 
   abrirAdjunto() {
-    if (this.adjunto?.pathFile) {
+    if (this.adjunto?.archivo.path) {
       this.eventoService.getAdjuntoBlob(this.adjunto.id).subscribe(blob => {
         const url = URL.createObjectURL(blob);
-        const mime = this.adjunto?.mimeType || '';
+        const mime = this.adjunto?.archivo.mimeType || '';
         // Archivos visualizables: pdf, imágenes, txt
         if (
           mime.includes('pdf') ||
           mime.includes('png') ||
+          mime.includes('svg') ||
           mime.includes('jpg') ||
           mime.includes('jpeg') ||
           mime.includes('gif') ||
@@ -61,14 +65,14 @@ export class ItemAdjuntoComponent {
           const win = window.open(url, '_blank');
           if (win) {
             win.onload = () => {
-              win.document.title = this.adjunto.nameFile;
+              win.document.title = this.adjunto.archivo.name;
             };
           }
         } else {
           // Descargar con nombre correcto
           const a = document.createElement('a');
           a.href = url;
-          a.download = this.adjunto.nameFile;
+          a.download = this.adjunto.archivo.name;
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
@@ -84,14 +88,10 @@ export class ItemAdjuntoComponent {
   }
 
   getFecha(): string {
-    console.log(this.adjunto);
-    console.log(this.adjunto.auditorias[0]);
-    console.log(this.adjunto.auditorias[0].fecha);
     let fecha = '';
     if (this.adjunto?.auditorias[0].fecha) {
       fecha = new Date(this.adjunto.auditorias[0].fecha).toLocaleDateString();
     }
-    console.log(fecha);
     return fecha;
   }
 

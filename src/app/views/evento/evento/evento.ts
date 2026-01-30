@@ -3,7 +3,7 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectorRef, Component, inject, Input, OnInit } from '@angular/core';
 import { UiCard } from '@app/components/ui-card';
 import { ShortcutDirective } from '@core/directive/shortcut';
-import { Evento_requisito, Evento_requisito_completo, EventoCompleto, VidaEvento } from '@core/interfaces/evento';
+import { Evento_requisito, Evento_requisito_completo, EventoCompleto, EventoDocumentacion, formatEventoNumero, VidaEvento } from '@core/interfaces/evento';
 import { EventoService } from '@core/services/evento';
 import { NgIcon } from '@ng-icons/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -20,16 +20,20 @@ import { FileUploader } from '@app/components/file-uploader/file-uploader';
 import { modalConfig } from '@/app/types/modals';
 import { UserStorageService, UsuarioLogeado } from '@core/services/user-storage';
 import { FormsModule } from '@angular/forms';
-import { finalize } from 'rxjs';
+import { finalize, firstValueFrom } from 'rxjs';
 import { LoadingService } from '@core/services/loading.service';
 import { LoadingSpinnerComponent } from '@app/components/index';
 import { Tipo_requisito } from '@core/interfaces/etapa';
-import { showError } from '@/app/utils/message-utils';
+import { showError, showSuccessToast } from '@/app/utils/message-utils';
 import { PermisosService } from '@core/services/permisos';
 import { PermisoAccion } from '@/app/types/permisos';
 import { PermisoClave } from '@core/interfaces/rol';
+import { buildPermiso } from '@/app/utils/permiso-utils';
 import { getEstadoDescCorto } from '@/app/constants/evento_estados';
 import { PadZeroPipe } from '@core/pipes/pad-zero.pipe';
+import { ItemDocumentacion } from "./components/item-documentacion/item-documentacion";
+import { PaginasLibresModal } from './components/paginas-libres-modal/paginas-libres-modal';
+import { ParametroService } from '@core/services/parametros';
 
 
 @Component({
@@ -47,8 +51,8 @@ import { PadZeroPipe } from '@core/pipes/pad-zero.pipe';
     NgIcon,
     FormsModule,
     LoadingSpinnerComponent,
-    PadZeroPipe,
-  ],
+    ItemDocumentacion
+],
   providers: [
     DialogService,
     MessageService,
@@ -58,20 +62,24 @@ import { PadZeroPipe } from '@core/pipes/pad-zero.pipe';
   styleUrl: './evento.scss'
 })
 export class Evento implements OnInit {
-  @Input() eventoIdParam!:string;
+  @Input() eventoIdParam!: string;
+  @Input() targetId?: string;
   private loadingService = inject(LoadingService);
   private dialogService = inject(DialogService);
   private messageService = inject(MessageService);
   protected confirmationService = inject(ConfirmationService);
   protected permisosService = inject(PermisosService);
-  ref!: DynamicDialogRef;
+  ref!: DynamicDialogRef | null;
   private rutActiva = inject(ActivatedRoute);
   private cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
   private userStorageService = inject(UserStorageService);
+  private parametroService = inject(ParametroService);
+
+  readonly PermisoAccion = PermisoAccion;
   getEstadoDescCorto = getEstadoDescCorto;
 
-  usuarioActivo:UsuarioLogeado | null = this.userStorageService.getUsuario();
-  permisoClave = PermisoClave.EVENTO_DOCUMENTO;
+  usuarioActivo: UsuarioLogeado | null = this.userStorageService.getUsuario();
+  permisoClave = PermisoClave.EVENTO;
 
   private eventoService = inject(EventoService);
   evento!: EventoCompleto;
@@ -81,20 +89,34 @@ export class Evento implements OnInit {
   esObservador: boolean = false;
   togglingObservador: boolean = false;
 
-  eventoId!:string;
+  eventoId!: string;
 
   adjuntosReloading = false;
-  adjuntos!:any[];
-  
+  adjuntos!: any[];
+
+  documentacionReloading = false;
+  documentacion!: EventoDocumentacion[];
+  documentacionActiva: boolean = false;
+
   requisitosReloading = false;
-  requisitos!:Evento_requisito_completo[];
+  requisitos!: Evento_requisito_completo[];
 
   vidaEvento!: VidaEvento[];
+  mostrarTodasLasActividades: boolean = false;
   nuevoComentario: string = '';
 
-  onActualizarRequisito(req:any, event: any) {
+  get actividadesMostradas(): VidaEvento[] {
+    if (!this.vidaEvento) return [];
+    if (this.mostrarTodasLasActividades || this.vidaEvento.length <= 7) {
+      return this.vidaEvento;
+    }
+    // Mostramos las últimas 7 (las más recientes al final)
+    return this.vidaEvento.slice(-7);
+  }
+
+  onActualizarRequisito(req: any, event: any) {
     // Aquí puedes ajustar el payload según lo que espera tu backend
-    let payload:any = {
+    let payload: any = {
       requisitoId: req.requisito.id,
       eventoId: this.eventoId,
       usuarioId: this.usuarioActivo?.id,
@@ -122,22 +144,21 @@ export class Evento implements OnInit {
         payload.url = event.target.files[0];
         break;
     }
-
-    console.log('onActualizarRequisito')
-    console.log(payload)
     if (req.cumplido) {
       this.eventoService.updateEventoRequisito(this.eventoId, req.requisito.id, payload).subscribe({
         next: (res) => {
           this.onReloadRequisitos();
+          showSuccessToast(this.messageService, 'Requisito registrado', 'El requisito ha sido registrado exitosamente.');
         },
         error: (err) => {
           showError(this.messageService, 'Error al actualizar requisito:', err.error.message);
         }
       });
-    }else{
+    } else {
       this.eventoService.registrarEventoRequisito(this.eventoId, payload).subscribe({
         next: (res) => {
           this.onReloadRequisitos();
+          showSuccessToast(this.messageService, 'Requisito registrado', 'El requisito ha sido registrado exitosamente.');
         },
         error: (err) => {
           showError(this.messageService, 'Error al registrar requisito:', err.error.message);
@@ -145,8 +166,8 @@ export class Evento implements OnInit {
       });
     }
   }
-  getType(req:any):string {
-    switch(req.requisito.tipo) {
+  getType(req: any): string {
+    switch (req.requisito.tipo) {
       case Tipo_requisito.text:
         return 'text';
       case Tipo_requisito.date:
@@ -163,7 +184,7 @@ export class Evento implements OnInit {
 
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     if (this.eventoIdParam) {
       this.eventoId = this.eventoIdParam;
     } else {
@@ -171,8 +192,10 @@ export class Evento implements OnInit {
     }
     // console.log(this.eventoId)
 
+    this.documentacionActiva = await this.getDocumentacionActiva();
     this.getEvento();
     this.onReloadAdjuntos();
+    this.onReloadDocumentacion();
     this.onReloadRequisitos();
     this.getActividadEvento();
   }
@@ -184,8 +207,12 @@ export class Evento implements OnInit {
       finalize(() => this.cargandoEvento = false)
     ).subscribe(
       {
-        next: (res:any) => {
-          this.evento = res;
+        next: (res: any) => {
+          console.log(res);
+          this.evento = {
+            ...res,
+            evento: formatEventoNumero(res.tipo.codigo, res.numero)
+          };
           const usuarioId = this.usuarioActivo?.id;
           const observadores = this.evento.observadores;
           if (usuarioId && Array.isArray(observadores)) {
@@ -195,7 +222,7 @@ export class Evento implements OnInit {
           }
           this.cdr.detectChanges();
         },
-        error: (err:any) => {
+        error: (err: any) => {
           console.error('Error fetching evento:', err);
         }
       }
@@ -205,17 +232,19 @@ export class Evento implements OnInit {
   onToggleObservador() {
     if (!this.usuarioActivo) return;
     this.togglingObservador = true;
-    this.eventoService.toggleObservador(this.eventoId, this.usuarioActivo.id).pipe(finalize(()=> this.togglingObservador = false)).subscribe({
-      next: (res:any) => {
+    this.eventoService.toggleObservador(this.eventoId, this.usuarioActivo.id)
+    .pipe(finalize(() => {this.togglingObservador = false; this.cdr.detectChanges();}))
+    .subscribe({
+      next: (res: any) => {
         // alternar estado local
         this.esObservador = !this.esObservador;
         // recargar actividad/opciones si es necesario
         this.getActividadEvento();
-        this.messageService.add({severity: 'success', summary: 'Éxito', detail: this.esObservador ? 'Ahora eres observador del evento' : 'Ya no eres observador del evento'});
+        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: this.esObservador ? 'Ahora eres observador del evento' : 'Ya no eres observador del evento' });
       },
-      error: (err:any) => {
+      error: (err: any) => {
         console.error('Error toggle observador:', err);
-        this.messageService.add({severity: 'error', summary: 'Error', detail: err?.error?.message || 'No se pudo alternar observador'});
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: err?.error?.message || 'No se pudo alternar observador' });
       }
     });
   }
@@ -225,14 +254,37 @@ export class Evento implements OnInit {
 
     this.eventoService.getAdjuntos(this.eventoId).subscribe(
       {
-        next: (res:any) => {
+        next: (res: any) => {
           // console.log(res)
           this.adjuntos = res;
           this.adjuntosReloading = false;
           this.cdr.detectChanges();
         },
-        error: (err:any) => {
+        error: (err: any) => {
           console.error('Error fetching adjuntos:', err);
+        }
+      }
+    );
+  }
+
+  onReloadDocumentacion() {
+    this.documentacionReloading = true;
+
+    this.eventoService.getDocumentacion(this.eventoId)
+    .pipe(finalize(() => { this.documentacionReloading = false; this.cdr.detectChanges(); }))
+    .subscribe(
+      {
+        next: (res: any) => {
+          // console.log(res)
+          this.documentacion = res.sort((a: EventoDocumentacion, b: EventoDocumentacion) => {
+            // Ordenar primero por esPrincipal, luego por fecha descendente
+            if (a.esPrincipal && !b.esPrincipal) return -1;
+            if (!a.esPrincipal && b.esPrincipal) return 1;
+            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+          });
+        },
+        error: (err: any) => {
+          console.error('Error fetching docs:', err);
         }
       }
     );
@@ -243,10 +295,10 @@ export class Evento implements OnInit {
 
     this.eventoService.getRequisitos(this.eventoId).subscribe(
       {
-        next: (res:any) => {
+        next: (res: any) => {
           // console.log(res)
           // Inicializar cumplimiento si es null
-          this.requisitos = res.map((req:any) => {
+          this.requisitos = res.map((req: any) => {
             if (!req.cumplimiento) {
               req.cumplimiento = { valor: '' };
             }
@@ -255,7 +307,7 @@ export class Evento implements OnInit {
           this.requisitosReloading = false;
           this.cdr.detectChanges();
         },
-        error: (err:any) => {
+        error: (err: any) => {
           console.error('Error fetching requisitos:', err);
         }
       }
@@ -265,19 +317,38 @@ export class Evento implements OnInit {
   getActividadEvento() {
     this.eventoService.getActividad(this.eventoId).subscribe(
       {
-        next: (res:any) => {
-          console.log(res)
+        next: (res: any) => {
+          // console.log(res)
           this.vidaEvento = res;
           this.cdr.detectChanges();
+
+          if (this.targetId) {
+            this.mostrarTodasLasActividades = true;
+            setTimeout(() => {
+              this.scrollToTarget();
+            }, 500);
+          }
         },
-        error: (err:any) => {
+        error: (err: any) => {
           console.error('Error fetching actividad evento:', err);
         }
       }
     );
   }
 
-  onEliminarAdjunto(event:any){
+  scrollToTarget() {
+    if (!this.targetId) return;
+    const element = document.getElementById(`actividad-adicion-${this.targetId}`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      element.classList.add('blink-target');
+      setTimeout(() => {
+        element.classList.remove('blink-target');
+      }, 3000);
+    }
+  }
+
+  onEliminarAdjunto(event: any) {
     console.log('Eliminar adjunto:', event);
     this.confirmationService.confirm({
       message: `¿Seguro que querés eliminar ${event.nameFile}?`,
@@ -297,6 +368,39 @@ export class Evento implements OnInit {
     });
   }
 
+  onEliminarDocumento(documento: any) {
+    console.log('Eliminar documento:', documento);
+    this.confirmationService.confirm({
+      message: `¿Seguro que querés desasociar ${documento.title}?`,
+      header: 'Confirmar desasociación',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.eventoService.desasociarPaginaNotion(documento.id).subscribe({
+          next: (res) => {
+            console.log('Documento desasociado:', res);
+            this.onReloadDocumentacion();
+          },
+          error: (err) => {
+            console.error('Error al desasociar documento:', err);
+          }
+        });
+      }
+    });
+  }
+  onTogglePrincipalDocumento(documento: any) {
+    this.eventoService.togglePaginaPrincipal(documento.id)
+    .pipe(finalize(() => { this.cdr.detectChanges(); }))
+    .subscribe({
+      next: (res) => {
+        console.log('Documento desasociado:', res);
+        this.onReloadDocumentacion();
+      },
+      error: (err) => {
+        console.error('Error al desasociar documento:', err);
+      }
+    });
+  }
+
   onUploadAdjunto() {
     this.ref = this.dialogService.open(FileUploader, {
       ...modalConfig,
@@ -307,23 +411,41 @@ export class Evento implements OnInit {
       }
     });
 
+    if (!this.ref) return;
+
     this.ref.onClose.subscribe((result: any) => {
+      if (!result) return;
+    });
+  }
+
+  onLinkDocumentacion() {
+    // console.error('No desarrollado aún: subir documentación');
+    this.ref = this.dialogService.open(PaginasLibresModal, {
+      ...modalConfig,
+      header: "Adjuntar Documentación",
+      data: {
+        eventoId: this.eventoId,
+      }
+    });
+
+    if (!this.ref) return;
+
+    this.ref.onClose.subscribe((result: any) => {
+      this.onReloadDocumentacion();
       if (!result) return;
     });
   }
 
   onEnviarComentario() {
     if (!this.nuevoComentario.trim()) return;
-    
-    console.log('Comentario enviado:', this.nuevoComentario);
+
     const formData = new FormData();
     formData.append('eventoId', this.eventoId);
     formData.append('usuarioId', this.usuarioActivo?.id || '');
     formData.append('tipo', "COMENTARIO");
-    formData.append('comentario', this.nuevoComentario);
+    formData.append('comentario', JSON.stringify({ "texto": this.nuevoComentario }));
     this.eventoService.agregarAdicional(this.eventoId, formData).subscribe({
       next: (res) => {
-        console.log('Comentario guardado:', res);
         this.getActividadEvento();
       },
       error: (err) => {
@@ -334,7 +456,11 @@ export class Evento implements OnInit {
   }
 
   can(accion: PermisoAccion): boolean {
-    return this.permisosService.can(this.permisoClave, accion);
+    return this.permisosService.can(buildPermiso(this.permisoClave, accion));
+  }
+
+  canModificarRequisitos(): boolean {
+    return this.can(PermisoAccion.REQ_MODIFICAR);
   }
 
   getRequerimientoDisabled(req: any): boolean {
@@ -343,6 +469,10 @@ export class Evento implements OnInit {
       this.evento.etapaActualData.id < req.etapa.id ||
       this.evento.usuarioActual.id !== this.usuarioActivo?.id
     );
+  }
+
+  async getDocumentacionActiva(): Promise<boolean> {
+    return await firstValueFrom(this.parametroService.getParametroActivo('NOTION_ENABLED'));
   }
 
 }

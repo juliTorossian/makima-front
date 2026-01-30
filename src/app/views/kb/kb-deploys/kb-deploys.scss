@@ -1,0 +1,59 @@
+$prefix: 'ins-';
+
+.kb-deploys-container {
+  padding: 1rem;
+  min-height: 400px;
+
+  .header-section {
+    h5 {
+      color: var(--#{$prefix}body-secondary-color);
+      font-weight: 500;
+
+      strong {
+        color: var(--#{$prefix}primary);
+        font-weight: 600;
+      }
+    }
+  }
+
+  .form-section {
+    background-color: var(--#{$prefix}body-tertiary-bg) !important;
+    animation: slideDown 0.2s ease-out;
+
+    .form-label {
+      font-size: 0.875rem;
+      margin-bottom: 0.5rem;
+      color: var(--#{$prefix}body-secondary-color);
+    }
+
+    .form-control {
+      font-size: 0.875rem;
+    }
+  }
+
+  .table-section {
+    a {
+      color: var(--#{$prefix}primary);
+      
+      &:hover {
+        text-decoration: underline !important;
+      }
+    }
+
+    .badge {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+    }
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

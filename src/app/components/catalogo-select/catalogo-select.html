@@ -1,0 +1,124 @@
+<p-toast></p-toast>
+
+<div class="catalogo-select-wrapper">
+  <!-- Select Principal -->
+  <div class="select-container d-flex align-items-center gap-2">
+    <div class="flex-grow-1">
+      <p-select
+      [options]="catalogos"
+      [(ngModel)]="value"
+      (onChange)="onValueChange($event.value)"
+      [placeholder]="placeholder"
+      [disabled]="disabled || loading"
+      [showClear]="showClear"
+      [filter]="filter"
+      [loading]="loading"
+      optionLabel="codigo"
+      optionValue="codigo"
+      styleClass="w-100"
+      [required]="required"
+      (onBlur)="onTouched()"
+    >
+      <!-- Template para cada opción -->
+      <ng-template #item let-catalogo>
+        <div class="flex align-items-center">
+          <div>{{ getCatalogoLabel(catalogo) }}</div>
+        </div>
+      </ng-template>
+
+      <!-- Footer con botón de nuevo -->
+      <ng-template #footer>
+        <div class="p-2 border-top-1 surface-border">
+          <button
+            type="button"
+            class="w-100 btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center gap-2"
+            (click)="abrirModal()"
+          >
+            <i class="pi pi-plus"></i>
+            <span>Nuevo</span>
+          </button>
+        </div>
+      </ng-template>
+      </p-select>
+    </div>
+    @if (descripcion) {
+      <app-help-tooltip [text]="descripcion" position="top" size="1rem" iconClass="pi pi-question-circle text-muted"></app-help-tooltip>
+    }
+  </div>
+</div>
+
+<!-- Modal de Creación -->
+<p-dialog
+  [(visible)]="modalVisible"
+  [modal]="true"
+  [closable]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '450px' }"
+  (onHide)="cerrarModal()"
+>
+  <ng-template #header>
+    <div class="d-flex align-items-center gap-2">
+      <i class="pi pi-plus-circle text-primary"></i>
+      <span class="fw-bold">Crear Nuevo {{ tipoCatalogo }}</span>
+    </div>
+  </ng-template>
+
+  <div class="dialog-content">
+    <div class="mb-3">
+      <label class="form-label fw-bold">
+        Código <span class="text-danger">*</span>
+      </label>
+      <input
+        type="text"
+        class="form-control"
+        [(ngModel)]="nuevoCodigo"
+        placeholder="Ej: NUEVO_VALOR"
+        [disabled]="creando"
+        (keyup.enter)="guardarNuevo()"
+        autofocus
+      />
+      <small class="text-muted d-block mt-1">
+        El código se guardará en mayúsculas
+      </small>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label fw-bold">Descripción</label>
+      <input
+        type="text"
+        class="form-control"
+        [(ngModel)]="nuevaDescripcion"
+        placeholder="Descripción opcional"
+        [disabled]="creando"
+        (keyup.enter)="guardarNuevo()"
+      />
+    </div>
+  </div>
+
+  <ng-template #footer>
+    <div class="d-flex gap-2 justify-content-end">
+      <button
+        type="button"
+        class="btn btn-secondary"
+        (click)="cerrarModal()"
+        [disabled]="creando"
+      >
+        <i class="pi pi-times me-1"></i>
+        Cancelar
+      </button>
+      <button
+        type="button"
+        class="btn btn-primary"
+        (click)="guardarNuevo()"
+        [disabled]="creando || !nuevoCodigo.trim()"
+      >
+        @if (creando) {
+          <span class="spinner-border spinner-border-sm me-2"></span>
+        }
+        <i class="pi pi-check me-1"></i>
+        Guardar
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>

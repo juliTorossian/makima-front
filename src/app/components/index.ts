@@ -8,3 +8,4 @@ export * from './crud-form-modal/crud-form-modal';
 export * from './trabajar-con/trabajar-con';
 export * from './loading-spinner/loading-spinner';
 export * from './avatar-editable';
+export * from './catalogo-select/catalogo-select';

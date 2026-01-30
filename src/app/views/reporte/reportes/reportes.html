@@ -9,8 +9,16 @@
                         <ng-template pTemplate="left">
                         </ng-template>
                         <ng-template pTemplate="right">
-                            @if (can('A')) {
-                                <button class="btn btn-ghost-success btn-md" (click)="mostrarModalCrud(null, 'A')" [appShortcut]="SHORTCUTS.NUEVO" (appShortcutTrigger)="mostrarModalCrud(null, 'A')">Solicitar Reporte</button>
+                            @if (can(PermisoAccion.CREAR)) {
+                                <button
+                                    class="btn btn-ghost-success btn-md"
+                                    (click)="mostrarModalCrud(null, 'A')"
+                                    [appShortcut]="SHORTCUTS.NUEVO"
+                                    (appShortcutTrigger)="mostrarModalCrud(null, 'A')"
+                                >
+                                    Solicitar Reporte
+                                </button>
+
                             }
                         </ng-template>
                     </p-toolbar>
@@ -71,7 +79,7 @@
                                 <td><app-status-badge [status]="reporte.estado" /></td>
                                 <td>{{ reporte.errorDescripcion }}</td>
                                 <td class="d-flex justify-content-end">
-                                    @if (can('M')) {
+                                    @if (can(PermisoAccion.MODIFICAR)) {
                                         <button class="btn btn-ghost-success" (click)="descargarReporte(reporte)" [disabled]="!reporte.archivoUrl"><ng-icon name="lucideFileDown"/></button>
                                     }
                                 </td>
@@ -101,10 +109,3 @@
         </div>
     </div>
 </div>
-
-<!-- Drawer para mostrar el detalle del usuario -->
-<app-usuario-drawer
-    [visible]="showUsuarioDrawer"
-    [usuarioId]="usuarioSeleccionadoId"
-    (closed)="cerrarUsuarioDrawer()"
-></app-usuario-drawer>

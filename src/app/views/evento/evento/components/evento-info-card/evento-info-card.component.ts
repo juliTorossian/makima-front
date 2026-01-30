@@ -1,7 +1,7 @@
-import { UsuarioDrawerComponent } from '@/app/views/usuario/usuario-drawer/usuario-drawer';
 import { DatePipe } from '@angular/common';
 import { Component, inject, Input, OnInit } from '@angular/core';
 import { BadgeClickComponent } from '@app/components/badge-click';
+import { DrawerService } from '@core/services/drawer.service';
 import { UiCard } from '@app/components/ui-card';
 import { Evento, EventoCompleto, eventoFromEventoCompleto } from '@core/interfaces/evento';
 import { EventoService } from '@core/services/evento';
@@ -18,7 +18,6 @@ import { parseIsoAsLocal } from '@/app/utils/datetime-utils';
     UiCard,
     BadgeClickComponent,
     DatePipe,
-    UsuarioDrawerComponent,
     DividerModule,
     FormsModule,
     PrioridadIconComponent,
@@ -26,12 +25,9 @@ import { parseIsoAsLocal } from '@/app/utils/datetime-utils';
 })
 export class EventoInfoCardComponent implements OnInit {
   private eventoService = inject(EventoService);
+  private drawerService = inject(DrawerService);
   @Input() evento!: EventoCompleto;
   
-  // Estado para el usuario drawer
-  showUsuarioDrawer = false;
-  usuarioSeleccionadoId: string | null = null;
-
     // Utilidad para mostrar fechas en formato yyyy-MM-dd
     formatDateForInput(dateVal: string | Date | null | undefined): string | null {
       if (!dateVal) return null;
@@ -46,13 +42,7 @@ export class EventoInfoCardComponent implements OnInit {
   }
 
   abrirUsuarioDrawer(usuarioId: string) {
-    this.usuarioSeleccionadoId = usuarioId;
-    this.showUsuarioDrawer = true;
-  }
-
-  cerrarUsuarioDrawer() {
-    this.showUsuarioDrawer = false;
-    this.usuarioSeleccionadoId = null;
+    this.drawerService.abrirUsuarioDrawer(usuarioId);
   }
 
   onFechaChange(event:any, campo:string) {

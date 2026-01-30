@@ -22,6 +22,7 @@ import { FiltroActivo } from '@/app/constants/filtros_activo';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { ControlTrabajarCon } from '@app/components/trabajar-con/components/control-trabajar-con';
 import { getTimestamp } from '@/app/utils/time-utils';
+import { PermisoAccion } from '@/app/types/permisos';
 
 @Component({
   selector: 'app-productos',
@@ -49,7 +50,7 @@ import { getTimestamp } from '@/app/utils/time-utils';
 export class Productos extends TrabajarCon<Producto> {
   private productoService = inject(ProductoService);
   private dialogService = inject(DialogService);
-  ref!: DynamicDialogRef;
+  ref!: DynamicDialogRef | null;
 
   productos!:Producto[];
 
@@ -114,6 +115,8 @@ export class Productos extends TrabajarCon<Producto> {
       header,
       data
     });
+
+    if (!this.ref) return;
 
     this.ref.onClose.subscribe((productoCrud: Producto) => {
       if (!productoCrud) return;

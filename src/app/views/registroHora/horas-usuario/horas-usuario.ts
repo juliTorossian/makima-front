@@ -19,6 +19,7 @@ import { TableModule } from 'primeng/table';
 import { UserStorageService, UsuarioLogeado } from '@core/services/user-storage';
 import { getFechaLocal, parseIsoAsLocal } from '@/app/utils/datetime-utils';
 import { finalize } from 'rxjs';
+import { formatEventoNumero } from '@core/interfaces/evento';
 @Component({
   selector: 'app-horas-usuario',
   imports: [
@@ -55,7 +56,7 @@ export class HorasUsuario extends TrabajarCon<RegistroHora> {
   }
   private registroHoraService = inject(RegistroHoraService);
   private dialogService = inject(DialogService);
-  ref!: DynamicDialogRef;
+  ref!: DynamicDialogRef | null;
   private userStorageService = inject(UserStorageService);
   getFechaLocal=getFechaLocal
 
@@ -72,7 +73,6 @@ export class HorasUsuario extends TrabajarCon<RegistroHora> {
       inject(MessageService),
       inject(ConfirmationService)
     );
-    this.permisos = ['A', 'M', 'B'];
   }
 
   protected loadItems(): void {
@@ -113,6 +113,8 @@ export class HorasUsuario extends TrabajarCon<RegistroHora> {
       data
     });
 
+    if (!this.ref) return;
+
     this.ref.onClose.subscribe((registroHoraCrud: RegistroHora) => {
       if (!registroHoraCrud) return;
       modo === 'M' ? this.editar(registroHoraCrud) : this.alta(registroHoraCrud);
@@ -121,12 +123,21 @@ export class HorasUsuario extends TrabajarCon<RegistroHora> {
 
   consultarRegistros(fechaFiltro:any){
     this.loadingService.show();
-    this.registroHoraService.getByUsuario(this.usuarioActivo?.id!).pipe(
+    this.registroHoraService.getByUsuario(this.usuarioActivo?.id!,fechaFiltro.getMonth() + 1, fechaFiltro.getFullYear()).pipe(
       finalize(() => this.loadingService.hide())
     ).subscribe({
       next: (res) => {
         console.log(res);
-        this.registrosHoras = res.map(r => ({ ...r, fecha: parseIsoAsLocal((r as any).fecha) }));
+        this.registrosHoras = res.map((r: any) => ({
+          ...r,
+          fecha: parseIsoAsLocal(r.fecha),
+          horas: r.horas?.map((h: any) => ({
+            ...h,
+            inicio: h?.inicio ? parseIsoAsLocal(h.inicio) : undefined,
+            fin: h?.fin ? parseIsoAsLocal(h.fin) : undefined,
+            eventoTxt: formatEventoNumero(h.evento?.tipoCodigo!, h.evento?.numero!)
+          }))
+        })) as any;
         this.registrosHorasFiltradas = this.registrosHoras;
         this.cdr.detectChanges();
         this.aplicarFiltroFecha(fechaFiltro);

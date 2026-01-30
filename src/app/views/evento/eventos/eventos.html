@@ -7,22 +7,36 @@
         <div card-body>
           <p-toolbar>
             <ng-template pTemplate="left">
-              <app-filtro-radio-group
-                [options]="FiltroCerradoOptions"
-                [checkedValue]="filtroActivo"
-                (filtroCambio)="filtroCambio($event)"
-                [notLabel]="true"
-              ></app-filtro-radio-group>
+                <app-filtro-radio-group
+                    [options]="FiltroCerradoOptions"
+                    [checkedValue]="filtroActivo"
+                    (filtroCambio)="filtroCambio($event)"
+                    [notLabel]="true"
+                ></app-filtro-radio-group>
+
+                <p-datepicker
+                    [(ngModel)]="filtroFecha"
+                    selectionMode="range"
+                    [iconDisplay]="'input'"
+                    [showIcon]="true"
+                    [showButtonBar]="true"
+                    inputId="icondisplay"
+                    (ngModelChange)="onFechaChange()"
+                    (onClearClick)="onClearFecha()"
+                    style="margin-left: 10px;"
+                />
+
             </ng-template>
             <ng-template pTemplate="right">
-              @if (can('A')) {
-                <app-control-trabajar-con
-                    (nuevo)="mostrarModalCrud(null, 'A')"
-                    (plantilla)="getPlantilla()"
-                    (exportarExcel)="exportarExcel()"
-                    (importar)="importarExcel($event)"
-                ></app-control-trabajar-con>
-              }
+                @if (can(PermisoAccion.CREAR)) {
+                    <app-control-trabajar-con
+                        (nuevo)="mostrarModalCrud(null, 'A')"
+                        (plantilla)="getPlantilla()"
+                        (exportarExcel)="exportarExcel()"
+                        (importar)="importarExcel($event)"
+                        hidden
+                    ></app-control-trabajar-con>
+                }
             </ng-template>
           </p-toolbar>
           <p-table
@@ -30,7 +44,7 @@
             [value]="eventos"
             [rows]="10"
             [paginator]="true"
-            [globalFilterFields]="[ 'id', 'tipo.codigo', 'numero', 'titulo', 'etapaActualData.nombre', 'cliente.sigla', 'cliente.nombre', 'producto.sigla', 'producto.nombre', 'producto.entornoCodigo', 'modulo.codigo', 'modulo.nombre', 'usuarioActual.usuario' ]"
+            [globalFilterFields]="[ 'id', 'tipo.codigo', 'numero', 'evento', 'titulo', 'etapaActualData.nombre', 'cliente.sigla', 'cliente.nombre', 'producto.sigla', 'producto.nombre', 'producto.entornoCodigo', 'modulo.codigo', 'modulo.nombre', 'usuarioActual.usuario' ]"
             [tableStyle]="{ 'min-width': '75rem' }"
             [rowHover]="true"
             dataKey="id"
@@ -53,7 +67,7 @@
                 <th pSortableColumn="id" hidden>Id</th>
                 <th pSortableColumn="tipo.codigo" hidden>Tipo</th>
                 <th pSortableColumn="numero" hidden>Numero</th>
-                <th pSortableColumn="tipo.codigo" style="min-width: 110px">
+                <th pSortableColumn="tipo.codigo" style="min-width: 110px" pFrozenColumn>
                     <div class="flex align-items-center" style="justify-content: space-around" >
                         Evento
                         <p-columnFilter type="text" field="tipo.codigo" display="menu" matchMode="contains" style="margin-left: 2px" ></p-columnFilter>
@@ -108,13 +122,13 @@
                 <td hidden>{{ evento?.id }}</td>
                 <td hidden>{{ evento?.tipo?.id }}</td>
                 <td hidden>{{ evento?.numero }}</td>
-                <td>
+                <td pFrozenColumn>
                     <app-badge-click 
                         [backgroundColor]="evento.tipo.color"
                         (click)="abrirEventoDrawer(evento)"
                         style="cursor:pointer"
                     >
-                        {{ evento.tipo.codigo }}-{{evento.numero | padZero:3}}
+                        {{ evento.evento }}
                     </app-badge-click>
                 </td>
                 <td>{{ evento?.titulo }}</td>
@@ -123,18 +137,22 @@
                 <td>{{ evento?.producto ? evento.producto?.sigla + " - " + evento.producto?.nombre + (evento.producto?.entornoCodigo ? " | " + evento.producto.entornoCodigo : "") : "-" }} </td>
                 <td>{{ evento?.modulo ? evento.modulo?.codigo + " - " + evento.modulo?.nombre : "-" }} </td>
                 <td>
-                  <div class="d-flex justify-content-center">
-                    <app-prioridad-icon [nivel]="evento?.prioridadFin" ></app-prioridad-icon>
-                  </div>
+                    <div class="d-flex justify-content-center">
+                        <app-prioridad-icon [nivel]="evento?.prioridadFin" ></app-prioridad-icon>
+                    </div>
                 </td>
                 <td>
-                  @if (evento?.usuarioActual) {
-                    <app-badge-click style="cursor: pointer" (click)="abrirUsuarioDrawer(evento?.usuarioActual?.id)" >
-                      {{ evento?.usuarioActual?.usuario }}
-                    </app-badge-click>
-                  } @else {
-                    -
-                  }
+                    @if (evento?.usuarioActual) {
+                        <app-badge-click
+                        [backgroundColor]="evento.usuarioActual?.color"
+                        style="cursor: pointer"
+                        (click)="abrirUsuarioDrawer(evento?.usuarioActual?.id)"
+                        >
+                        {{ evento?.usuarioActual?.usuario }}
+                        </app-badge-click>
+                    } @else {
+                        -
+                    }
                 </td>
                 <td> {{ evento?.createdAt ? (evento.createdAt | date : "short") : "" }} </td>
                 <td> {{ evento?.fechaInicio ? (evento.fechaInicio | date : "shortDate") : "" }} </td>
@@ -142,13 +160,13 @@
                 <td hidden>{{ evento?.usuarioAlta?.usuario }}</td>
                 <td class="d-flex justify-content-end" style="min-height: 55px">
                     @if (!evento.cerrado) {
-                        @if (can('M')) {
-                            <button class="btn btn-ghost-warning" (click)="mostrarModalCrud(evento, 'M')" > <ng-icon name="lucidePencil" /> </button>
-                            @if (!evento.tipo.propio) {
-                                <button class="btn btn-ghost-danger" (click)="mostrarModalCrudReasignar(evento)" > <ng-icon name="lucideRotateCcw" /> </button>
+                        @if (can(PermisoAccion.MODIFICAR)) {
+                            <button class="btn btn-ghost-warning" placement="top" ngbTooltip="Modificar" (click)="mostrarModalCrud(evento, 'M')" > <ng-icon name="lucidePencil" /> </button>
+                            @if (!evento.tipo.propio && can(PermisoAccion.REASIGNAR)) {
+                                <button class="btn btn-ghost-danger" placement="top" ngbTooltip="Reasignar" (click)="mostrarModalCrudReasignar(evento)" > <ng-icon name="lucideRotateCcw" /> </button>
                             }
-                        } @if (can('B')) {
-                            <button class="btn btn-ghost-danger" (click)="delete(evento)"> <ng-icon name="lucideTrash2" /> </button>
+                        } @if (can(PermisoAccion.ELIMINAR)) {
+                            <button class="btn btn-ghost-danger" placement="top" ngbTooltip="Eliminar" (click)="delete(evento)"> <ng-icon name="lucideTrash2" /> </button>
                         } 
                     }
                 </td>
@@ -165,18 +183,3 @@
     </div>
   </div>
 </div>
-
-<!-- Drawer para mostrar el detalle del evento -->
-<app-evento-drawer
-  [visible]="showEventoDrawer"
-  [eventoId]="eventoSeleccionadoId"
-  (closed)="cerrarEventoDrawer()"
->
-</app-evento-drawer>
-
-<!-- Drawer para mostrar el detalle del usuario -->
-<app-usuario-drawer
-  [visible]="showUsuarioDrawer"
-  [usuarioId]="usuarioSeleccionadoId"
-  (closed)="cerrarUsuarioDrawer()"
-></app-usuario-drawer>

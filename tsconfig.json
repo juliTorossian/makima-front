@@ -21,6 +21,7 @@
       "@core/*": ["./src/app/core/*"],
       "@layouts/*": ["./src/app/layouts/*"],
       "@/*": ["./src/*"],
+      "@views/*": ["./src/app/views/*"]
     }
   },
   "angularCompilerOptions": {

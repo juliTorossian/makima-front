@@ -1,0 +1,95 @@
+<p-toast></p-toast>
+<div class="container">
+  <form class="row g-3 needs-validation" [formGroup]="form" (ngSubmit)="accion($event)" novalidate>
+    <div class="col-md-6">
+      <label for="clave" class="form-label">Clave <span class="text-danger">*</span></label>
+      <input
+        id="clave"
+        type="text"
+        formControlName="clave"
+        class="form-control"
+        [class.is-invalid]="get('clave')?.invalid && get('clave')?.touched"
+        placeholder="Clave del parámetro"
+        required
+      />
+      @if (get('clave')?.invalid && get('clave')?.touched) {
+        <div class="invalid-feedback">La clave es obligatoria.</div>
+      }
+    </div>
+
+    <div class="col-md-6">
+      <label for="valor" class="form-label">Valor <span class="text-danger">*</span></label>
+      <input
+        id="valor"
+        type="text"
+        formControlName="valor"
+        class="form-control"
+        [class.is-invalid]="get('valor')?.invalid && get('valor')?.touched"
+        placeholder="Valor del parámetro"
+        required
+      />
+      @if (get('valor')?.invalid && get('valor')?.touched) {
+        <div class="invalid-feedback">El valor es obligatorio.</div>
+      }
+    </div>
+
+    <div class="col-md-6">
+      <label for="tipo" class="form-label">Tipo <span class="text-danger">*</span></label>
+      <select
+        id="tipo"
+        class="form-select"
+        formControlName="tipo"
+        [class.is-invalid]="get('tipo')?.invalid && get('tipo')?.touched"
+        required
+      >
+        <option value="" disabled selected>Seleccione tipo</option>
+        @for (tipo of tiposParametro; track tipo) {
+          <option [value]="tipo">{{ tipo }}</option>
+        }
+      </select>
+      @if (get('tipo')?.invalid && get('tipo')?.touched) {
+        <div class="invalid-feedback">Debe seleccionar un tipo.</div>
+      }
+    </div>
+
+    <div class="col-md-6">
+      <label for="ambito" class="form-label">Ámbito <span class="text-danger">*</span></label>
+      <select
+        id="ambito"
+        class="form-select"
+        formControlName="ambito"
+        [class.is-invalid]="get('ambito')?.invalid && get('ambito')?.touched"
+        required
+      >
+        <option value="" disabled selected>Seleccione ámbito</option>
+        @for (ambito of ambitosParametro; track ambito) {
+          <option [value]="ambito">{{ ambito }}</option>
+        }
+      </select>
+      @if (get('ambito')?.invalid && get('ambito')?.touched) {
+        <div class="invalid-feedback">Debe seleccionar un ámbito.</div>
+      }
+    </div>
+
+    <div class="col-md-12">
+      <label for="descripcion" class="form-label">Descripción</label>
+      <textarea
+        id="descripcion"
+        formControlName="descripcion"
+        class="form-control"
+        placeholder="Descripción del parámetro (opcional)"
+        rows="3"
+      ></textarea>
+    </div>
+
+    <div class="col-12 mb-5">
+      <button class="btn btn-primary" type="submit">
+        @if (modo === 'A') {
+          Crear Parámetro
+        } @else if (modo === 'M') {
+          Modificar
+        }
+      </button>
+    </div>
+  </form>
+</div>

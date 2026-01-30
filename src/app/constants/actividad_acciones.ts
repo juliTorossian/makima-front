@@ -16,7 +16,10 @@ export enum ACCIONES {
     REMOVE_REQUISITO = 'REMOVE_REQUISITO',
     MOD_REQUISITO = 'MOD_REQUISITO',
     COMPLETADO = 'COMPLETADO',
+    TOMO_EVENTO = 'TOMO_EVENTO',
+    LIBERO_EVENTO = 'LIBERO_EVENTO',
 }
+export const ACCIONES_NO_MOSTRAR: string[] = [ACCIONES.CREO, ACCIONES.ASIGNO];
 
 export function getTitleAccion(actividad: VidaEvento): string {
     // Puedes parametrizar el icono por acción aquí
@@ -49,6 +52,10 @@ export function getTitleAccion(actividad: VidaEvento): string {
             return `El usuario ${actividad.usuario?.usuario} modificó un requisito del evento.`;
         case ACCIONES.COMPLETADO:
             return `El usuario ${actividad.usuario?.usuario} completó el evento.`;
+        case ACCIONES.TOMO_EVENTO:
+            return `El usuario ${actividad.usuario?.usuario} tomó el evento.`;
+        case ACCIONES.LIBERO_EVENTO:
+            return `El usuario ${actividad.usuario?.usuario} liberó el evento.`;
         default:
             return `El usuario ${actividad.usuario?.usuario} realizó una acción desconocida.`;
     }
@@ -87,6 +94,10 @@ export function getIconNameAccion(accion:string): string {
             return 'lucideBadgeAlert';
         case ACCIONES.COMPLETADO:
             return 'tablerCheck';
+        case ACCIONES.TOMO_EVENTO:
+            return 'lucideHandCoins';
+        case ACCIONES.LIBERO_EVENTO:
+            return 'lucideHandHelping';
         default:
             return 'tablerCircle';
     }
@@ -94,13 +105,13 @@ export function getIconNameAccion(accion:string): string {
 
 export function getDescripcionAccion(actividad:VidaEvento): string {
     if (actividad.accion === ACCIONES.COMENTARIO && actividad.adicion) {
-      return actividad.adicion.comentario || '';
+      return actividad.adicion.comentario?.texto || '';
     }
     if (actividad.accion === ACCIONES.ADJUNTO && actividad.adicion) {
-      return actividad.adicion.nameFile || '';
+      return actividad.adicion.archivo?.nameFile || '';
     }
     if (actividad.accion === ACCIONES.ELIMINO_ADJUNTO && actividad.adicion) {
-      return actividad.adicion.nameFile || '';
+      return actividad.adicion.archivo?.nameFile || '';
     }
     return '';
 }

@@ -4,7 +4,8 @@ export interface UsuarioLogeado {
   id: string
   nombre: string
   apellido: string
-  email: string
+  email: string,
+  pagina_inicio?: string
 }
 const STORAGE_KEY = 'usuario'
 

@@ -1,4 +1,5 @@
 import { PermisoClave } from "@core/interfaces/rol"
+import { PermisoAccion } from "./permisos"
 
 export type LayoutSkinType =
   | 'shadcn'
@@ -56,6 +57,7 @@ export type MenuItemType = {
   children?: MenuItemType[]
   isCollapsed?: boolean
   permisoClave?:PermisoClave
+  permisoAccion?:PermisoAccion
 }
 
 export type LanguageOptionType = {

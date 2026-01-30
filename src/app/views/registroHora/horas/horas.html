@@ -56,7 +56,8 @@
                                 <td>{{ registroGeneral.nombre }} {{ registroGeneral.apellido }}</td>
                                 <td hidden>{{ registroGeneral.apellido }}</td>
                                 <td>{{ registroGeneral.usuario }}</td>
-                                <td>{{ registroGeneral.totalMes | number:'.0-2'}} hs.</td>
+                                <!-- <td>{{ registroGeneral.totalMes | number:'.0-2'}} hs.</td> -->
+                                <td>{{ registroGeneral.totalMesFormateado }} hs.</td>
                             </tr>
                         </ng-template>
                         <ng-template #expandedrow let-registrosHora>
@@ -82,7 +83,8 @@
                                                     </td>
                                                     <td hidden>{{ registro.id }}</td>
                                                     <td>{{ getFechaLocal(registro.fecha) | date:'dd MMMM yy'}}</td>
-                                                    <td>{{ registro.horasTotales | number:'.0-2' }} hs.</td>
+                                                    <!-- <td>{{ registro.horasTotales | number:'.0-2' }} hs.</td> -->
+                                                    <td>{{ registro.horasTotalesFormateadas }} hs.</td>
                                                 </tr>
                                             </ng-template>
                                             <ng-template #expandedrow let-horas>
@@ -93,8 +95,8 @@
                                                                 <ng-template pTemplate="header">
                                                                     <tr>
                                                                         <th pSortableColumn="id" hidden>Id </th>
-                                                                        <th pSortableColumn="inicio">Inicio </th>
-                                                                        <th pSortableColumn="final">Final </th>
+                                                                        <th pSortableColumn="inicio" pFrozenColumn>Inicio </th>
+                                                                        <th pSortableColumn="final" pFrozenColumn>Final </th>
                                                                         <th pSortableColumn="evento">Evento </th>
                                                                         <!-- <th pSortableColumn="total">Total </th> -->
                                                                         <th pSortableColumn="detalle">Detalle</th>
@@ -104,12 +106,13 @@
                                                                 <ng-template pTemplate="body" let-hora>
                                                                     <tr>
                                                                         <td hidden>{{ hora.id }}</td>
-                                                                        <td>{{ hora.inicio | date:'HH:mm'}}</td>
-                                                                        <td>{{ hora.fin | date:'HH:mm'}}</td>
+                                                                        <td pFrozenColumn>{{ hora.inicio | date:'HH:mm'}}</td>
+                                                                        <td pFrozenColumn>{{ hora.fin | date:'HH:mm'}}</td>
                                                                         <td>{{ hora.evento.tipoCodigo }}-{{hora.evento.numero}} | {{hora.evento.titulo}}</td>
                                                                         <!-- <td>{{ hora.total | totalComoNumero}}</td> -->
                                                                         <td>{{ hora.detalle }}</td>
-                                                                        <td>{{ hora.diferencia | number:'.0-2' }} hs.</td>
+                                                                        <!-- <td>{{ hora.diferencia | number:'.0-2' }} hs.</td> -->
+                                                                        <td>{{ hora.diferenciaFormateada }} hs.</td>
                                                                     </tr>
                                                                 </ng-template>
                                                             </p-table>

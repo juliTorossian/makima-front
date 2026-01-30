@@ -22,6 +22,8 @@ import { PrioridadService } from '@core/services/prioridad-regla';
 import { PrioridadRegla } from '@core/interfaces/prioridad-reglas';
 import { ControlTrabajarCon } from '@app/components/trabajar-con/components/control-trabajar-con';
 import { getTimestamp } from '@/app/utils/time-utils';
+import { PermisoAccion } from '@/app/types/permisos';
+import { BadgeClickComponent } from "@app/components/badge-click";
 
 @Component({
   selector: 'app-tipo-evento',
@@ -35,6 +37,7 @@ import { getTimestamp } from '@/app/utils/time-utils';
     BooleanLabelPipe,
     CommonModule,
     ControlTrabajarCon,
+    BadgeClickComponent
 ],
   providers: [
     DialogService,
@@ -48,8 +51,8 @@ export class TiposEvento extends TrabajarCon<TipoEvento> {
   private tipoEventoService = inject(TipoEventoService);
   private prioridadService = inject(PrioridadService);
   private dialogService = inject(DialogService);
-  ref!: DynamicDialogRef;
-  refPrioridadRegla!: DynamicDialogRef;
+  ref!: DynamicDialogRef | null;
+  refPrioridadRegla!: DynamicDialogRef | null;
 
   tiposEvento!:TipoEvento[];
 
@@ -107,6 +110,8 @@ export class TiposEvento extends TrabajarCon<TipoEvento> {
       header,
       data
     });
+
+    if (!this.ref) return;
 
     this.ref.onClose.subscribe((tipoEventoCrud: TipoEvento) => {
       if (!tipoEventoCrud) return;

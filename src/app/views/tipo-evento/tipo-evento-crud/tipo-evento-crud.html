@@ -91,7 +91,7 @@
               <label>Rollback (opcional)</label>
             </div>
           </div>
-          @for (etapa of etapasFormArray.controls; track $index) {
+          @for (etapa of etapasFormArray.controls; track etapa) {
             <div [formGroupName]="$index" class="row g-3 mb-2 ">
 
               <div class="col-md-4">
@@ -124,7 +124,7 @@
               </div>
 
               <div class="col-md-2 d-flex align-items-end">
-                <button type="button" class="btn btn-danger w-100" (click)="removeEtapa($index)">Eliminar</button>
+                <button type="button" class="btn btn-danger w-100" (click)="removeEtapaByControl(etapa)">Eliminar</button>
               </div>
 
             </div>

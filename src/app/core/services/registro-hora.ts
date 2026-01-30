@@ -2,6 +2,8 @@ import { environment } from '@/environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { RegistroHora, UsuarioHorasGenerales } from '@core/interfaces/registro-hora';
+import { PaginatedResponse } from '@core/interfaces/paginated-response';
+import { extractData } from '@core/operators/extract-data.operator';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -11,16 +13,28 @@ export class RegistroHoraService {
   private http = inject(HttpClient);
   URL_COMPLETA = environment.BASE_URL;
 
-  getAll(): Observable<RegistroHora[]> {
-    return this.http.get<RegistroHora[]>(`${this.URL_COMPLETA}/registro-hora`);
+  getAll(mes?: number, anio?: number): Observable<RegistroHora[]> {
+    let url = `${this.URL_COMPLETA}/registro-hora`;
+    if (mes !== undefined && anio !== undefined) {
+      url += `?mes=${mes}&anio=${anio}`;
+    }
+    return this.http.get<PaginatedResponse<RegistroHora>>(url).pipe(
+      extractData<RegistroHora>()
+    );
   }
 
   getById(registroId: number): Observable<RegistroHora> {
     return this.http.get<RegistroHora>(`${this.URL_COMPLETA}/registro-hora/${registroId}`);
   }
 
-  getByUsuario(usuarioId: string): Observable<RegistroHora[]> {
-    return this.http.get<RegistroHora[]>(`${this.URL_COMPLETA}/registro-hora/usuario/${usuarioId}`);
+  getByUsuario(usuarioId: string, mes?: number, anio?: number): Observable<RegistroHora[]> {
+    let url = `${this.URL_COMPLETA}/registro-hora/usuario/${usuarioId}`;
+    if (mes !== undefined && anio !== undefined) {
+      url += `?mes=${mes}&anio=${anio}`;
+    }
+    return this.http.get<PaginatedResponse<RegistroHora>>(url).pipe(
+      extractData<RegistroHora>()
+    );
   }
 
   getHorasGenerales(fechaFiltro:Date): Observable<UsuarioHorasGenerales[]> {

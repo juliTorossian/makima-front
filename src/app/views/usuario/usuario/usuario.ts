@@ -1,6 +1,7 @@
 import { ChangeDetectorRef, Component, inject, Input, OnInit } from '@angular/core';
 import { UsuarioService } from '../../../core/services/usuario';
 import { ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { UiCard } from '../../../components/ui-card';
 import { UserStorageService } from '@core/services/user-storage';
@@ -55,6 +56,7 @@ export class Usuario implements OnInit {
 
     private usuarioService = inject(UsuarioService);
     private rutActiva = inject(ActivatedRoute);
+    private router = inject(Router);
     private userStorageService = inject(UserStorageService);
     private cdr = inject(ChangeDetectorRef);
     protected messageService = inject(MessageService);
@@ -63,6 +65,7 @@ export class Usuario implements OnInit {
 
     usuario!:UsuarioCompleto;
     eventosActuales!: EventoCompleto[];
+    rolesUsuario: string[] = [];
     cargandoUsuario: boolean = false;
 
     activeTab:number = 1;
@@ -70,6 +73,20 @@ export class Usuario implements OnInit {
     mostrarModalAvatar: boolean = false;
 
     ngOnInit() {
+        const routeId = this.rutActiva.snapshot.paramMap.get('id');
+        const storedUser = this.userStorageService.getUsuario();
+
+        // Si no hay id en la ruta y es el propio usuario, navegar a la ruta con su id
+        if (!routeId && storedUser && storedUser.id) {
+            // Navegar a ruta absoluta /usuario/perfil/:id para evitar 404
+            this.router.navigate(['/usuario/perfil', storedUser.id]).then(() => {
+                this.cargarUsuario(storedUser.id!);
+            }).catch(() => {
+                this.cargarUsuario(storedUser.id!);
+            });
+            return;
+        }
+
         const userId = this.getUsuarioId();
         if (userId) {
             this.cargarUsuario(userId);
@@ -77,7 +94,11 @@ export class Usuario implements OnInit {
     }
 
     private getUsuarioId(): string | null {
-        return this.usuarioIdParam || this.rutActiva.snapshot.paramMap.get('id');
+        if (this.usuarioIdParam) return this.usuarioIdParam;
+        const idFromRoute = this.rutActiva.snapshot.paramMap.get('id');
+        if (idFromRoute) return idFromRoute;
+        const storedUser = this.userStorageService.getUsuario();
+        return storedUser && storedUser.id ? storedUser.id : null;
     }
 
     cargarUsuario(userId: string): void {
@@ -93,8 +114,10 @@ export class Usuario implements OnInit {
     }
 
     private onUsuarioCargado(usuario: any): void {
+        // console.log(usuario);
         this.usuario = usuario;
         this.eventosActuales = usuario.eventosActuales || [];
+        this.rolesUsuario = usuario.roles ? usuario.roles.map((rol:any) => rol.rolCodigo) : [];
         this.esPropioPerfil = this.userStorageService.getUsuario()?.id === usuario.id;
 
         this.cdr.detectChanges();

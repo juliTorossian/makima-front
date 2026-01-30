@@ -21,6 +21,7 @@ import { FiltroRadioGroupComponent } from '@app/components/filtro-check';
 import { FiltroActivo } from '@/app/constants/filtros_activo';
 import { ControlTrabajarCon } from '@app/components/trabajar-con/components/control-trabajar-con';
 import { getTimestamp } from '@/app/utils/time-utils';
+import { PermisoAccion } from '@/app/types/permisos';
 
 @Component({
   selector: 'app-etapas',
@@ -47,7 +48,7 @@ import { getTimestamp } from '@/app/utils/time-utils';
 export class Etapas extends TrabajarCon<Etapa> {
   private etapaService = inject(EtapaService);
   private dialogService = inject(DialogService);
-  ref!: DynamicDialogRef;
+  ref!: DynamicDialogRef | null;
 
   etapas!:Etapa[];
 
@@ -116,6 +117,8 @@ export class Etapas extends TrabajarCon<Etapa> {
       header,
       data
     });
+
+    if (!this.ref) return;
 
     this.ref.onClose.subscribe((etapaCrud: Etapa) => {
       if (!etapaCrud) return;

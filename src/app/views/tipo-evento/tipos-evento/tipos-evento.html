@@ -9,7 +9,7 @@
                         <ng-template pTemplate="left">
                         </ng-template>
                         <ng-template pTemplate="right">
-                            @if (can('A')) {
+                            @if (can(PermisoAccion.CREAR)) {
                                 <app-control-trabajar-con
                                     (nuevo)="mostrarModalCrud(null, 'A')"
                                     (plantilla)="getPlantilla()"
@@ -64,13 +64,20 @@
                                 <td><span class="badge " style="min-width: 40%;" [ngClass]="tipoEvento.activo ? 'text-bg-success' : 'text-bg-danger'">{{ tipoEvento.activo | booleanLabel }}</span></td>
                                 <td><span class="badge " style="min-width: 40%;" [ngClass]="tipoEvento.propio ? 'text-bg-success' : 'text-bg-danger'">{{ tipoEvento.propio | booleanLabel:'si-no' }}</span></td>
                                 <td><span class="badge " style="min-width: 40%;" [ngClass]="tipoEvento.facturable ? 'text-bg-success' : 'text-bg-danger'">{{ tipoEvento.facturable | booleanLabel:'si-no' }}</span></td>
-                                <td><input type="color" name="color" value="{{ tipoEvento.color }}" disabled></td>
+                                <!-- <td><input type="color" name="color" value="{{ tipoEvento.color }}" disabled></td> -->
+                                <td>
+                                    <app-badge-click
+                                        [backgroundColor]="tipoEvento.color"
+                                        width="2.5rem"
+                                        height="inherit"
+                                    ></app-badge-click>
+                                </td>
                                 <td class="d-flex justify-content-end">
-                                    @if (can('M')) {
+                                    @if (can(PermisoAccion.MODIFICAR)) {
                                         <button class="btn btn-ghost-info" (click)="mostrarModalPrioridadReglas(tipoEvento)"><ng-icon name="lucidePencilRuler"/></button>
                                         <button class="btn btn-ghost-warning" (click)="mostrarModalCrud(tipoEvento, 'M')"><ng-icon name="lucidePencil"/></button>
                                     }
-                                    @if (can('B')) {
+                                    @if (can(PermisoAccion.ELIMINAR)) {
                                         <button class="btn btn-ghost-danger" (click)="delete(tipoEvento)"><ng-icon name="lucideTrash2"/></button>
                                     }
                                 </td>

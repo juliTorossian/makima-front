@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router'
-import { Dashboard } from './dashboard/dashboard'
 import { PermisoVerGuard } from '@core/guards/permiso-ver.guard'
 import { PermisoClave } from '@core/interfaces/rol'
+import { Dashboard } from './dashboard/dashboard'
 
 export const VIEWS_ROUTES: Routes = [
   {
@@ -13,8 +13,6 @@ export const VIEWS_ROUTES: Routes = [
     path: '',
     loadChildren: () =>
       import('./usuario/usuario.route').then((mod) => mod.USUARIOS_ROUTES),
-    data: { permisoClave: PermisoClave.USUARIO },
-    canActivate: [PermisoVerGuard]
   },
   {
     path: '',
@@ -73,7 +71,7 @@ export const VIEWS_ROUTES: Routes = [
     canActivate: [PermisoVerGuard]
   },
 
-  
+
   // Evento y registroHora quedan públicos
   {
     path: '',
@@ -85,11 +83,42 @@ export const VIEWS_ROUTES: Routes = [
     loadChildren: () =>
       import('./registroHora/registroHora.route').then((mod) => mod.HORAS_ROUTES),
   },
-  
+
   {
     path: '',
     loadChildren: () =>
       import('./reporte/reporte.route').then((mod) => mod.REPORTES_ROUTES),
+    data: { permisoClave: PermisoClave.REPORTE },
+    canActivate: [PermisoVerGuard]
   },
-  
+  {
+    path: '',
+    loadChildren: () =>
+      import('./parametro/parametro.route').then((mod) => mod.PARAMETROS_ROUTES),
+    data: { permisoClave: PermisoClave.SISTEMA },
+    canActivate: [PermisoVerGuard]
+  },
+  {
+    path: '',
+    loadChildren: () =>
+      import('./archivos/archivos.route').then((mod) => mod.ARCHIVOS_ROUTES),
+  },
+
+  {
+    path: '',
+    loadChildren: () =>
+      import('./kb/kb.route').then((mod) => mod.KB_ROUTES),
+    data: { permisoClave: PermisoClave.KB },
+    canActivate: [PermisoVerGuard]
+  },
+
+  // Changelog (público)
+  {
+    path: 'changelog',
+    loadComponent: () =>
+      import('./changelog/changelog').then((mod) => mod.ChangelogComponent),
+    data: { title: 'Novedades' },
+  },
+
 ]
+

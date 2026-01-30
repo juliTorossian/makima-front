@@ -12,6 +12,7 @@ export interface RegistroHora {
     usuario: string;
   };
   horasTotales?: number;
+  horasTotalesFormateadas?: string;
   horas?: Hora[];
 }
 
@@ -23,6 +24,7 @@ export interface Hora {
   fin: string;
   detalle?: string;
   diferencia?: string;
+  diferenciaFormateada?: string;
 
   evento?: Evento;
   registro?: RegistroHora;
@@ -34,5 +36,6 @@ export interface UsuarioHorasGenerales {
   apellido: string;
   usuario: string;
   totalMes?: number;
+  totalMesFormateado?: string;
   registrosHora: RegistroHora[];
 }
