@@ -17,11 +17,10 @@ export interface ChangelogChange {
 export const CHANGELOG: ChangelogEntry[] = [
     {
         version: '0.0.2',
-        date: '',
-        isFuture: true,
-        estimatedDate: 'Febrero 2026',
+        date: '2026-02-02',
         changes: [
-            { type: 'improvement', text: 'Rediseño del dashboard.' }
+            { type: 'improvement', text: 'Primer rediseño del dashboard.' },
+            { type: 'feature', text: 'Integración con Notion.' },
         ]
     },
     {
@@ -37,3 +36,28 @@ export const CHANGELOG: ChangelogEntry[] = [
         ],
     },
 ];
+
+/*
+futuro:
+{
+    version: '0.0.2',
+    date: '',
+    isFuture: true,
+    estimatedDate: '2026-02-02',
+    changes: [
+        { type: 'improvement', text: 'Primer rediseño del dashboard.' },
+        { type: 'feature', text: 'Integración con Notion.' },
+    ]
+},
+
+actual:
+{
+    version: '0.0.2',
+    date: '2026-02-02',
+    changes: [
+        { type: 'improvement', text: 'Primer rediseño del dashboard.' },
+        { type: 'feature', text: 'Integración con Notion.' },
+    ]
+},
+*/
+

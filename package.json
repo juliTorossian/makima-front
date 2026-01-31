@@ -1,6 +1,6 @@
 {
   "name": "makima",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -8,6 +8,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "build:gaci": "npm run write-version && ng build --configuration gaci",
+    "build:gaciTest": "npm run write-version && ng build --configuration gaciTest",
     "write-version": "node tools/write-version.js"
   },
   "prettier": {
