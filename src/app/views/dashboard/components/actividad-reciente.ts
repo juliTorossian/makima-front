@@ -1,54 +1,121 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core'
+import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core'
 import { UiCard } from '@app/components/ui-card'
+import { DashboardService } from '@core/services/dashboard';
 import { NgIcon } from '@ng-icons/core'
+import { finalize } from 'rxjs';
+import { ActividadReciente as AR } from '@core/interfaces/dashboard'
+import { ACCIONES } from '@/app/constants/actividad_acciones';
+import { CommonModule } from '@angular/common';
+import { PadZeroPipe } from '@core/pipes/pad-zero.pipe';
+import { getTimeAgo } from '@/app/utils/datetime-utils';
+import { DrawerService } from '@core/services/drawer.service';
 
+
+// (reload)="reload.emit()"
 @Component({
   selector: 'app-actividad-reciente',
   standalone: true,
   imports: [
     NgIcon,
     UiCard,
-    ],
+    CommonModule,
+  ],
   template: `
     <app-ui-card
       title="Actividad reciente"
       [isReloadable]="true"
       [reloading]="loading"
-      (reload)="reload.emit()"
     >
       <div card-body>
         <ul class="list-unstyled mb-0">
 
-          <li class="d-flex align-items-start mb-3">
-            <ng-icon name="lucideCirclePlus" class="me-2 text-primary" />
-            <div>
-              <div class="fw-semibold">Evento creado</div>
-              <small class="text-muted">Cliente ACME · hace 5 min</small>
-            </div>
-          </li>
-
-          <li class="d-flex align-items-start mb-3">
-            <ng-icon name="lucideCircleCheck" class="me-2 text-success" />
-            <div>
-              <div class="fw-semibold">Evento finalizado</div>
-              <small class="text-muted">Proyecto Interno · hace 1 h</small>
-            </div>
-          </li>
-
-          <li class="d-flex align-items-start">
-            <ng-icon name="lucideSquarePen" class="me-2 text-warning" />
-            <div>
-              <div class="fw-semibold">Evento actualizado</div>
-              <small class="text-muted">Cliente GACI · ayer</small>
-            </div>
-          </li>
+          @for (ar of actividad ; track ar.id) {
+            <li class="d-flex align-items-center mb-3">
+              <ng-icon [name]="getIconoAccion(ar.accion).nombre" class="me-2" [ngClass]="getIconoAccion(ar.accion).colorClase" style="width: 24px;height: 24px;"/>
+              <div>
+                <div class="fw-semibold" (click)="navegarAEvento(ar.evento.id)" style="cursor: pointer;">{{ getTituloAccion(ar.accion, ar.evento) }}</div>
+                <small class="text-muted">{{ar.evento.cliente.nombre}} · {{ getTimeAgo(ar.fecha) }}</small>
+              </div>
+            </li>
+          }
 
         </ul>
       </div>
     </app-ui-card>
   `,
 })
-export class ActividadReciente {
-  @Input() loading = false
-  @Output() reload = new EventEmitter<void>()
+export class ActividadReciente implements OnInit{
+  // @Input() loading = false
+  // @Output() reload = new EventEmitter<void>()
+
+  private dashboardService = inject(DashboardService);
+    private drawerService = inject(DrawerService);
+
+  actividad: AR[] = [];
+  loading = false;
+
+  ngOnInit(): void {
+    this.reloadActividad(); 
+  }
+
+  reloadActividad() {
+    this.loading = true
+    this.dashboardService.getActividadReciente()
+    .pipe(finalize(() => {
+      this.loading = false;
+    }))
+    .subscribe({
+      next: (data) => {
+        this.actividad = data;
+      },
+      error: (error) => {
+        console.error('Error al cargar la actividad reciente:', error);
+      }
+    });
+  }
+
+  navegarAEvento(eventoId: string) {
+    console.log(eventoId)
+    if (eventoId) {
+      this.drawerService.abrirEventoDrawer(eventoId);
+    }
+  }
+
+  getTituloAccion(accion: string, evento:any): string {
+
+    let titulo = accion;
+
+    switch (accion) {
+      case ACCIONES.CREO:
+        titulo = 'Evento creado | !evento!';
+        break;
+      case ACCIONES.COMPLETADO:
+        titulo = 'Evento finalizado | !evento!';
+        break;
+      case ACCIONES.RECHAZO:
+        titulo = 'Evento rechazado | !evento!';
+        break;
+      default:
+        titulo = 'Acción desconocida';
+    }
+    return titulo.replaceAll('!evento!', `${evento.eventoSearch}`);
+  }
+  getIconoAccion(accion: string): { nombre: string; colorClase: string } {
+    switch (accion) {
+      case ACCIONES.CREO:
+        return { nombre: 'lucideCirclePlus', colorClase: 'text-success' };
+      case ACCIONES.COMPLETADO:
+        return { nombre: 'lucideCircleCheck', colorClase: 'text-info' };
+      case ACCIONES.RECHAZO:
+        return { nombre: 'lucideCircleX', colorClase: 'text-danger' };
+      default:
+        return { nombre: 'lucideAlertCircle', colorClase: 'text-secondary' };
+    }
+  }
+
+  getTimeAgo(fecha: string | Date | undefined) {
+    if (!fecha) return 'Hace un momento';
+    return getTimeAgo(new Date(fecha));
+  }
+
 }

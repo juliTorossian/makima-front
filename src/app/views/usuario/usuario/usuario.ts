@@ -77,14 +77,16 @@ export class Usuario implements OnInit {
         const storedUser = this.userStorageService.getUsuario();
 
         // Si no hay id en la ruta y es el propio usuario, navegar a la ruta con su id
-        if (!routeId && storedUser && storedUser.id) {
-            // Navegar a ruta absoluta /usuario/perfil/:id para evitar 404
-            this.router.navigate(['/usuario/perfil', storedUser.id]).then(() => {
-                this.cargarUsuario(storedUser.id!);
-            }).catch(() => {
-                this.cargarUsuario(storedUser.id!);
-            });
-            return;
+        if (!this.usuarioIdParam) {
+            if (!routeId && storedUser && storedUser.id) {
+                // Navegar a ruta absoluta /usuario/perfil/:id para evitar 404
+                this.router.navigate(['/usuario/perfil', storedUser.id]).then(() => {
+                    this.cargarUsuario(storedUser.id!);
+                }).catch(() => {
+                    this.cargarUsuario(storedUser.id!);
+                });
+                return;
+            }
         }
 
         const userId = this.getUsuarioId();

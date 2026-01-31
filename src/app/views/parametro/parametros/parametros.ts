@@ -80,6 +80,8 @@ export class Parametros extends TrabajarCon<Parametro> {
 
   alta(parametro: Parametro): void {
     delete parametro.id;
+    delete parametro.createdAt;
+    delete parametro.updatedAt;
     this.parametroService.create(parametro).subscribe({
       next: () => this.afterChange('Parámetro creado correctamente.'),
       error: (err) => this.showError(err.error.message || 'Error al crear el parámetro.')
@@ -88,6 +90,9 @@ export class Parametros extends TrabajarCon<Parametro> {
 
   editar(parametro: Parametro): void {
     const parametroId = parametro.id ?? '';
+    delete parametro.id;
+    delete parametro.createdAt;
+    delete parametro.updatedAt;
     this.parametroService.update(parametroId, parametro).subscribe({
       next: () => this.afterChange('Parámetro actualizado correctamente.'),
       error: (err) => this.showError(err.error.message || 'Error al modificar el parámetro.')
@@ -96,6 +101,8 @@ export class Parametros extends TrabajarCon<Parametro> {
 
   eliminarDirecto(parametro: Parametro): void {
     const parametroId = parametro.id ?? '';
+    delete parametro.createdAt;
+    delete parametro.updatedAt;
     this.parametroService.delete(parametroId).subscribe({
       next: () => this.afterChange('Parámetro eliminado correctamente.'),
       error: (err) => this.showError(err.error.message || 'Error al eliminar el parámetro.')

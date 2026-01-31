@@ -1,8 +1,9 @@
 import { inject, Injectable } from '@angular/core'
 import { HttpClient } from '@angular/common/http'
 import { Observable } from 'rxjs'
-import { DashboardResponse, EventosPorEtapa, EventosPorTipo, TendenciaEventos } from '@core/interfaces/dashboard'
+import { ActividadReciente, DashboardResponse, EventosPorEtapa, EventosPorTipo, TendenciaEventos } from '@core/interfaces/dashboard'
 import { environment } from '@/environments/environment';
+import { get } from 'lodash-es';
 
 @Injectable({
   providedIn: 'root',
@@ -44,6 +45,12 @@ export class DashboardService {
   getTendenciaEventos(): Observable<TendenciaEventos[]> {
     return this.http.get<TendenciaEventos[]>(
       `${this.URL_COMPLETA}/tendencia-eventos`,
+    )
+  }
+
+  getActividadReciente(): Observable<ActividadReciente[]> {
+    return this.http.get<ActividadReciente[]>(
+      `${this.URL_COMPLETA}/actividad-reciente`,
     )
   }
 }

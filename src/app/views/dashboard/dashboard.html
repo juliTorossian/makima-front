@@ -1,11 +1,11 @@
 <div class="container-fluid">
 
   <!-- KPIs -->
-  <div class="row mb-3">
+  <div class="row mb-0">
     <app-dashboard-kpis />
   </div>
 
-  <div class="row">
+  <div class="row mt-1">
 
     <!-- Columna izquierda -->
     <div class="col-xl-9">
@@ -31,8 +31,6 @@
     <!-- Columna derecha -->
     <div class="col-xl-3">
       <app-actividad-reciente
-        [loading]="actividadLoading"
-        (reload)="reloadActividad()"
       />
     </div>
 

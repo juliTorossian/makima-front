@@ -1,3 +1,5 @@
+import { ACCIONES } from "@/app/constants/actividad_acciones";
+
 /* =========================
    KPIs
 ========================= */
@@ -31,6 +33,30 @@ export interface TendenciaEventos {
   creados: number;
   cerrados: number;
   rechazados: number;
+}
+
+export interface ActividadReciente {
+  id: number;
+  eventoId: string;
+  etapaNumero: number;
+  usuarioId: string;
+  fecha: string;
+  adicionId: null;
+  accion: ACCIONES,
+  usuario: {
+    id: string,
+    usuario: string
+  },
+  evento: {
+    id: string,
+    tipoCodigo: string,
+    numero: number,
+    eventoSearch: string,
+    cliente: {
+      id: number,
+      nombre: string
+    }
+  }
 }
 
 /* =========================
