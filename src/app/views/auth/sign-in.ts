@@ -93,6 +93,7 @@ import { UserStorageService } from '@core/services/user-storage'
                           class="form-check-input form-check-input-light fs-14"
                           type="checkbox"
                           id="rememberMe"
+                          checked
                         />
                         <label class="form-check-label" for="rememberMe"
                           >Recordarme</label

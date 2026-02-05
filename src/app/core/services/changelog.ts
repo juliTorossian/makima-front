@@ -21,6 +21,7 @@ export const CHANGELOG: ChangelogEntry[] = [
         changes: [
             { type: 'improvement', text: 'Primer rediseño del dashboard.' },
             { type: 'feature', text: 'Integración con Notion.' },
+            { type: 'feature', text: 'Integración con Discord.' },
         ]
     },
     {
