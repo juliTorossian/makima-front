@@ -28,11 +28,11 @@ import { UiCard } from "@app/components/ui-card";
                                     <input
                                     type="checkbox"
                                     class="form-check-input"
-                                    id="switchInfo"
+                                    [id]="'switchInfo' + noti.clave"
                                     [checked]="isPreferenciaActiva(noti)"
                                     (change)="togglePreferencia(noti, $event)"
                                     />
-                                    <label class="form-check-label" for="switchInfo">
+                                    <label class="form-check-label" [for]="'switchInfo' + noti.clave">
                                         &nbsp;&nbsp;{{ noti.descripcion }}
                                     </label>
                                 </div>
@@ -64,13 +64,13 @@ import { UiCard } from "@app/components/ui-card";
                         }
                         @case ('toggle') {
                             <div class="form-check form-check-info form-switch mb-2 me-2">
-                                <label class="form-check-label" for="toggle{{pref_g.clave}}">
+                                <label class="form-check-label" [for]="'toggle' + pref_g.clave">
                                     &nbsp;&nbsp;{{ pref_g.label }}
                                 </label>
                                 <input
                                 type="checkbox"
                                 class="form-check-input"
-                                id="toggle{{pref_g.clave}}"
+                                [id]="'toggle' + pref_g.clave"
                                 [checked]="isPreferenciaActiva(pref_g)"
                                 (change)="togglePreferencia(pref_g, $event)"
                                 />
@@ -90,11 +90,11 @@ import { UiCard } from "@app/components/ui-card";
                                 <input
                                 type="checkbox"
                                 class="form-check-input"
-                                id="switchInfo"
+                                [id]="pref_r.clave"
                                 [checked]="isPreferenciaActiva(pref_r)"
                                 (change)="togglePreferencia(pref_r, $event)"
                                 />
-                                <label class="form-check-label" for="switchInfo">
+                                <label class="form-check-label" [for]="pref_r.clave">
                                     &nbsp;&nbsp;{{ pref_r.descripcion }}
                                 </label>
                             </div>
@@ -113,11 +113,11 @@ import { UiCard } from "@app/components/ui-card";
                                 <input
                                 type="checkbox"
                                 class="form-check-input"
-                                id="switchInfo"
+                                [id]="pref_o.clave"
                                 [checked]="isPreferenciaActiva(pref_o)"
                                 (change)="togglePreferencia(pref_o, $event)"
                                 />
-                                <label class="form-check-label" for="switchInfo">
+                                <label class="form-check-label" [for]="pref_o.clave">
                                     &nbsp;&nbsp;{{ pref_o.descripcion }}
                                 </label>
                             </div>
