@@ -386,29 +386,43 @@ export class EventoCrud extends CrudFormModal<Evento> {
     this.form.get('cliente')?.valueChanges.subscribe((cliente: Cliente | null) => {
       // Solo filtrar proyectos si es un objeto Cliente válido, no un string
       if (cliente && typeof cliente === 'object' && cliente.id) {
-        
+
         // Asegurarse de que proyectosCompletos esté inicializado
         if (!this.proyectosCompletos || this.proyectosCompletos.length === 0) {
           return;
         }
-        
-        // Filtrar localmente los proyectos usando la relación inversa (cliente.proyectoIds)
-        const proyectosFiltrados = this.proyectosCompletos.filter(p => 
-          cliente.proyectoIds && Array.isArray(cliente.proyectoIds) && cliente.proyectoIds.includes(p.id!)
-        );
-        
+
+        // Filtrar localmente los proyectos intentando varias fuentes de relación:
+        // 1) proyecto.clienteIds (transformación en getProyectos)
+        // 2) proyecto.clientes (relación anidada)
+        // 3) proyecto.clienteId (campo singular)
+        const proyectosFiltrados = this.proyectosCompletos.filter(p => {
+          const proj: any = p;
+          if (proj.clienteIds && Array.isArray(proj.clienteIds) && proj.clienteIds.includes(cliente.id)) return true;
+          if (proj.clientes && Array.isArray(proj.clientes) && proj.clientes.some((c: any) => c.clienteId === cliente.id)) return true;
+          if ((proj.clienteId && proj.clienteId === cliente.id) || (proj.cliente && proj.cliente === cliente.id)) return true;
+          return false;
+        });
+
         // Actualizar la lista de proyectos y el typeahead search
         this.proyectos = proyectosFiltrados;
         this.searchProyecto = createTypeaheadSearch(
-          this.proyectos, 
+          this.proyectos,
           p => `${p.sigla} - ${p.nombre}`
         );
-        
-        // Limpiar el proyecto seleccionado cuando cambia el cliente
-        this.form.patchValue({ proyecto: null }, { emitEvent: false });
-        
-        // Validar si hay proyectos disponibles
+
+        // Sólo limpiar el proyecto seleccionado si no pertenece al nuevo cliente
         const proyectoCtrl = this.form.get('proyecto');
+        const proyectoActual: Proyecto | null = proyectoCtrl?.value ?? null;
+        const proyectoPertenece = proyectoActual && proyectoActual.id
+          ? proyectosFiltrados.some(p => p.id === proyectoActual.id)
+          : false;
+
+        if (!proyectoPertenece) {
+          this.form.patchValue({ proyecto: null }, { emitEvent: false });
+        }
+
+        // Validar si hay proyectos disponibles
         if (proyectosFiltrados.length === 0) {
           proyectoCtrl?.setErrors({ sinProyectos: true });
           this.showWarn(
@@ -424,7 +438,7 @@ export class EventoCrud extends CrudFormModal<Evento> {
         // Si se limpia el cliente, restaurar todos los proyectos
         this.proyectos = this.proyectosCompletos || [];
         this.searchProyecto = createTypeaheadSearch(
-          this.proyectos, 
+          this.proyectos,
           p => `${p.sigla} - ${p.nombre}`
         );
       }
@@ -621,6 +635,12 @@ export class EventoCrud extends CrudFormModal<Evento> {
       }
       if (proyecto?.id) {
         formData.append('proyectoId', proyecto.id);
+      }
+      if (producto?.id) {
+        formData.append('productoId', producto.id);
+      }
+      if (modulo?.codigo) {
+        formData.append('moduloCodigo', modulo.codigo);
       }
     }
     formData.append('comentario', this.get('comentario')?.value);
