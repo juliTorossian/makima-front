@@ -2,12 +2,13 @@ import { FiltroActivo, FiltroActivoOptions, FiltroCerradoOptions } from '@/app/c
 import { SHORTCUTS } from '@/app/constants/shortcut';
 import { PermisoAccion } from '@/app/types/permisos';
 import { buildPermiso } from '@/app/utils/permiso-utils';
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ChangeDetectorRef } from '@angular/core';
 import { PermisoClave } from '@core/interfaces/rol';
 import { LoadingService } from '@core/services/loading.service';
 import { PermisosService } from '@core/services/permisos';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { Table } from 'primeng/table';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -28,6 +29,7 @@ export abstract class TrabajarCon<T> {
   FiltroCerradoOptions = FiltroCerradoOptions;
 
   filtroActivo: FiltroActivo = FiltroActivo.TRUE;
+  searchValue = signal('');
 
   constructor(
     protected cdr: ChangeDetectorRef,
@@ -117,6 +119,10 @@ export abstract class TrabajarCon<T> {
     const selectedValue = event as FiltroActivo;
     this.filtroActivo = selectedValue;
     this.loadItems();
+  }
+  clear(table: Table) {
+    table.clear();
+    this.searchValue.set('');
   }
 }
 

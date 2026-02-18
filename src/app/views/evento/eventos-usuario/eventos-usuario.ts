@@ -34,6 +34,7 @@ import { EventoCrud } from '../evento-crud/evento-crud';
 import { getTimestamp } from '@/app/utils/time-utils';
 import { finalize } from 'rxjs';
 import { PermisoClave } from '@core/interfaces/rol';
+import { SelEventoPropio } from './components/sel-evento-propio/sel-evento-propio';
 
 @Component({
   selector: 'app-eventos-usuario',
@@ -112,6 +113,7 @@ export class EventosUsuario extends TrabajarCon<Evento> {
   private eventoTrabajoService = inject(EventoTrabajoService);
   private drawerService = inject(DrawerService);
   @ViewChild('dt') table!: Table;
+  private selecionarEventoPropio!: DynamicDialogRef | null;
 
   usuarioActivo: UsuarioLogeado | null = this.userStorageService.getUsuario();
 
@@ -187,7 +189,7 @@ export class EventosUsuario extends TrabajarCon<Evento> {
 
     this.eventoService.getAllCompleteByUsuario(this.usuarioActivo?.id ?? '', params).subscribe({
       next: (res) => {
-        // console.log(res);
+        console.log(res);
         setTimeout(() => {
           this.eventos = res.map(e => ({
             ...e,
@@ -519,6 +521,25 @@ export class EventosUsuario extends TrabajarCon<Evento> {
     if (evento.id) {
       this.drawerService.abrirEventoDrawer(evento.id);
     }
+  }
+
+  abrirSelectorEventoPropio(event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    this.selecionarEventoPropio = this.dialogService.open(SelEventoPropio, {
+      ...modalConfig,
+      header: "Seleccionar Evento Propio a tomar",
+      focusOnShow: false
+    });
+
+    if (!this.selecionarEventoPropio) return;
+
+    this.selecionarEventoPropio.onClose.subscribe((result: any) => {
+      if (result) {
+        this.tomarEvento(result);
+      }
+    });
   }
 
 }

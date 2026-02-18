@@ -78,7 +78,7 @@ export class Eventos extends TrabajarCon<Evento> {
   filtroFecha: Date[] | undefined;
 
   override ngOnInit(): void {
-    this.filtroActivo = FiltroActivo.ALL;
+    this.filtroActivo = FiltroActivo.FALSE;
     this.inicializarFiltroFecha();
     this.loadItems();
   }

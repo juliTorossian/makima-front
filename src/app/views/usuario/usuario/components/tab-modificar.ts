@@ -185,7 +185,7 @@ export class TabModificar implements OnInit {
 
     modificarAdicionales(event: any) {
         event.preventDefault();
-        const discordId = this.formAdicionales.get('DISCORD_USER_ID')?.value || '';
+        const discordId = this.formAdicionales.get('urlDiscord')?.value || '';
 
         this.usuarioService.actualizarAdicional(
             this.usuario.id!,

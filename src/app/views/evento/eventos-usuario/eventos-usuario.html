@@ -9,7 +9,7 @@
                 <div card-body>
                     <p-toolbar styleClass="mb-4 gap-2">
                         <ng-template pTemplate="left">
-                            <div class="flex flex-wrap gap-2">
+                            <div class="d-flex gap-2">
                                 <p-datepicker
                                     [(ngModel)]="filtroFecha"
                                     selectionMode="range"
@@ -21,6 +21,14 @@
                                     (onClearClick)="onClearFecha()"
                                     [style]="{'width': '100%', 'min-width': '220px'}"
                                 />
+                                <button
+                                    class="btn btn-ghost-secondary btn-md"
+                                    (click)="abrirSelectorEventoPropio($event)"
+                                    placement="top"
+                                    ngbTooltip="Tomar evento propio"
+                                >
+                                    <ng-icon name="lucideSquarePlay"/>
+                                </button>
                             </div>
                         </ng-template>
                         <ng-template pTemplate="right">
@@ -56,6 +64,7 @@
                                     <i class="pi pi-search"></i>
                                     <input pInputText style="padding-top: 0.4rem !important;padding-bottom: 0.4rem !important;margin-left: 10px;" class="p-component p-element p-inputtext"  type="text" (input)="dt.filterGlobal(getEventValue($event), 'contains')" placeholder="Buscar..." />
                                 </span>
+                                <button class="btn btn-ghost-gray" placement="top" ngbTooltip="Limpiar Filtros" (click)="clear(dt)"><ng-icon name="tablerFilterOff"/></button>
                             </div>
                         </ng-template>
                         <ng-template pTemplate="header">
@@ -66,10 +75,10 @@
                                 <th pSortableColumn="id" hidden>Id</th>
                                 <th pSortableColumn="tipo.codigo" hidden>Tipo</th>
                                 <th pSortableColumn="numero" hidden>Numero</th>
-                                <th pSortableColumn="tipo.codigo" style="min-width: 110px;" pFrozenColumn>
+                                <th pSortableColumn="eventoSearch" style="min-width: 110px;" pFrozenColumn>
                                     <div class="flex align-items-center" style="justify-content: space-around;">
                                         Evento
-                                        <p-columnFilter type="text" field="tipo.codigo" display="menu" matchMode="contains" style="margin-left: 2px;"></p-columnFilter>
+                                        <p-columnFilter type="text" field="eventoSearch" display="menu" matchMode="contains" style="margin-left: 2px;"></p-columnFilter>
                                     </div>
                                 </th>
                                 <th pSortableColumn="titulo">
@@ -118,14 +127,13 @@
                         <ng-template pTemplate="body" let-evento>
                             <tr style="min-height: 55px" [class.table-success]="eventoEnTrabajo?.id === evento.id">
                                 <td pFrozenColumn>
-                                    <!-- Botón para tomar evento - MOVIDO AL PRINCIPIO -->
                                     @if (!eventoEnTrabajo || eventoEnTrabajo.id !== evento.id) {
                                         <button 
                                             class="btn btn-ghost-success me-1" 
                                             (click)="tomarEvento(evento)"
                                             [disabled]="!!eventoEnTrabajo"
                                             title="Tomar evento"
-                                            placement="top" ngbTooltip="Tomar evento"
+                                            placement="top" ngbTooltip="Tomar evento" container="body"
                                         >
                                             <ng-icon name="lucidePlay"/>
                                         </button>

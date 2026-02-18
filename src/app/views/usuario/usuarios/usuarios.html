@@ -58,6 +58,7 @@
                                     <i class="pi pi-search"></i>
                                     <input pInputText style="padding-top: 0.4rem !important;padding-bottom: 0.4rem !important;margin-left: 10px;" class="p-component p-element p-inputtext"  type="text" (input)="dt.filterGlobal(getEventValue($event), 'contains')" placeholder="Buscar..." />
                                 </span>
+                                <button class="btn btn-ghost-gray" placement="top" ngbTooltip="Limpiar Filtros" (click)="clear(dt)"><ng-icon name="tablerFilterOff"/></button>
                                 <!-- <div class="flex align-items-center gap-1" style="margin:auto 10px">
                                     <p-checkbox id="filtroVerCerrados" [(ngModel)]="filtroVerInactivos" (click)="filtraUsuarios()" [binary]="true" inputId="binary"></p-checkbox>
                                     <label for="filtroVerCerrados" class="mr-2"> Ver inactivos</label>

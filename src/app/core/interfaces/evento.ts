@@ -208,6 +208,7 @@ export interface Evento {
 
   comentario?:string
   evento?: string;
+  eventoSearch?: string;
 }
 
 /** Registro de horas asociadas a un evento */

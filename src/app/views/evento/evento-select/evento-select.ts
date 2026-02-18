@@ -11,6 +11,8 @@ import { PadZeroPipe } from '@core/pipes/pad-zero.pipe';
 import { NgIcon } from '@ng-icons/core';
 import { FiltroActivo } from '@/app/constants/filtros_activo';
 import { DynamicDialogConfig } from 'primeng/dynamicdialog';
+import { TooltipModule } from 'primeng/tooltip';
+import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
     selector: 'app-evento-select',
@@ -22,6 +24,8 @@ import { DynamicDialogConfig } from 'primeng/dynamicdialog';
         TableModule,
         BadgeClickComponent,
         NgIcon,
+        TooltipModule,
+        NgbTooltipModule,
     ]
 })
 export class EventoSelect extends SelectBase<Evento> {
