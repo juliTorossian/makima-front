@@ -29,6 +29,9 @@ export class EventoService {
       if (params.hasta) {
         url += `&hasta=${params.hasta}`;
       }
+      if (params.propio) {
+        url += `&propio=${params.propio}`;
+      }
     }
     
     return this.http.get<EventoCompleto[]>(url);

@@ -36,6 +36,7 @@
                                         (input)="dt.filterGlobal(getEventValue($event), 'contains')"
                                         placeholder="Buscar..." />
                                 </span>
+                                <button class="btn btn-ghost-gray" placement="top" ngbTooltip="Limpiar Filtros" (click)="clear(dt)"><ng-icon name="tablerFilterOff"/></button>
                             </div>
                         </ng-template>
                         <ng-template pTemplate="header">

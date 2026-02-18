@@ -3,7 +3,7 @@
 }
 <div>
     <p-table
-        #dt
+        #dtep
         [value]="eventos"
         [rows]="10"
         [paginator]="true"
@@ -19,7 +19,7 @@
             <div class="flex align-items-center justify-content-between" style="display: flex;">
                 <span class="p-input-icon-left">
                     <i class="pi pi-search"></i>
-                    <input pInputText style="padding-top: 0.4rem !important;padding-bottom: 0.4rem !important;margin-left: 10px;" class="p-component p-element p-inputtext"  type="text" (input)="dt.filterGlobal(getEventValue($event), 'contains')" placeholder="Buscar..." />
+                    <input pInputText style="padding-top: 0.4rem !important;padding-bottom: 0.4rem !important;margin-left: 10px;" class="p-component p-element p-inputtext"  type="text" (input)="dtep.filterGlobal(getEventValue($event), 'contains')" placeholder="Buscar..." />
                 </span>
             </div>
         </ng-template>

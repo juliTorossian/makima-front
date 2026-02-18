@@ -60,6 +60,7 @@
                     <i class="pi pi-search"></i>
                     <input pInputText style=" padding-top: 0.4rem !important; padding-bottom: 0.4rem !important; margin-left: 10px; " class="p-component p-element p-inputtext" type="text" (input)="dt.filterGlobal(getEventValue($event), 'contains')" placeholder="Buscar..." />
                     </span>
+                    <button class="btn btn-ghost-gray" placement="top" ngbTooltip="Limpiar Filtros" (click)="clear(dt)"><ng-icon name="tablerFilterOff"/></button>
                 </div>
             </ng-template>
             <ng-template pTemplate="header">
@@ -67,10 +68,10 @@
                 <th pSortableColumn="id" hidden>Id</th>
                 <th pSortableColumn="tipo.codigo" hidden>Tipo</th>
                 <th pSortableColumn="numero" hidden>Numero</th>
-                <th pSortableColumn="tipo.codigo" style="min-width: 110px" pFrozenColumn>
+                <th pSortableColumn="eventoSearch" style="min-width: 110px" pFrozenColumn>
                     <div class="flex align-items-center" style="justify-content: space-around" >
                         Evento
-                        <p-columnFilter type="text" field="tipo.codigo" display="menu" matchMode="contains" style="margin-left: 2px" ></p-columnFilter>
+                        <p-columnFilter type="text" field="eventoSearch" display="menu" matchMode="contains" style="margin-left: 2px" ></p-columnFilter>
                     </div>
                 </th>
                 <th pSortableColumn="titulo">

@@ -16,6 +16,15 @@ export interface ChangelogChange {
 
 export const CHANGELOG: ChangelogEntry[] = [
     {
+        version: '0.0.3',
+        date: '2026-02-18',
+        changes: [
+            { type: 'improvement', text: 'Ahora se puede seleccionar un eventos propio para trabajar.' },
+            { type: 'fix', text: 'Correción en los filtros de eventos y eventos usuario.' },
+            { type: 'improvement', text: 'Boton para limpiar los filtros de las grillas.' },
+        ]
+    },
+    {
         version: '0.0.2',
         date: '2026-02-02',
         changes: [

@@ -57,7 +57,9 @@ import { EventoTrabajoService } from '@core/services/evento-trabajo.service';
                   {{ eventoEnTrabajo.tipo.codigo }}-{{eventoEnTrabajo.numero | padZero:3}}
                 </app-badge-click>
                 <span class="fw-bold text-dark evento-title">{{ eventoEnTrabajo.titulo }}</span>
-                <span class="text-muted">{{ eventoEnTrabajo.etapaActualData.nombre }}</span>
+                @if (eventoEnTrabajo.etapaActualData) {
+                  <span class="text-muted">{{ eventoEnTrabajo.etapaActualData.nombre }}</span>
+                }
               </div>
               <div class="d-flex align-items-center gap-3">
                 <div class="d-flex align-items-center gap-2">
