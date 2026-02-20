@@ -24,6 +24,7 @@ export const CHANGELOG: ChangelogEntry[] = [
             { type: 'fix', text: 'Correción en los filtros de eventos y eventos usuario.' },
             { type: 'fix', text: 'Corrección al eliminar una nota compartida.' },
             { type: 'fix', text: 'Correción en el link de discord con GEM.' },
+            { type: 'fix', text: 'Correción exportacion de eventos.' },
         ]
     },
     {
