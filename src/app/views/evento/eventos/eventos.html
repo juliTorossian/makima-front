@@ -31,10 +31,10 @@
                 @if (can(PermisoAccion.CREAR)) {
                     <app-control-trabajar-con
                         (nuevo)="mostrarModalCrud(null, 'A')"
+                        [mostrarNuevo]="false"
                         (plantilla)="getPlantilla()"
                         (exportarExcel)="exportarExcel()"
                         (importar)="importarExcel($event)"
-                        hidden
                     ></app-control-trabajar-con>
                 }
             </ng-template>
