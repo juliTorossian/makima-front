@@ -227,7 +227,7 @@ export class Eventos extends TrabajarCon<Evento> {
   }
   
   exportarExcelImpl() {
-    this.eventoService.exportarExcel().subscribe({
+    this.eventoService.exportarExcel(this.filtroActivo).subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');

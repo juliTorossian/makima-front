@@ -35,6 +35,7 @@
                             @if (can(PermisoAccion.CREAR)) {
                                 <app-control-trabajar-con
                                     (nuevo)="mostrarModalCrud(null, 'A')"
+                                    [mostrarDesplegable]="false"
                                     (plantilla)="getPlantilla()"
                                     (exportarExcel)="exportarExcel()"
                                     (importar)="importarExcel($event)"

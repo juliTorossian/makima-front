@@ -20,8 +20,10 @@ export const CHANGELOG: ChangelogEntry[] = [
         date: '2026-02-18',
         changes: [
             { type: 'improvement', text: 'Ahora se puede seleccionar un eventos propio para trabajar.' },
-            { type: 'fix', text: 'Correción en los filtros de eventos y eventos usuario.' },
             { type: 'improvement', text: 'Boton para limpiar los filtros de las grillas.' },
+            { type: 'fix', text: 'Correción en los filtros de eventos y eventos usuario.' },
+            { type: 'fix', text: 'Corrección al eliminar una nota compartida.' },
+            { type: 'fix', text: 'Correción en el link de discord con GEM.' },
         ]
     },
     {
